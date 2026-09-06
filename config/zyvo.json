@@ -1182,5 +1182,6 @@
         }
       }
     }
-  }
+  },
+  "autoupdate": false
 }

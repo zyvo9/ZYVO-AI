@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs"
 import { render, TimeToFirstDraw, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui"
 import { Deferred, Effect } from "effect"
@@ -469,6 +470,54 @@ function App(props: {
 
   const args = useArgs()
   onMount(() => {
+    void (async () => {
+      try {
+        const prefix = process.env.PREFIX ?? "/data/data/com.termux/files/usr"
+        const metaFile = prefix + "/libexec/zyvo/build-id"
+        if (!existsSync(metaFile)) return
+        const local = readFileSync(metaFile, "utf8").trim()
+        if (!local) return
+        const res = await fetch(
+          "https://github.com/zyvoai/ZYVO-AI/releases/latest/download/build-id.txt",
+          { signal: AbortSignal.timeout(15000) },
+        )
+        if (!res.ok) return
+        const remote = (await res.text()).trim()
+        if (!remote || remote === local) return
+        if (kv.get("update_skip_" + remote)) return
+        dialog.replace(() => (
+          <DialogSelect
+            title={"🔔 New zyvo build available: " + remote}
+            options={[
+              {
+                title: "Update now (background download)",
+                value: "update",
+                onSelect: async () => {
+                  toast.show({ variant: "info", message: "Updating zyvo in the background..." })
+                  dialog.clear()
+                  const proc = Bun.spawn(
+                    ["bash", "-c", "curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | bash"],
+                    { stdout: "ignore", stderr: "ignore" },
+                  )
+                  await proc.exited
+                  toast.show({ variant: "success", message: "zyvo updated - restart zyvo to use the new build" })
+                },
+              },
+              {
+                title: "Later",
+                value: "later",
+                onSelect: () => {
+                  kv.set("update_skip_" + remote, true)
+                  dialog.clear()
+                },
+              },
+            ]}
+            onSelect={(option) => void option.onSelect()}
+          />
+        ))
+      } catch {}
+    })()
+
     batch(() => {
       if (args.agent) local.agent.set(args.agent)
       if (args.model) {
@@ -1001,53 +1050,6 @@ function App(props: {
     })
   })
 
-  event.on("installation.update-available", async (evt) => {
-    console.log("installation.update-available", evt)
-    const version = evt.properties.version
-
-    const skipped = kv.get("skipped_version")
-    if (skipped && !isVersionGreater(version, skipped)) return
-
-    const choice = await DialogConfirm.show(
-      dialog,
-      `Update Available`,
-      `A new release v${version} is available. Would you like to update now?`,
-      "skip",
-    )
-
-    if (choice === false) {
-      kv.set("skipped_version", version)
-      return
-    }
-
-    if (choice !== true) return
-
-    toast.show({
-      variant: "info",
-      message: `Updating to v${version}...`,
-      duration: 30000,
-    })
-
-    const result = await sdk.client.global.upgrade({ target: version })
-
-    if (result.error || !result.data?.success) {
-      toast.show({
-        variant: "error",
-        title: "Update Failed",
-        message: "Update failed",
-        duration: 10000,
-      })
-      return
-    }
-
-    await DialogAlert.show(
-      dialog,
-      "Update Complete",
-      `Successfully updated to Zyvo v${result.data.version}. Please restart the application.`,
-    )
-
-    void exit()
-  })
 
   const plugin = createMemo(() => {
     if (!ready()) return
