@@ -20,6 +20,22 @@ the MP4 in the cloud. The user's phone does nothing heavy.
    Match the palette to the subject (see the webdev skill's design system).
 4. 30fps, 1920x1080 default. Keep videos 15-60s unless asked otherwise.
 
+## Autonomous delivery (the default flow)
+
+Be fully autonomous: the user gives the TOPIC (and optional must-have
+text/brand color) once — everything else you decide and execute without
+intermediate questions.
+
+1. Decide yourself: scene plan, duration, colors (design-standards
+   rules), typography, animation style, music silence (no audio assets
+   unless provided).
+2. Scaffold, commit, push, render on Actions — no confirmation asks.
+3. Watch the run via the API. If the render FAILS: fetch the log, fix
+   the reported error, push again — up to 3 attempts, silently.
+4. Deliver ONE message at the end: what you made + the MP4 download
+   link + one line on how to request changes.
+Only interrupt the user if credentials are missing or all 3 attempts fail.
+
 ## Requirements checklist (do this first)
 
 - User has a GitHub account + Personal Access Token (repo + workflow
