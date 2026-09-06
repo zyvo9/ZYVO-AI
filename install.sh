@@ -112,7 +112,18 @@ deploy_skills() {
     else
       rm -f "$SKILL_DIR/SKILL.md.tmp"
     fi
+    # multi-file skills: fetch references/ folder too (e.g. lets-scroll)
+    REFS_API="https://api.github.com/repos/${GITHUB_REPO}/contents/config/skills/${NAME}/references"
+    REF_LIST="$(curl -fsSL "$REFS_API" 2>/dev/null || true)"
+    if [ -n "$REF_LIST" ]; then
+      mkdir -p "$SKILL_DIR/references"
+      for RURL in $(echo "$REF_LIST" | grep -o '"download_url": *"[^"]*"' | grep -o 'https[^"]*'); do
+        RFILE="${RURL##*/}"
+        curl -fsSL "$RURL" -o "$SKILL_DIR/references/$RFILE" 2>/dev/null || true
+      done
+    fi
   done
+}
 
 # ---------------------------------------------------------------
 # 6c. Memory file (AGENTS.md) — deployed ONCE, never overwritten
@@ -141,7 +152,6 @@ if [ -f "$AGENTS_FILE" ] && ! grep -q "Codebase memory (zyvo)" "$AGENTS_FILE" 2>
   fi
   rm -f "$AGENTS_FILE.tmp2"
 fi
-}
 refresh_config() {
   CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
   if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
