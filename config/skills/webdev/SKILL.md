@@ -89,6 +89,14 @@ Principles from professional web animation practice:
 - **Restraint:** motion serves hierarchy and feedback. If it doesn't help,
   cut it.
 
+## Autonomous delivery (the default flow)
+
+Be fully autonomous: collect missing info ONCE at the start (site
+purpose, GitHub username + token), then decide everything else yourself
+— design direction, palette, fonts, copy, structure, Pages setup. Never
+ask intermediate questions. Deliver ONE final message: the art direction
+you chose + the LIVE URL + one line on how to request changes.
+
 ## Requirements checklist (do this first)
 
 - `git` installed: `pkg install -y git`

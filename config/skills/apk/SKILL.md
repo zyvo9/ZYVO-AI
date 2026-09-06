@@ -21,6 +21,16 @@ the cloud (free for public repos). The phone only writes text files.
    (`/storage` is mounted noexec and git there is unreliable).
 4. NEVER put the user's GitHub token inside any committed file.
 
+## Autonomous delivery (the default flow)
+
+Be fully autonomous: collect missing credentials/info ONCE at the start
+(app idea, GitHub username + token, app name if the user names it), then
+decide everything else yourself — package id, project structure, screens,
+design (design-standards rules), workflow. Never ask intermediate
+questions. If a push or build fails: read the error, fix, retry (up to 3
+attempts) silently. Deliver ONE final message: what you built, the repo
+link, and the APK download link.
+
 ## Requirements checklist (do this first)
 
 - `git` installed: `pkg install -y git` (skip if present)
