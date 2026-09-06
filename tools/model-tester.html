@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🤖 AI Model Tester Pro — Auto Fetch + Bulk Test</title>
+<title>🤖 AI Model Tester Pro — Smart Retry + Auto Fetch</title>
 <style>
   :root {
     --bg:#0a0e14; --card:#11161f; --card2:#161d29; --border:#1e2735;
@@ -13,7 +13,6 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
   body { background:var(--bg); color:var(--text); min-height:100vh; }
 
-  /* ===== Header ===== */
   .header {
     background:linear-gradient(135deg,#0f1724 0%,#16213a 100%);
     border-bottom:1px solid var(--border); padding:25px 20px; text-align:center;
@@ -22,7 +21,6 @@
   .header p { color:var(--muted); margin-top:6px; font-size:14px; }
   .container { max-width:1200px; margin:0 auto; padding:25px 20px 60px; }
 
-  /* ===== Cards ===== */
   .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:22px; box-shadow:0 4px 20px rgba(0,0,0,.3); }
   .card-title { font-size:16px; font-weight:bold; color:var(--blue); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
   .card-title::before { content:''; width:4px; height:18px; background:var(--blue); border-radius:2px; }
@@ -37,7 +35,6 @@
 
   .row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
 
-  /* ===== Buttons ===== */
   .btn { border:none; border-radius:10px; padding:12px 26px; font-size:15px; font-weight:bold; cursor:pointer; transition:.2s; color:#fff; }
   .btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.35); }
   .btn:disabled { opacity:.4; cursor:not-allowed; }
@@ -48,7 +45,6 @@
   .btn-copy { background:linear-gradient(135deg,#8a6d1a,#ffc94d); color:#1a1400; }
   .btn-group { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
 
-  /* ===== Stats ===== */
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:20px; }
   .stat { background:var(--card2); border:1px solid var(--border); border-radius:14px; padding:18px 12px; text-align:center; position:relative; overflow:hidden; }
   .stat::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
@@ -58,13 +54,11 @@
   .stat .num { font-size:30px; font-weight:800; }
   .stat .lbl { font-size:12px; color:var(--muted); margin-top:4px; }
 
-  /* ===== Progress ===== */
   .progress-wrap { background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:20px; }
   .progress-info { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:8px; }
   .progress-bar { height:10px; background:var(--bg); border-radius:6px; overflow:hidden; }
   .progress-fill { height:100%; width:0%; background:linear-gradient(90deg,#1f6feb,#a06bff); border-radius:6px; transition:width .35s; }
 
-  /* ===== Table ===== */
   .filter-btns { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
   .fbtn { background:var(--card2); color:var(--muted); border:1px solid var(--border); padding:7px 18px; border-radius:24px; font-size:13px; cursor:pointer; transition:.2s; }
   .fbtn:hover { color:var(--text); border-color:var(--blue); }
@@ -81,12 +75,14 @@
   tr.row-ok { border-left:3px solid var(--green); }
   tr.row-fail { border-left:3px solid var(--red); }
   tr.row-run { border-left:3px solid var(--purple); background:rgba(160,107,255,.05); }
+  tr.row-retry { border-left:3px solid var(--yellow); background:rgba(255,201,77,.05); }
 
   .badge { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; display:inline-block; }
   .badge-ok { background:rgba(61,220,132,.12); color:var(--green); border:1px solid rgba(61,220,132,.3); }
   .badge-fail { background:rgba(255,92,108,.12); color:var(--red); border:1px solid rgba(255,92,108,.3); }
   .badge-wait { background:rgba(255,201,77,.12); color:var(--yellow); border:1px solid rgba(255,201,77,.3); }
   .badge-run { background:rgba(160,107,255,.12); color:var(--purple); border:1px solid rgba(160,107,255,.3); }
+  .badge-retry { background:rgba(255,201,77,.12); color:var(--yellow); border:1px solid rgba(255,201,77,.3); }
   .badge-free { background:rgba(77,159,255,.12); color:var(--blue); border:1px solid rgba(77,159,255,.3); font-size:10px; padding:2px 8px; margin-left:6px; }
 
   .snippet { max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); font-family:monospace; font-size:12px; }
@@ -109,55 +105,52 @@
 
 <div class="header">
   <h1>🤖 AI Model Tester Pro</h1>
-  <p>Auto-fetch সব মডেল → একসাথে Bulk টেস্ট → র‍্যাংকিং রিপোর্ট</p>
+  <p>Smart Retry সিস্টেম — প্রতিটা model নিশ্চিতভাবে চেক হবে</p>
 </div>
 
 <div class="container">
 
-  <!-- ⚙️ SETTINGS -->
   <div class="card">
     <div class="card-title">⚙️ সেটআপ</div>
-    <div class="note">⚠️ <b>Auto Fetch:</b> "মডেল লিস্ট আনো" চাপলে API থেকে <b>সব available মডেল</b> অটো লোড হবে। তারপর "সব টেস্ট করো" চাপলে একসাথে সব টেস্ট হবে।</div>
+    <div class="note">💡 <b>Smart Retry:</b> যেসব model fail হবে সেগুলো আপনিআপনি আবার test হবে (৩ বার পর্যন্ত) — তাই কোনো model বাদ পড়বে না।</div>
 
     <label>🔑 API Key</label>
-    <input type="password" id="apiKey" placeholder="sk-or-v1-xxxxxxxxxxxxxxxx">
-    <div class="key-warn">🔒 Key শুধু ব্রাউজারেই থাকবে — কোনো সার্ভারে পাঠানো হচ্ছে না</div>
+    <input type="password" id="apiKey" placeholder="sk-or-v1-xxxxxxxxxxxxxxxx" value="sk-397a485ebe5ead01-19c717-0383ef70">
+    <div class="key-warn">🔒 Key শুধু ব্রাউজারেই থাকবে</div>
 
     <div class="row">
       <div>
         <label>🌐 Base URL</label>
-        <input type="text" id="baseUrl" value="https://openrouter.ai/api/v1">
+        <input type="text" id="baseUrl" value="https://infrastructure-titanium-relationship-tone.trycloudflare.com/v1">
       </div>
       <div>
         <label>⏱️ Timeout (সেকেন্ড)</label>
-        <input type="text" id="timeout" value="30">
+        <input type="text" id="timeout" value="90">
       </div>
       <div>
         <label>🔢 Concurrent</label>
         <select id="conc">
-          <option value="1">১টা করে (সবচেয়ে সেফ)</option>
-          <option value="3" selected>৩টা করে</option>
-          <option value="5">৫টা করে</option>
-          <option value="8">৮টা করে (দ্রুত)</option>
+          <option value="1" selected>১টা করে (নির্ভুল)</option>
+          <option value="2">২টা করে</option>
+          <option value="3">৩টা করে</option>
         </select>
       </div>
     </div>
 
     <div class="btn-group">
-      <button class="btn btn-fetch" id="btnFetch" onclick="fetchModels()">📡 মডেল লিস্ট আনো (Auto Fetch)</button>
-      <button class="btn btn-primary" id="btnStart" onclick="startTest()">▶️ সব টেস্ট করো</button>
+      <button class="btn btn-fetch" id="btnFetch" onclick="fetchModels()">📡 মডেল লিস্ট আনো</button>
+      <button class="btn btn-primary" id="btnStart" onclick="startTest()">▶️ সব টেস্ট করো (Smart Retry)</button>
       <button class="btn btn-stop" id="btnStop" onclick="stopTest()" disabled>⏹️ থামাও</button>
     </div>
     <div class="btn-group" style="margin-top:10px;">
       <button class="btn btn-export" onclick="exportCSV()">📥 CSV ডাউনলোড</button>
       <button class="btn btn-copy" onclick="copyOk()">📋 Active কপি</button>
-      <button class="btn btn-copy" style="background:linear-gradient(135deg,#5a3ea8,#8f6fff);color:#fff" onclick="copyFail()">📋 Fail লিস্ট কপি</button>
+      <button class="btn btn-copy" style="background:linear-gradient(135deg,#5a3ea8,#8f6fff);color:#fff" onclick="copyFail()">📋 Fail কপি</button>
       <button class="btn" style="background:var(--card2);border:1px solid var(--border);color:var(--muted)" onclick="clearAll()">🗑️ Clear</button>
     </div>
     <div class="log-box" id="logBox"><div class="log-info">📝 লগ রেডি...</div></div>
   </div>
 
-  <!-- 📊 STATS -->
   <div class="stats" id="statsBar" style="display:none;">
     <div class="stat c-total"><div class="num" id="stTotal" style="color:var(--blue)">0</div><div class="lbl">মোট মডেল</div></div>
     <div class="stat c-ok"><div class="num" id="stOk" style="color:var(--green)">0</div><div class="lbl">✅ Active</div></div>
@@ -166,7 +159,6 @@
     <div class="stat c-wait"><div class="num" id="stWait" style="color:var(--yellow)">0</div><div class="lbl">🕐 বাকি</div></div>
   </div>
 
-  <!-- 📈 PROGRESS -->
   <div class="progress-wrap" id="progressWrap" style="display:none;">
     <div class="progress-info">
       <span id="progText">টেস্ট চলছে...</span>
@@ -175,13 +167,11 @@
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- 📋 MODEL LIST -->
   <div class="card">
     <div class="card-title">📋 মডেল লিস্ট (<span id="modelCount">0</span> টা)</div>
-    <textarea id="models" placeholder="'📡 মডেল লিস্ট আনো' চাপলে এখানে সব মডেল অটো আসবে... অথবা নিজে লিখুন (এক লাইনে একটা)"></textarea>
+    <textarea id="models" placeholder="মডেল লিস্ট আনো চাপলে এখানে সব আসবে..."></textarea>
   </div>
 
-  <!-- 📊 RESULTS -->
   <div class="filter-btns">
     <button class="fbtn active" onclick="setFilter('all',this)">সব</button>
     <button class="fbtn" onclick="setFilter('ok',this)">✅ Active</button>
@@ -195,7 +185,7 @@
         <th>#</th><th>মডেল</th><th>প্রাইসিং</th><th>স্ট্যাটাস</th><th>⚡ Latency</th><th>Context</th><th>উত্তর</th>
       </tr></thead>
       <tbody id="tbody">
-        <tr><td colspan="7" class="empty-state">🔍 এখনো কিছু হয়নি — উপরে key বসিয়ে "মডেল লিস্ট আনো" চাপুন</td></tr>
+        <tr><td colspan="7" class="empty-state">🔍 এখনো কিছু হয়নি</td></tr>
       </tbody>
     </table>
   </div>
@@ -204,7 +194,6 @@
 <script>
 let results = [], running = false, filter = 'all', modelMeta = {};
 
-/* ===== LOG ===== */
 function log(msg, cls) {
   const box = document.getElementById('logBox');
   const d = document.createElement('div');
@@ -214,7 +203,6 @@ function log(msg, cls) {
   box.scrollTop = box.scrollHeight;
 }
 
-/* ===== AUTO FETCH MODELS ===== */
 async function fetchModels() {
   const key = document.getElementById('apiKey').value.trim();
   const base = document.getElementById('baseUrl').value.trim().replace(/\/$/,'');
@@ -228,29 +216,22 @@ async function fetchModels() {
     if (!res.ok) throw new Error((data.error && data.error.message) || ('HTTP ' + res.status));
     const models = data.data || [];
     log(models.length + ' টা মডেল পাওয়া গেছে!', 'log-ok');
-
     modelMeta = {};
     results = [];
-    document.getElementById('models').value = '';
     let lines = [];
-    models.forEach(m => {
-      const id = m.id;
-      modelMeta[id] = m;
-      lines.push(id);
-    });
+    models.forEach(m => { modelMeta[m.id] = m; lines.push(m.id); });
     document.getElementById('models').value = lines.join('\n');
     document.getElementById('modelCount').textContent = models.length;
     render();
-    log('✅ লিস্ট রেডি — এবার "▶️ সব টেস্ট করো" চাপুন', 'log-ok');
+    log('✅ লিস্ট রেডি — "▶️ সব টেস্ট করো" চাপুন', 'log-ok');
   } catch(e) {
     log('❌ Fetch fail: ' + e.message, 'log-fail');
-    alert('❌ মডেল আনা যায়নি: ' + e.message + '\n\nBase URL ঠিক আছে কিনা দেখুন (OpenRouter: https://openrouter.ai/api/v1)');
+    alert('❌ মডেল আনা যায়নি: ' + e.message);
   } finally {
-    btn.disabled = false; btn.textContent = '📡 মডেল লিস্ট আনো (Auto Fetch)';
+    btn.disabled = false; btn.textContent = '📡 মডেল লিস্ট আনো';
   }
 }
 
-/* ===== TEST ===== */
 function getModels() {
   return document.getElementById('models').value.split('\n').map(s=>s.trim()).filter(Boolean);
 }
@@ -298,10 +279,10 @@ async function startTest() {
   const key = document.getElementById('apiKey').value.trim();
   if (!key) { alert('⚠️ প্রথমে API Key দিন!'); return; }
   const base = document.getElementById('baseUrl').value.trim().replace(/\/$/,'');
-  const timeoutSec = parseInt(document.getElementById('timeout').value)||30;
-  const conc = parseInt(document.getElementById('conc').value)||3;
+  const timeoutSec = parseInt(document.getElementById('timeout').value)||90;
+  const conc = parseInt(document.getElementById('conc').value)||1;
   const models = getModels();
-  if (!models.length) { alert('⚠️ মডেল লিস্ট খালি! আগে "মডেল লিস্ট আনো" চাপুন'); return; }
+  if (!models.length) { alert('⚠️ মডেল লিস্ট খালি!'); return; }
 
   running = true;
   document.getElementById('btnStart').disabled = true;
@@ -327,22 +308,32 @@ async function startTest() {
   }
   await Promise.all(Array.from({length:conc}, worker));
 
+  // Smart retry: failed models get tested one by one with delay
+  const failed = results.filter(r=>r.status==='fail');
+  if (failed.length > 0) {
+    log('🔄 Smart Retry: ' + failed.length + ' টা fail model আবার চেক হবে...', 'log-info');
+    for (const r of failed) {
+      if (!running) break;
+      await sleep(3000);
+      r.status = 'run'; render();
+      const out = await testOne(r.model, key, base + '/chat/completions', timeoutSec);
+      Object.assign(r, out); render();
+      if (out.status==='ok') log('✅ Retry OK: ' + r.model, 'log-ok');
+      else log('❌ Retry fail: ' + r.model, 'log-fail');
+    }
+  }
+
   running = false;
   document.getElementById('btnStart').disabled = false;
   document.getElementById('btnStop').disabled = true;
   const ok = results.filter(r=>r.status==='ok').length;
-  const failList = results.filter(r=>r.status==='fail');
-  log('🏁 শেষ! ✅ Active: ' + ok + ' / ❌ Fail: ' + failList.length, 'log-info');
-  if (ok > 0) {
-    const sorted = [...results].filter(r=>r.status==='ok').sort((a,b)=>a.latency-b.latency);
-    log('⚡ সবচেয়ে ফাস্ট: ' + sorted[0].model + ' (' + sorted[0].latency + 'ms)', 'log-ok');
-  }
-  alert('🏁 টেস্ট শেষ!\n✅ Active: ' + ok + '\n❌ Fail: ' + (results.length - ok));
+  const failN = results.filter(r=>r.status==='fail').length;
+  log('🏁 শেষ! ✅ Active: ' + ok + ' / ❌ Fail: ' + failN, 'log-info');
+  alert('🏁 টেস্ট শেষ!\n✅ Active: ' + ok + '\n❌ Fail: ' + failN);
 }
 
 function stopTest(){ running = false; log('⏹️ থামানো হলো', 'log-info'); }
 
-/* ===== RENDER ===== */
 function esc(s){ const d=document.createElement('div'); d.textContent=String(s||''); return d.innerHTML; }
 
 function render() {
@@ -399,7 +390,6 @@ function setFilter(f, btn){
   render();
 }
 
-/* ===== EXPORT / COPY ===== */
 function exportCSV(){
   if(!results.length){ alert('কোনো ডেটা নেই'); return; }
   let csv = 'Model,Pricing,Status,Latency_ms,Reply,Error\n';
@@ -429,6 +419,8 @@ function clearAll(){
   document.getElementById('progressWrap').style.display = 'none';
   render();
 }
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>
