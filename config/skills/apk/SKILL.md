@@ -39,7 +39,7 @@ link, and the APK download link.
   scopes (workflow is required — the project always pushes GitHub Actions
   files). Give them this DIRECT link, which lands on the token-creation
   page with both scopes ALREADY pre-checked:
-  https://github.com/settings/tokens/new?scopes=repo,workflow&description=Zyvo%20APK%20builder
+  https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo%20APK%20builder
   The user only scrolls down, clicks "Generate token", and copies it —
   the token is shown only once, so they must paste it to you immediately.
   (ask the user for it if not provided; store nothing in files)

@@ -103,7 +103,7 @@ you chose + the LIVE URL + one line on how to request changes.
 - User has a GitHub account
 - User has a **Personal Access Token** with `repo` scope. Give them this
   DIRECT link (lands on token creation with the scope pre-checked):
-  https://github.com/settings/tokens/new?scopes=repo&description=Zyvo%20website
+  https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo%20website
   They click "Generate token" and paste it to you immediately (shown once).
 - Site topic/purpose and rough content from the user.
 - State the ART DIRECTION (mood, palette, fonts, layout concept) to the

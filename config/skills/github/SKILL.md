@@ -14,7 +14,7 @@ handles text files — all heavy thinking is yours, all hosting is GitHub's.
 - `git` and `gh` (GitHub CLI): `pkg install -y git gh`
 - User's Personal Access Token (repo scope minimum, workflow scope if the
   repo has Actions files):
-  https://github.com/settings/tokens/new?scopes=repo,workflow&description=Zyvo
+  https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo
 - GitHub username
 
 ## One-time setup (per token)
