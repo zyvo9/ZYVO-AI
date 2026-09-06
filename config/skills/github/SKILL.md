@@ -91,3 +91,50 @@ Use a token with repo scope: clone via
   to the fork, PR against upstream.
 - gh not found: `pkg install -y gh`.
 - If API rate-limits appear, the token is missing or expired — re-auth.
+
+
+## PRO UPGRADE PACK (repo management, review, releases, forks)
+
+### Repo creation + setup (complete)
+```
+curl -s -X POST -H "Authorization: token <TOKEN>"   -d '{"name":"<repo>","description":"<real description>","private":false,"has_issues":true}'   https://api.github.com/user/repos
+# add topics (discoverability):
+curl -s -X PUT -H "Authorization: token <TOKEN>"   https://api.github.com/repos/<owner>/<repo>/topics   -d '{"names":["android","termux","zyvo"]}'
+```
+
+### Code review flow
+```
+gh pr diff <n> -R <owner>/<repo>          # see every changed line
+gh pr checks <n> -R <owner>/<repo>        # CI status
+gh pr review <n> -R <owner>/<repo> --comment --body "<feedback>"
+gh pr merge <n> -R <owner>/<repo> --merge
+```
+Review rules: read the diff fully before commenting; comment on the
+smallest fixable unit; suggest, don't demand.
+
+### Releases with real notes
+```
+gh release create v1.0 -R <owner>/<repo> --title "v1.0" --notes "- first feature set"
+gh release upload v1.0 ./app.apk -R <owner>/<repo>
+```
+Release notes format: what's new (bullets), known issues, download link.
+
+### Fork contribution flow (open source projects)
+```
+gh repo fork <owner>/<repo> --clone
+cd <repo> && git checkout -b zyvo/<change>
+# ...make changes...
+git push -u origin zyvo/<change>
+gh pr create --head zyvo/<change> --base main -R <original-owner>/<repo>
+```
+
+### Sync a fork with upstream
+```
+git remote add upstream https://github.com/<owner>/<repo>.git
+git fetch upstream && git merge upstream/main
+```
+
+### Rate limits & etiquette
+- 5000 requests/hour with a token — plenty, but don't poll in loops
+- One API call per action; never re-fetch what you have
+- Issues/PRs: search before creating duplicates (gh issue list)

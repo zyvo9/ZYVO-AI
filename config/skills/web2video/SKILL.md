@@ -109,3 +109,20 @@ The user may be a complete beginner. In your final message:
 - File URLs: pass `file://` + absolute path to timecut.
 - Audio is NOT captured from pages (silent video) — if the user wants
   sound, add it later in an editor or use Remotion.
+
+
+## PRO UPGRADE PACK (fps presets, motion quality)
+
+### FPS presets
+- 60fps: default - smooth, fast render (motion graphic sweet spot)
+- 120fps: fast motion or slow-mo needed later (120 -> 30 = 4x slow-mo);
+  doubles capture time
+- 30fps: only if render time matters more than smoothness
+
+### Motion quality bar (the capture shows EVERYTHING)
+- Something must be moving at ALL times - a static page captures as a
+  static video (the #1 failure)
+- Entrance choreography with stagger; no element appears without motion
+- Loop or end cleanly at the duration mark (final frame = good thumbnail)
+- Text must be readable at 1080p: minimum ~40px font size
+- Colors: test contrast on both dark and light video players

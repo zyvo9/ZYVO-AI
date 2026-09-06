@@ -151,3 +151,58 @@ Tell the user this — iteration is cheap after the first render.
 - durationInFrames must cover the longest Sequence or scenes get cut.
 - First render includes browser download — later runs are cached.
 - Never render on the phone.
+
+
+## PRO UPGRADE PACK (scene templates, audio, preview, brand)
+
+### Scene code patterns (copy and adapt)
+
+**Text reveal (word by word, spring):**
+```tsx
+const words = text.split(" ");
+{words.map((word, i) => {
+  const start = i * 8;
+  const opacity = spring({ frame: frame - start, fps, config: { damping: 200 } });
+  return <span key={i} style={{ opacity, display: "inline-block",
+    transform: `translateY(${(1 - opacity) * 20}px)`, marginRight: "0.3em" }}>{word}</span>;
+})}
+```
+
+**Logo outro (scale + fade at the end):**
+```tsx
+const appear = spring({ frame: frame - (durationInFrames - 45), fps });
+const scale = interpolate(appear, [0, 1], [0.6, 1]);
+<div style={{ opacity: appear, transform: `scale(${scale})` }}><Logo /></div>
+```
+
+**Animated bar chart (bars grow with stagger):**
+```tsx
+{data.map((item, i) => {
+  const h = spring({ frame: frame - i * 6, fps, config: { damping: 15 } });
+  return <div key={i} style={{ height: `${item.value * h}%`, width: 60,
+    background: brandColor, alignSelf: "flex-end" }} />;
+})}
+```
+
+**Background motion (subtle, never distracting):**
+```tsx
+const drift = interpolate(frame, [0, durationInFrames], [0, 40]);
+<div style={{ transform: `translateX(${drift}px)` }} />  // slow drift layer
+```
+
+### Audio (music that fits)
+- Add the music file to the repo (src/music.mp3)
+- `<Audio src={staticFile("music.mp3")} volume={(f) => interpolate(f, [0, 30, durationInFrames - 30, durationInFrames], [0, 0.8, 0.8, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />`
+- Mute during render if the user wants silent: volume 0.
+
+### Quick preview (don't render the full video to check)
+```
+npx remotion render src/index.ts Promo out/preview.mp4 --frames=0-90
+```
+First 3 seconds tell you if the design/direction is right — check before
+the full render.
+
+### Brand parameterization
+Ask the user once: brand color + brand text/logo. Then every scene uses
+those values (pass via a constants object, not scattered literals).
+Change brand = change 2 values = re-render.

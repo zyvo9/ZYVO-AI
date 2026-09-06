@@ -166,3 +166,36 @@ Changes: edit → commit → push → live in ~1 minute. Tell the user this.
 - Repo must be PUBLIC for free Pages on personal accounts.
 - Google Fonts via <link> is fine; don't inline base64 fonts.
 - If Pages enable returns 404, re-check the token's repo scope.
+
+
+## PRO UPGRADE PACK (meta, SEO, accessibility, performance)
+
+### Head template (always include, fill real values)
+```html
+<meta name="description" content="<one real sentence about the site>">
+<meta property="og:title" content="<page title>">
+<meta property="og:description" content="<one real sentence>">
+<meta property="og:image" content="https://picsum.photos/seed/<sitename>/1200/630">
+<meta name="theme-color" content="<primary color hex>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'><emoji or letter></text></svg>">
+```
+Emoji favicon: pick one emoji that represents the site — instant branded
+tab icon with zero image files.
+
+### Accessibility checklist (every site)
+- Every image: alt text (describes the content, not "image")
+- Body text contrast ≥ 4.5:1 against its background
+- Every interactive element reachable by Tab, visible focus ring
+- Icon-only buttons: aria-label
+- Form inputs: real <label for> connections
+
+### Performance rules (phones are the target)
+- Images: loading="lazy" + width/height set (no layout shift)
+- No frameworks/libraries for static sites — vanilla HTML/CSS/JS
+- CSS: system-ui fallbacks in every font stack
+- Total page weight target: under 500KB for a landing page
+
+### States most sites forget (design ALL three)
+- Empty state: what the user sees with no data (friendly, with a next step)
+- Loading: skeleton or spinner — never a blank screen
+- Error: clear message + what to do next

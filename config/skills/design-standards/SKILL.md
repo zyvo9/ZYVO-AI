@@ -81,3 +81,36 @@ Ask, section by section: "Would a senior designer ship this? Can someone
 tell this was AI-made from a screenshot?" If yes to the second question,
 redo that section with a different layout, palette shift, or better copy.
 Then re-check contrast and responsive widths (360px+).
+
+## PRO UPGRADE PACK (pairings, palettes, forgotten states)
+
+### Font pairing table (proven, with vibe)
+| Identity font | Body font | Vibe |
+|---|---|---|
+| Fraunces | Space Grotesk | warm, literary, crafted |
+| Playfair Display | Inter | elegant, editorial |
+| Bebas Neue | Manrope | bold, sporty, modern |
+| DM Serif Display | DM Sans | premium, calm |
+| Space Mono | Inter | technical, developer |
+| Caveat | system-ui | personal, friendly |
+
+### Palette recipes (60/30/10, pick by subject)
+- Coffee: #2C1810 / #F4DED4 / #C4704A
+- Fitness: #0D1117 / #E6E8EE / #22D3A5
+- Food: #1A0F0A / #FFF3E0 / #FF6B35
+- Finance: #0A1628 / #E6EDF3 / #4ADE80
+- Kids: #FFF8E7 / #333333 / #FF6B9D
+- Music: #0A0A0A / #F5F5F5 / #E94B3C
+- Travel: #0B2027 / #F6F8FC / #40BFC1
+- Portfolio: #FFFFFF / #1A1A1A / #FF4D00
+
+### The three states everyone forgets (design ALL of them)
+- Empty state: friendly message + what to do next (icon helps)
+- Loading state: skeleton shimmer or spinner — never blank
+- Error state: what went wrong + the action that fixes it
+
+### Spacing violations (instant redo)
+- Two different gaps between the same type of elements
+- Content touching screen edges (less than 16dp)
+- Sections separated by less than 48dp
+- Buttons smaller than 44dp by 44dp (unusable on phones)

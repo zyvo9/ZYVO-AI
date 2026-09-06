@@ -302,3 +302,71 @@ gradle typo, wrong namespace.
 - New features: repeat the design pass (Step 2) before coding.
 - If the user wants updates without git: re-run Step 5 with `--force`
   (push -f) after editing.
+
+
+## PRO UPGRADE PACK (app quality boosters)
+
+### Ready Material 3 theme (copy, change 5 color values to the brand)
+res/values/colors.xml:
+```xml
+<resources>
+  <color name="primary">#C4704A</color>
+  <color name="onPrimary">#FFFFFF</color>
+  <color name="primaryContainer">#FFDBCC</color>
+  <color name="onPrimaryContainer">#3A1205</color>
+  <color name="surface">#FFF8F6</color>
+  <color name="onSurface">#201A17</color>
+  <color name="surfaceVariant">#F4DED4</color>
+  <color name="outline">#85746D</color>
+</resources>
+```
+res/values/themes.xml:
+```xml
+<resources>
+  <style name="Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorOnPrimary">@color/onPrimary</item>
+    <item name="colorPrimaryContainer">@color/primaryContainer</item>
+    <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+    <item name="colorSurface">@color/surface</item>
+    <item name="colorOnSurface">@color/onSurface</item>
+    <item name="colorOutline">@color/outline</item>
+  </style>
+</resources>
+```
+res/values-night/colors.xml: same keys, dark surfaces (#1A1210, #F4DED4
+stays as text accent, outline #5D4B43).
+
+### App icon without image tools (vector drawable)
+res/drawable/ic_launcher_foreground.xml — draw a simple mark (geometric
+shape or the app's initial) as vector paths in the brand color:
+```xml
+<vector width="108dp" height="108dp" viewportWidth="108" viewportHeight="108">
+  <path android:fillColor="#FFFFFF" android:pathData="M38,36 h32 v9 h-22 v9 h20 v9 h-20 v12 h-10 z"/>
+</vector>
+```
+res/mipmap-anydpi-v26/ic_launcher.xml:
+```xml
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+  <background android:drawable="@color/ic_launcher_background"/>
+  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+</adaptive-icon>
+```
+Plus res/values/ic_launcher_background.xml with the brand color. Never
+ship an app without an icon.
+
+### App templates (pick by app type)
+- Calculator: GridLayout of MaterialButtons + one TextView display
+- Notes: RecyclerView of MaterialCardViews + FAB for new note
+- To-do: CheckBox rows in MaterialCardViews + progress counter
+- WebView app: assets/index.html (full HTML/CSS/JS freedom) + 5-line
+  MainActivity — design the HTML with the design-standards skill rules
+- Timer/Counter: MaterialButton + Chronometer, uses minimal UI
+
+### Polish that separates pro from amateur
+- Status bar color = surface color (edge-to-edge feel)
+- Activity transition: overridePendingTransition subtle fade
+- Every list item: ripple effect (Material gives it free)
+- App label = real app name (never the package id)
+- Release build: apksigner with a real keystore (keytool -genkeypair,
+  stored in $HOME, NEVER committed) + versionCode bumped per release
