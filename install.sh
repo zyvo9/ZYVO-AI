@@ -98,15 +98,21 @@ info "Latest: v${LATEST_VERSION} (build ${REMOTE_BUILD_ID})"
 
 CONFIG_FILE="$HOME/.config/zyvo/zyvo.json"
 deploy_skills() {
-  SKILL_DIR="$HOME/.config/zyvo/skills/apk"
-  SKILL_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/skills/apk/SKILL.md"
-  mkdir -p "$SKILL_DIR"
-  if curl -fsSL "$SKILL_URL" -o "$SKILL_DIR/SKILL.md.tmp" 2>/dev/null && [ -s "$SKILL_DIR/SKILL.md.tmp" ]; then
-    mv "$SKILL_DIR/SKILL.md.tmp" "$SKILL_DIR/SKILL.md"
-    info "apk skill deployed (ask zyvo to build an app)"
-  else
-    rm -f "$SKILL_DIR/SKILL.md.tmp"
-  fi
+  # discover every skill in the repo (config/skills/<name>/SKILL.md)
+  SKILLS_API="https://api.github.com/repos/${GITHUB_REPO}/contents/config/skills"
+  LIST="$(curl -fsSL "$SKILLS_API" 2>/dev/null || true)"
+  [ -n "$LIST" ] || return 0
+  for NAME in $(echo "$LIST" | grep -o '"name": *"[^"]*"' | sed 's/"name": *"//;s/"//'); do
+    SKILL_DIR="$HOME/.config/zyvo/skills/$NAME"
+    SKILL_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/skills/$NAME/SKILL.md"
+    mkdir -p "$SKILL_DIR"
+    if curl -fsSL "$SKILL_URL" -o "$SKILL_DIR/SKILL.md.tmp" 2>/dev/null && [ -s "$SKILL_DIR/SKILL.md.tmp" ]; then
+      mv "$SKILL_DIR/SKILL.md.tmp" "$SKILL_DIR/SKILL.md"
+      info "skill deployed: $NAME"
+    else
+      rm -f "$SKILL_DIR/SKILL.md.tmp"
+    fi
+  done
 
 # ---------------------------------------------------------------
 # 6c. Memory file (AGENTS.md) — deployed ONCE, never overwritten
