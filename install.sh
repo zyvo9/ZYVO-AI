@@ -152,6 +152,18 @@ if [ -f "$AGENTS_FILE" ] && ! grep -q "Codebase memory (zyvo)" "$AGENTS_FILE" 2>
   fi
   rm -f "$AGENTS_FILE.tmp2"
 fi
+
+# Older installs: append the user-treatment rules if the marker is missing
+USER_RULES_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/user-treatment-rules.md"
+if [ -f "$AGENTS_FILE" ] && ! grep -q "How to treat the user" "$AGENTS_FILE" 2>/dev/null; then
+  if curl -fsSL "$USER_RULES_URL" -o "$AGENTS_FILE.tmp3" 2>/dev/null && [ -s "$AGENTS_FILE.tmp3" ]; then
+    printf '
+' >> "$AGENTS_FILE"
+    cat "$AGENTS_FILE.tmp3" >> "$AGENTS_FILE"
+    info "User-treatment rules added to AGENTS.md"
+  fi
+  rm -f "$AGENTS_FILE.tmp3"
+fi
 refresh_config() {
   CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
   if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
