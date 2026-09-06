@@ -12,9 +12,16 @@ buttery MP4. The phone writes nothing heavy, renders nothing.
 
 ## Autonomous flow (the default)
 
-Ask ONCE for: topic + any must-have text/brand color + duration (default
-30s) + FPS (default 60; offer 120 for ultra-smooth/slow-mo). Everything
-else you decide and execute without intermediate questions:
+Ask ONCE for: topic + any must-have text/brand color. Duration default
+15s, MINIMUM 10s (never shorter). FPS default 60 (offer 120 for
+ultra-smooth/slow-mo). Everything else you decide and execute without
+intermediate questions:
+MINIMUM DURATION IS 10 SECONDS.
+CHOREOGRAPHY RULE: the animation must fill the ENTIRE duration with a
+story arc - intro beat, build-up, payoff, outro/logo. Never let the
+scene settle into a static loop early; new elements must keep entering
+at the 20/40/60/80% marks of the timeline. A 2-3 second animation that
+then loops is a FAILURE.
 
 1. Design brief per design-standards (mood, palette, fonts, motion plan).
 2. Build the animated page — drive animations by ELAPSED TIME so capture

@@ -18,7 +18,11 @@ the MP4 in the cloud. The user's phone does nothing heavy.
    tasteful easing, respect reduced motion.
 3. Design follows the brand: ask the user for topic, colors, text content.
    Match the palette to the subject (see the webdev skill's design system).
-4. 30fps, 1920x1080 default. Keep videos 15-60s unless asked otherwise.
+4. 30fps, 1920x1080 default. MINIMUM duration 10 seconds (300 frames) —
+   default 10-30s. NEVER shorter.
+5. MINIMUM 3 scenes with distinct beats (hook -> build -> payoff), each
+   with its own entrance animation. One static scene for the whole video
+   is a failure.
 
 ## Autonomous delivery (the default flow)
 

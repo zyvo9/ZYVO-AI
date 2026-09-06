@@ -15,7 +15,13 @@ description: >
   "browse-through-the-industry" hero, a scroll cinematic, a diorama landing, or to
   turn a business into a scrollable world.
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion, Skill
----
+
+
+## Duration rule (zyvo addition)
+
+MINIMUM total video length: 10 seconds. Prefer 4-6 scenes (never 2) so
+the flight has room to breathe; with fewer scenes the flight feels like
+a blink. 2 scenes only if the user explicitly asks for a short teaser.---
 
 # lets-scroll
 
