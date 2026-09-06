@@ -149,17 +149,49 @@ NOTE: `@mipmap/ic_launcher` needs an icon — simplest is to REMOVE the
 icon attribute (system default icon is used) unless you add res/mipmap
 files. Prefer removing it.
 
-### Design System (use in layouts/themes/colors)
+### APP UI QUALITY BAR (Material 3) — the most important section
 
-- Colors: define primary (brand), onPrimary, surface (#10131a-style dark or
-  light per app), and use 12–16dp corner radius on cards/buttons.
-- Typography: title 20sp medium, body 14–16sp regular, captions 12sp muted.
-- Spacing: 16dp screen padding, 8dp between related items, 24dp between
-  sections.
-- Dark mode: provide values-night/colors.xml with darkened surface colors.
-- Buttons: filled pill shape for primary action; outlined for secondary.
-- Lists: CardView-style rounded cards with 8dp internal padding and subtle
-  elevation.
+The generic AI app is instantly recognizable: default purple theme,
+unstyled square buttons, no dark mode, missing icon, tiny text. FORBIDDEN.
+Every app must pass this bar:
+
+**1. Design direction first** — derive the palette from the app's PURPOSE
+(a calculator: calm precision tones; a kids app: playful brights; a
+finance app: deep trust colors). State the mood to the user before coding.
+
+**2. Material 3 theme (REQUIRED)**
+- app/build.gradle: `implementation 'com.google.android.material:material:1.12.0'`
+- Theme: `Theme.Material3.DayNight.NoActionBar` (dark mode automatic)
+- colors.xml with M3 roles: primary, onPrimary, primaryContainer,
+  surface, surfaceVariant, outline — derived from the app's purpose.
+- values-night/colors.xml REQUIRED (darkened surfaces).
+
+**3. Shape + spacing**
+- Cards/inputs: 16–24dp rounded corners (shapeAppearanceOverlay).
+- Screen padding 16dp, 8dp between related items, 24dp between sections.
+
+**4. Typography**
+- TextAppearance.Material3: headlineSmall (24sp) titles, titleLarge
+  headers, bodyMedium (14sp) content, labelLarge buttons.
+
+**5. Components (always Material, never raw)**
+- MaterialCardView (rounded, 2dp elevation) for list items
+- MaterialButton (pill via shapeAppearance) for actions
+- TextInputLayout (outlined) for any input
+- Touch targets: minimum 48dp × 48dp — always.
+
+**6. App icon (REQUIRED — vector, no image tools)**
+- res/drawable/ic_launcher_foreground.xml — write a simple vector
+  (geometric shape or the app's initial letter in a brand color)
+- res/values/ic_launcher_background.xml (color) + mipmap anydpi-v26
+  adaptive icon XML. Never ship without an icon.
+
+**7. Design references (read BEFORE designing)**
+The installed mobile-design skill has deep references — read from
+`~/.config/zyvo/skills/mobile-design/references/`:
+platform-android.md (Android conventions), mobile-color-system.md,
+mobile-typography.md, touch-psychology.md, mobile-navigation.md.
+Also WebFetch https://m3.material.io/components for the components used.
 
 ### WebView template (fast, full design freedom)
 
