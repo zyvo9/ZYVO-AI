@@ -128,6 +128,19 @@ if [ ! -f "$AGENTS_FILE" ]; then
     rm -f "$AGENTS_FILE.tmp"
   fi
 fi
+
+# Older installs got AGENTS.md before the codebase-memory rules existed —
+# append the rules section if the marker is missing (never touch memories).
+RULES_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/agents-codebase-rules.md"
+if [ -f "$AGENTS_FILE" ] && ! grep -q "Codebase memory (zyvo)" "$AGENTS_FILE" 2>/dev/null; then
+  if curl -fsSL "$RULES_URL" -o "$AGENTS_FILE.tmp2" 2>/dev/null && [ -s "$AGENTS_FILE.tmp2" ]; then
+    printf '
+' >> "$AGENTS_FILE"
+    cat "$AGENTS_FILE.tmp2" >> "$AGENTS_FILE"
+    info "Codebase memory rules added to AGENTS.md"
+  fi
+  rm -f "$AGENTS_FILE.tmp2"
+fi
 }
 refresh_config() {
   CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
