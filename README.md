@@ -1,99 +1,172 @@
-# zyvo
-
 <div align="center">
 
-**AI coding agent for the terminal — built Android/Termux first.**
+# zyvo
 
-Runs directly on your phone. No PC required.
+**The AI coding agent that lives on your phone.**
+
+Build Android apps, websites, and motion-graphics videos — straight from Termux.
+A fork of [opencode](https://github.com/anomalyco/opencode) (MIT), rebuilt
+natively for Android.
+
+`aarch64 · Termux · no proot · no PC needed`
 
 </div>
 
 ---
 
-zyvo is a fork of [opencode](https://github.com/anomalyco/opencode) (MIT) with
-a **native Android build** — a real arm64 binary compiled for Android itself,
-so it runs directly inside [Termux](https://termux.dev) with **no proot, no
-glibc layer, and no extra overhead**.
+## ⚡ Install
 
-## 📱 Install on Android (Termux)
-
-**Install Termux first** — from
-[F-Droid](https://f-droid.org/en/packages/com.termux/) or
-[GitHub Releases](https://github.com/termux/termux-app/releases)
-(the Play Store version is outdated and unsupported).
-
-Then open Termux and run:
+Install [Termux](https://github.com/termux/termux-app/releases) first — the
+F-Droid or GitHub build (the Play Store version is outdated and unsupported) —
+then run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | bash
 ```
 
-That's it — the installer checks your phone's architecture, installs
-`ripgrep`, downloads the latest build and verifies it runs.
+The installer checks your phone's architecture, installs dependencies, deploys
+58 AI models + 5 skills + agent memory, and verifies the binary runs.
 
-**Start using it:**
+**বাংলা:** টার্মাক্সে উপরের এক লাইন paste করলেই install হয়ে যাবে। এরপর `zyvo`
+লিখে শুরু করো — API key লাগবে না, model গুলো আগেই বসানো আছে।
+
+Start it:
 
 ```bash
-export ANTHROPIC_API_KEY="sk-ant-..."   # or OPENAI_API_KEY, etc.
-opencode
-termux-wake-lock                        # optional: keep long sessions alive
+zyvo
+termux-wake-lock    # optional: keeps long sessions alive
 ```
 
-**বাংলা:** টারমাক্স খুলে উপরের এক লাইনের কমান্ডটা paste করলেই install হয়ে
-যাবে। এরপর যেকোনো AI-এর API key দিয়ে `opencode` লিখে শুরু করো।
+## 🤖 58 AI models, zero setup
 
-### Requirements
+zyvo ships with its own provider (**Zyvo**) pre-configured in
+[`config/zyvo.json`](config/zyvo.json) — 58 ranked models with Claude Opus 5 as
+the default. No API keys, no setup: open `zyvo` and start.
 
-| | |
+Run out of quota or hit a dead model? Use the built-in **model tester** — it
+probes every model, auto-retries failures (Smart Retry), and reports exactly
+which ones are alive right now.
+
+## 🧩 Five built-in skills
+
+Skills are playbooks the agent loads on demand — just ask in plain language
+(Banglish works):
+
+| Skill | Say something like | What you get |
+|---|---|---|
+| `apk` | "একটা todo app বানাও" | Complete Android project, APK-ready structure |
+| `webdev` | "landing page banao" | Modern responsive website |
+| `lets-scroll` | "reel-type scroll video" | Reel-style scrolling web animation |
+| `remotion` | "promo video banao" | Motion-graphics video — see below |
+| `web2video` | "webpage theke video" | Turns a web animation into a rendered video |
+
+## 🎬 Motion-graphics studio — the remotion skill
+
+Not template-grade animation: a full **frame-level motion masterclass**,
+distilled from 7 professional motion-design tutorials and encoded as 10 hard
+laws the agent follows in every scene:
+
+1. **Overlap cascade** — the next element starts at ~60% of the previous one; overlapping motion is what reads as *smooth*
+2. **Easing discipline** — tuned springs and bezier curves; exits are faster than entrances; nothing stops dead (settle drift)
+3. **Apple entrance formula** — opacity + scale 1.4→1 + blur 20→0, all on one spring
+4. **Kinetic typography** — word cascades (4–7 frames), tracking settle, overshoot landings, line-mask reveals
+5. **Fake camera** — push-in, parallax depth layers, deterministic handheld shake — static frames feel alive
+6. **Beat sync** — cuts and zoom punches on a BPM grid, speed ramps, cut on action
+7. **Transitions** — zoom crossfade, slide overlap, blur cut, mask wipe, whip pan — with the half-overlap rule
+8. **Living backgrounds** — rotating gradients, ≤6%-opacity floaters, golden-angle particle fields
+9. **Editorial layout** — 12-column grid, consistent margins, one accent color, mockup fly-ins
+10. **Grade chain** — vignette → film grain → tint → letterbox, always the top layer
+
+The skill also carries a copyable **reference scene** that combines all ten
+laws, and a **pre-render checklist** (minimum 10 seconds / 300 frames / 3
+scenes; render a 90-frame preview before committing to the full render).
+
+## 🤝 AI video pipeline — agent + AI generator, together
+
+Need real footage the phone can't render? zyvo writes the prompts, you generate
+the clips, zyvo composes the final film:
+
+```text
+ zyvo (phone)                              you (phone)
+ ────────────                              ───────────
+ 1. Storyboard + shot-by-shot        →     2. Paste each prompt into
+    AI generation prompts                  Seedance / Kling / Higgsfield / Veo
+                                           and download the clips
+
+ 3. Drop the clips into public/      ←     (zyvo detects them)
+ 4. Compose: trim, slow-mo, text,
+    transitions, color grade
+ 5. Push → GitHub Actions renders    →     6. Download the MP4 🎬
+```
+
+Every prompt follows one template — shot type, one subject + one action, one
+camera move, lighting, the same style keywords, 3–5s — so every clip matches
+the same look.
+
+## 🧠 Memory & updates
+
+- **AGENTS.md memory** — deployed once and never overwritten by updates; the
+  agent remembers your preferences and project decisions across sessions
+- **Delta updates** — the installer doubles as an updater: re-run the same
+  one-liner and only what changed is re-fetched (skills update per-file)
+
+## ☁️ How video rendering works
+
+Termux can't run a headless-browser render farm — so zyvo doesn't try. The
+remotion skill scaffolds your video project with a `render.yml` GitHub Actions
+workflow:
+
+| Stage | Where it runs |
 |---|---|
-| Phone | Any aarch64 (64-bit ARM) Android phone — i.e. almost every modern phone |
-| Android | 7.0+ |
-| App | [Termux](https://github.com/termux/termux-app/releases) (F-Droid / GitHub build) |
-| Download | ~60–80 MB |
-
-## 🖥️ Other platforms
-
-zyvo tracks upstream opencode — on PC (Windows / macOS / Linux) you can use
-upstream's installers while the zyvo-branded desktop builds are worked on:
-
-```bash
-npm i -g opencode-ai@latest
-```
-
+| Storyboard, AI prompts, Remotion code | your phone (zyvo) |
+| Code push + render trigger | your phone (git) |
+| Headless browser render → MP4 | GitHub Actions (free) |
 
 ## 📱 Device support
 
 | Device | Status |
 |---|---|
-| aarch64 Android 7+ (Termux) — every modern phone | ✅ Supported |
-| Android 7+ via proot-distro (Ubuntu in Termux) | ✅ Works (the aarch64 binary runs inside proot) |
-| 32-bit ARM phones (pre-2016) | ❌ Not possible (Bun is 64-bit only) — use zyvo remotely over SSH |
+| aarch64 Android 7+ in Termux — every modern phone | ✅ Supported |
+| Android 7+ via proot-distro (Ubuntu in Termux) | ✅ Works |
+| 32-bit ARM phones (pre-2016) | ❌ Bun is 64-bit only — use zyvo remotely over SSH |
 | x86_64 emulators / Chromebooks | 🔜 Planned |
-| Windows / macOS / Linux PC | ✅ Via upstream opencode installers |
+| Windows / macOS / Linux PC | ✅ zyvo PC builds (`pc-v*` releases) or upstream opencode |
 
 ## 🔨 How the Android build works
 
 opencode ships as a compiled Bun binary, and Bun has no official Android
-target — so this repo cross-compiles the whole stack (Bun, WebKit/JavaScriptCore,
-ICU, OpenTUI) for Android's own libc (bionic). The result is a single
-standalone binary that runs natively in Termux.
+target — so this repo cross-compiles the whole stack (Bun, JavaScriptCore, ICU,
+OpenTUI) against Android's own libc (bionic). The result is a single standalone
+arm64 binary that runs natively in Termux with no proot and no glibc layer.
 
-Builds happen on GitHub Actions (`.github/workflows/android-build.yml`) and are
-published to [Releases](https://github.com/zyvoai/ZYVO-AI/releases). The build
-system lives in [`android/`](android/README.md), based on
+Builds run on GitHub Actions (`.github/workflows/android-build.yml`) and every
+successful build updates the [Releases](https://github.com/zyvoai/ZYVO-AI/releases)
+page. The build system lives in [`android/`](android/), based on
 [guysoft/opencode-termux](https://github.com/guysoft/opencode-termux) (MIT).
+
+## 🗂️ Repo layout
+
+```
+android/     Android cross-compile toolchain + build docs
+config/      zyvo.json (58 models) · skills/ · AGENTS.md · model probes
+install.sh   one-command installer + delta updater
+packages/    opencode source (the fork)
+```
 
 ## 🗺️ Roadmap
 
 - [x] Native Android (aarch64) build for Termux
-- [x] One-command installer for Termux
-- [ ] Rebrand → `zyvo` command, config, TUI
-- [ ] Custom system prompt & TUI theming
-- [ ] Extra providers / commands / tools
+- [x] One-command installer + delta updates
+- [x] `zyvo` rebrand — command, config, TUI
+- [x] Zyvo provider — 58 preloaded models
+- [x] Five built-in skills (apk, webdev, lets-scroll, remotion, web2video)
+- [x] Remotion motion masterclass + AI video pipeline
+- [x] Model tester with Smart Retry
+- [ ] OmniRoute on permanent public hosting
 - [ ] x86_64 build (emulators, Chromebooks)
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE). Based on
+MIT — see [LICENSE](LICENSE). Built on
 [opencode](https://github.com/anomalyco/opencode) and
 [guysoft/opencode-termux](https://github.com/guysoft/opencode-termux), both MIT.
