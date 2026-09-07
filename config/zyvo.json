@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "zyvo/kc/anthropic/claude-opus-5",
+  "model": "zyvo/auto/best-coding",
   "provider": {
     "zyvo": {
       "name": "Zyvo",
@@ -10,7 +10,52 @@
         "apiKey": "sk-397a485ebe5ead01-39f994-dff3ac9d"
       },
       "models": {
-        "kc/anthropic/claude-opus-5": {
+        "auto/best-coding": {
+          "name": "Auto: Best Coding"
+        },
+        "auto/pro-coding": {
+          "name": "Auto: Pro Coding"
+        },
+        "auto/coding": {
+          "name": "Auto: Coding"
+        },
+        "auto/best-reasoning": {
+          "name": "Auto: Best Reasoning"
+        },
+        "auto/pro-reasoning": {
+          "name": "Auto: Pro Reasoning"
+        },
+        "auto/best-fast": {
+          "name": "Auto: Best Fast"
+        },
+        "auto/fast": {
+          "name": "Auto: Fast"
+        },
+        "auto/best-vision": {
+          "name": "Auto: Best Vision"
+        },
+        "auto/vision": {
+          "name": "Auto: Vision"
+        },
+        "auto/best-free": {
+          "name": "Auto: Best Free"
+        },
+        "auto/coding:free": {
+          "name": "Auto: Coding (Free)"
+        },
+        "auto/coding:cheap": {
+          "name": "Auto: Coding (Cheap)"
+        },
+        "auto/coding:reliable": {
+          "name": "Auto: Coding (Reliable)"
+        },
+        "auto/claude-opus": {
+          "name": "Auto: Claude Opus"
+        },
+        "auto/claude-sonnet": {
+          "name": "Auto: Claude Sonnet"
+        },
+        "cline/anthropic/claude-opus-5": {
           "name": "Claude Opus 5",
           "variants": {
             "minimal": {},
@@ -20,107 +65,7 @@
             "xhigh": {}
           }
         },
-        "kc/anthropic/claude-fable-5": {
-          "name": "Claude Fable 5.1",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/claude-opus-4.8": {
-          "name": "Claude Opus 4.8",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/gpt-5.6-sol": {
-          "name": "GPT-5.6 Sol Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/gpt-5.6-terra": {
-          "name": "GPT-5.6 Terra Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/gpt-5.6-luna": {
-          "name": "GPT-5.6 Luna Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/gpt-5.5": {
-          "name": "GPT-5.5 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/gpt-5.4": {
-          "name": "GPT-5.4 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/gpt-5-pro": {
-          "name": "GPT-5 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/stealth/claude-opus-4.7": {
-          "name": "Claude Opus 4.7",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/stealth/claude-opus-4.6": {
-          "name": "Claude Opus 4.6",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/anthropic/claude-sonnet-5": {
+        "cl/anthropic/claude-sonnet-5": {
           "name": "Claude Sonnet 5",
           "variants": {
             "minimal": {},
@@ -130,8 +75,8 @@
             "xhigh": {}
           }
         },
-        "kc/moonshotai/kimi-k3": {
-          "name": "Kimi K3",
+        "cl/anthropic/claude-fable-5.1": {
+          "name": "Claude Fable 5.1",
           "variants": {
             "minimal": {},
             "low": {},
@@ -140,8 +85,8 @@
             "xhigh": {}
           }
         },
-        "kc/moonshotai/kimi-k2.7-code": {
-          "name": "Kimi K2.7 Code",
+        "cl/openai/gpt-5.6-luna-pro": {
+          "name": "GPT-5.6 Luna Pro",
           "variants": {
             "minimal": {},
             "low": {},
@@ -150,7 +95,37 @@
             "xhigh": {}
           }
         },
-        "kc/x-ai/grok-4.6": {
+        "cl/openai/gpt-5.6-luna": {
+          "name": "GPT-5.6 Luna",
+          "variants": {
+            "minimal": {},
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {}
+          }
+        },
+        "cl/openai/gpt-5.6-terra-pro": {
+          "name": "GPT-5.6 Terra Pro",
+          "variants": {
+            "minimal": {},
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {}
+          }
+        },
+        "cl/openai/gpt-5.6-sol-pro": {
+          "name": "GPT-5.6 Sol Pro",
+          "variants": {
+            "minimal": {},
+            "low": {},
+            "medium": {},
+            "high": {},
+            "xhigh": {}
+          }
+        },
+        "cl/x-ai/grok-4.6": {
           "name": "Grok 4.6",
           "variants": {
             "minimal": {},
@@ -160,435 +135,86 @@
             "xhigh": {}
           }
         },
-        "kc/x-ai/grok-4.5": {
-          "name": "Grok 4.5",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/google/gemini-3.5-flash-lite": {
+          "name": "Gemini 3.5 Flash Lite"
         },
-        "kc/google/gemini-3.7-flash": {
-          "name": "Gemini 3.7 Flash",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/z-ai/glm-5.2": {
+          "name": "GLM 5.2"
         },
-        "kc/gemini-3.1-flash-lite-image": {
-          "name": "Gemini 3.1 Pro Preview",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/moonshotai/kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code"
         },
-        "kc/deepseek/deepseek-v4-pro-0813": {
-          "name": "DeepSeek V4 Pro 0813",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/deepseek/deepseek-v3.2": {
+          "name": "DeepSeek v3.2"
         },
-        "kc/qwen/qwen3.8-max": {
-          "name": "Qwen3.8 Max",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/minimax/minimax-m3": {
+          "name": "MiniMax M3"
         },
-        "kc/qwen/qwen3.8-2.4t-a95b": {
-          "name": "Qwen3.8 2.4T A95B",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/qwen/qwen3.8-flash": {
+          "name": "Qwen3.8 Flash"
         },
-        "kc/z-ai/glm-5.3": {
-          "name": "GLM 5.3",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/qwen/qwen3.8-27b": {
+          "name": "Qwen3.8 27B"
         },
-        "kc/qwen/qwen3.7-max": {
-          "name": "Qwen3.7 Max",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/qwen/qwen3-coder-next": {
+          "name": "Qwen3 Coder Next"
         },
-        "kc/z-ai/glm-5.2": {
-          "name": "GLM 5.2",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/qwen/qwen3.7-max": {
+          "name": "Qwen3.7 Max"
         },
-        "kc/stealth/claude-sonnet-4.6": {
-          "name": "Claude Sonnet 4.6",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/qwen/qwen3.7-flash": {
+          "name": "Qwen3.7 Flash"
         },
-        "kc/x-ai/grok-4.20-multi-agent": {
-          "name": "Grok 4.20 Multi-Agent",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/mistralai/devstral-2512": {
+          "name": "Devstral 2512"
         },
-        "kc/qwen/qwen3-max": {
-          "name": "Qwen3 Max Thinking",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/mistralai/codestral-2508": {
+          "name": "Codestral 2508"
         },
-        "kc/moonshotai/kimi-k2.6": {
-          "name": "Kimi K2.6",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/nvidia/nemotron-3-ultra-550b-a55b": {
+          "name": "Nemotron 3 Ultra 550B"
         },
-        "kc/moonshotai/kimi-k2.5": {
-          "name": "Kimi K2.5",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/nvidia/nemotron-3.5-lightning:free": {
+          "name": "Nemotron 3.5 Lightning (Free)"
         },
-        "kc/moonshotai/kimi-k2": {
-          "name": "Kimi K2 Thinking",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/anthropic/claude-haiku-4.5": {
+          "name": "Claude Haiku 4.5"
         },
-        "kc/z-ai/glm-5.1": {
-          "name": "GLM 5.1",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/anthropic/claude-sonnet-4.6": {
+          "name": "Claude Sonnet 4.6"
         },
-        "kc/openai/gpt-5.3-codex": {
-          "name": "GPT-5.3 Codex",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/google/gemini-2.5-pro": {
+          "name": "Gemini 2.5 Pro"
         },
-        "kc/openai/gpt-5.2": {
-          "name": "GPT-5.2 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/google/gemini-2.5-flash": {
+          "name": "Gemini 2.5 Flash"
         },
-        "kc/qwen/qwen3-coder": {
-          "name": "Qwen3 Coder 480B",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "kc/poolside/laguna-s-2.1:free": {
+          "name": "Poolside Laguna S 2.1 (Free)"
         },
-        "kc/qwen/qwen3.5-397b-a17b": {
-          "name": "Qwen3.5 397B",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/~anthropic/claude-sonnet-latest": {
+          "name": "Claude Sonnet (Latest)"
         },
-        "kc/deepseek/deepseek-r1-0528": {
-          "name": "DeepSeek R1 0528",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/~openai/gpt-latest": {
+          "name": "GPT (Latest)"
         },
-        "kc/anthropic/claude-opus-4.1": {
-          "name": "Claude Opus 4.1",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/~z-ai/glm-latest": {
+          "name": "GLM (Latest)"
         },
-        "kc/anthropic/claude-sonnet-4.5": {
-          "name": "Claude Sonnet 4.5",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/~x-ai/grok-latest": {
+          "name": "Grok (Latest)"
         },
-        "kc/morph/morph-v3-large": {
-          "name": "Mistral Large 3",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/google/gemma-4-31b-it:free": {
+          "name": "Gemma 4 31B (Free)"
         },
-        "kc/mistralai/mistral-medium-3-5": {
-          "name": "Mistral Medium 3.5",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/nvidia/nemotron-3-super-120b-a12b:free": {
+          "name": "Nemotron 3 Super (Free)"
         },
-        "kc/bytedance-seed/seed-2.0-code": {
-          "name": "Seed 2.0 Code",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "cl/openrouter/free": {
+          "name": "OpenRouter Free"
         },
-        "kc/xiaomi/mimo-v2.5": {
-          "name": "MiMo V2.5 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/google/gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openai/o3": {
-          "name": "o3 Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/openrouter/free": {
-          "name": "Free Models Router",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/deepseek/deepseek-v4-flash": {
-          "name": "DeepSeek V4 Flash (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/step-3.7-flash": {
-          "name": "StepFun: Step 3.7 Flash (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/minimax/minimax-m3": {
-          "name": "MiniMax: MiniMax M3 (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/minimax/minimax-m2.7": {
-          "name": "MiniMax: MiniMax M2.7 (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/google/gemma-4-31b-it": {
-          "name": "Gemma 4 31B (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/poolside/laguna-s-2.1": {
-          "name": "Poolside: Laguna S 2.1 (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/liquid/lfm-2.5-2.6b:free": {
-          "name": "LiquidAI: LFM2.5-2.6B (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/inclusionai/ling-3.0-flash-fin:free": {
-          "name": "Ling 3.0 Flash Fin (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/dots-studio/dots-3-note-preview:free": {
-          "name": "Dots Studio: Dots3-Note Preview (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/cohere/north-mini-code:free": {
-          "name": "Cohere: North Mini Code (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/nemotron-3-ultra-550b-a55b:free": {
-          "name": "NVIDIA: Nemotron 3 Ultra (free)",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "auto/best-free": {
-          "name": "Auto Free",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "kc/kilo-auto/small": {
-          "name": "Auto Small",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
+        "groq/qwen/qwen3.8-27b": {
+          "name": "Qwen3.8 27B (Groq)"
         }
       }
     },

@@ -73,7 +73,7 @@ missing, create the skeleton yourself with mkdir — don't wait for permission.
 ## Projects
 
 - **zyvo** — opencode fork for Android/Termux: native aarch64 build, delta
-  updates, Zyvo provider (58 models, default Claude Opus 5), 5 skills
+  updates, Zyvo provider (50 models, default auto/best-coding router), 5 skills
   (apk, webdev, lets-scroll, motion-animation, web2video), model tester with Smart
   Retry. Repo: github.com/zyvoai/ZYVO-AI
 - **motion-animation skill** — Pro Motion Masterclass (10 laws) + AI video pipeline:

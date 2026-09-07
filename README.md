@@ -10,7 +10,7 @@ from your phone, no PC needed. A fork of
 [opencode](https://github.com/anomalyco/opencode) (MIT), rebuilt natively
 for Android.
 
-`zyvo · zyvo ai · zyvoai · AI coding CLI · Termux · 58 AI models · Banglish`
+`zyvo · zyvo ai · zyvoai · AI coding CLI · Termux · 50 AI models · Banglish`
 
 </div>
 
@@ -27,7 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | ba
 ```
 
 The installer checks your phone's architecture, installs dependencies, deploys
-58 AI models + 5 skills + agent memory, and verifies the binary runs.
+50 AI models + 5 skills + agent memory, and verifies the binary runs.
 
 Start it:
 
@@ -36,11 +36,12 @@ zyvo
 termux-wake-lock    # optional: keeps long sessions alive
 ```
 
-## 🤖 58 AI models, zero setup
+## 🤖 50 AI models, zero setup
 
 zyvo ships with its own provider (**Zyvo**) pre-configured in
-[`config/zyvo.json`](config/zyvo.json) — 58 ranked models with Claude Opus 5 as
-the default. No API keys, no setup: open `zyvo` and start.
+[`config/zyvo.json`](config/zyvo.json) — 50 ranked models led by the
+`auto/best-coding` smart router (it always picks a live model, so no single
+model death can break your session). No API keys, no setup: open `zyvo` and start.
 
 Run out of quota or hit a dead model? Use the built-in **model tester** — it
 probes every model, auto-retries failures (Smart Retry), and reports exactly
@@ -150,7 +151,7 @@ page. The build system lives in [`android/`](android/), based on
 
 ```
 android/     Android cross-compile toolchain + build docs
-config/      zyvo.json (58 models) · skills/ · AGENTS.md · model probes
+config/      zyvo.json (50 models) · skills/ · AGENTS.md · model probes
 install.sh   one-command installer + delta updater
 packages/    opencode source (the fork)
 ```
@@ -160,7 +161,7 @@ packages/    opencode source (the fork)
 - [x] Native Android (aarch64) build for Termux
 - [x] One-command installer + delta updates
 - [x] `zyvo` rebrand — command, config, TUI
-- [x] Zyvo provider — 58 preloaded models
+- [x] Zyvo provider — 50 verified working models
 - [x] Five built-in skills (apk, webdev, lets-scroll, motion-animation, web2video)
 - [x] Motion-animation masterclass + AI video pipeline
 - [x] Model tester with Smart Retry

@@ -42,7 +42,7 @@ clean, dated, in Banglish. Log every meaningful session in `04 Sessions/`.
 - Language: Banglish. Non-programmer: simple words, PRO-level output.
 - Rejects surface-level work — go frame-level / detail deep before building.
 - Main project: zyvo (opencode fork, native Termux, delta updates, Zyvo
-  provider with 58 models, 5 skills, model tester with Smart Retry).
+  provider with 50 models, 5 skills, model tester with Smart Retry).
 - GitHub PAT: configure per the 🔑 protocol on first push — then never ask
   for it again.
 - Phone workspaces: each zyvo session starts in its own folder
