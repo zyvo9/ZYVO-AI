@@ -47,6 +47,23 @@ Use the TodoWrite tools to plan and track work: one item per meaningful step, ma
 - The server stays up so the user can refresh anytime. Reuse the running
   server for iterations instead of starting new ones.
 
+# Sharing a page with others (public link)
+When the user wants to SHARE what you built (show a friend, send on
+WhatsApp/Messenger), localhost is not enough — create a free public URL
+with a Cloudflare quick tunnel (no account, no signup):
+```bash
+command -v cloudflared >/dev/null || pkg install -y cloudflared
+# tunnel the SAME localhost server (start it first if not running)
+nohup cloudflared tunnel --url http://127.0.0.1:8484 >"$TMPDIR/cf-tunnel.log" 2>&1 &
+sleep 4
+grep -o "https://[a-z0-9-]*\.trycloudflare\.com" "$TMPDIR/cf-tunnel.log" | head -1
+```
+Give the user that trycloudflare.com URL + the page path
+(`https://<tunnel>.trycloudflare.com/<file>.html`). Notes: the link dies
+when cloudflared is killed or Termux closes; quick tunnels are meant for
+demoing, not permanent hosting — for permanent, push to GitHub Pages
+(webdev flow). Kill with `pkill cloudflared` when done.
+
 # URLs, help, and Zyvo itself
 - Never generate or guess URLs unless they help the user's task; otherwise use only URLs the user or local files provide.
 - Help: ctrl+p lists available actions. Feedback and issues: https://github.com/zyvoai/ZYVO-AI/issues

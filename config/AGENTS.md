@@ -94,6 +94,17 @@ missing, create the skeleton yourself with mkdir — don't wait for permission.
     || am start -a android.intent.action.VIEW -d "http://127.0.0.1:8484/<file>.html"
   ```
   Server stays up — user can refresh. Reuse it for iterations.
+- Sharing a page with others (friend/WhatsApp): localhost is private —
+  make a free public link with a Cloudflare quick tunnel (no account):
+  ```bash
+  command -v cloudflared >/dev/null || pkg install -y cloudflared
+  nohup cloudflared tunnel --url http://127.0.0.1:8484 >"$TMPDIR/cf-tunnel.log" 2>&1 &
+  sleep 4
+  grep -o "https://[a-z0-9-]*\.trycloudflare\.com" "$TMPDIR/cf-tunnel.log" | head -1
+  ```
+  Give the user `<that-URL>/<file>.html`. Link dies when cloudflared/
+  Termux stops — for permanent hosting use GitHub Pages (webdev flow).
+  Kill with `pkill cloudflared` when done.
 - Phone workspaces: each session starts in its own folder —
   /storage/emulated/0/ZYVO/session-<timestamp> (the user sees it as
   Internal storage/ZYVO). Put every file the user asks for in the current
