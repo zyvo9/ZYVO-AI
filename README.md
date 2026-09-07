@@ -107,6 +107,9 @@ the same look.
 
 - **AGENTS.md memory** — deployed once and never overwritten by updates; the
   agent remembers your preferences and project decisions across sessions
+- **Obsidian vault (2nd brain)** — deep memory (session logs, project
+  dossiers, lessons) in a markdown vault you can open and edit in the
+  Obsidian app; hot facts stay in AGENTS.md
 - **Delta updates** — the installer doubles as an updater: re-run the same
   one-liner and only what changed is re-fetched (skills update per-file)
 

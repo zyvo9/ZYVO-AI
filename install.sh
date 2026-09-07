@@ -164,6 +164,48 @@ if [ -f "$AGENTS_FILE" ] && ! grep -q "How to treat the user" "$AGENTS_FILE" 2>/
   fi
   rm -f "$AGENTS_FILE.tmp3"
 fi
+
+# Older installs: upgrade AGENTS.md to the v2 auto-memory protocol (marker check)
+MEM2_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/agents-memory-upgrade.md"
+if [ -f "$AGENTS_FILE" ] && ! grep -q "Auto-memory protocol" "$AGENTS_FILE" 2>/dev/null; then
+  if curl -fsSL "$MEM2_URL" -o "$AGENTS_FILE.tmp4" 2>/dev/null && [ -s "$AGENTS_FILE.tmp4" ]; then
+    printf '\n' >> "$AGENTS_FILE"
+    cat "$AGENTS_FILE.tmp4" >> "$AGENTS_FILE"
+    info "Auto-memory protocol v2 added to AGENTS.md"
+  fi
+  rm -f "$AGENTS_FILE.tmp4"
+fi
+
+# ---------------------------------------------------------------
+# 6d. Obsidian vault (2nd brain) — deep memory the user can open
+#     in the Obsidian app; agent writes session logs & dossiers here
+# ---------------------------------------------------------------
+VAULT="$HOME/storage/shared/Documents/ZyvoVault"
+[ -d "$HOME/storage/shared" ] || VAULT="$HOME/.config/zyvo/vault"
+if [ ! -f "$VAULT/00 Home/Memory Index.md" ]; then
+  mkdir -p "$VAULT/00 Home" "$VAULT/01 User" "$VAULT/02 Projects" \
+           "$VAULT/03 Credentials" "$VAULT/04 Sessions"
+  cat > "$VAULT/00 Home/Memory Index.md" <<'EOF'
+# ZyvoVault — Memory Index (2nd brain)
+
+zyvo এই vault-এ গভীর memory রাখে। Obsidian app-এ এই ফোল্ডারটা "Open folder
+as vault" দিয়ে খুললেই user সব দেখতে ও বদলাতে পারে।
+
+## Agent-এর নিয়ম
+- History দরকার হলে: আগে AGENTS.md (hot memory), তারপর এই index + দরকারি note।
+- Lasting fact শিখলে **সেই মুহূর্তেই** সঠিক ফোল্ডারে লিখে ফেলো — পরের জন্য জমাতে না।
+- কাজের session শেষে `04 Sessions/YYYY-MM-DD <বিষয়>.md` নোট: কী হলো, কী সিদ্ধান্ত, পরের ধাপ।
+- Raw token/key কোথাও না — শুধু কোথায় সেভ আছে তার state (`03 Credentials/state.md`)।
+
+## কাঠামো
+- `01 User/` — user profile, পছন্দ
+- `02 Projects/` — প্রতি project-এর একটি dossier
+- `03 Credentials/state.md` — কোন credential কোথায় configure করা
+- `04 Sessions/` — dated session logs
+EOF
+  info "Memory vault created: $VAULT (Obsidian app-এ খুললেই দেখা যাবে)"
+fi
+
 refresh_config() {
   CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
   if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
