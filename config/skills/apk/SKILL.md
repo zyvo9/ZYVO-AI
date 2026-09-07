@@ -1,6 +1,6 @@
 ---
 name: apk
-description: Build Android APKs on GitHub Actions — scaffold a modern Material 3 Android app (with good UI design), push to GitHub, get a signed APK download link. Zero load on the user's phone. Use when the user asks to create/build/make an Android app or APK.
+description: Build Android APKs on GitHub Actions — scaffold a modern Material 3 Android app with PROFESSIONAL, usable UI (design system + screen recipes), push to GitHub, get a signed APK download link. Zero load on the user's phone. Use when the user asks to create/build/make an Android app or APK.
 ---
 
 # Android APK Builder (GitHub cloud build)
@@ -13,10 +13,9 @@ the cloud (free for public repos). The phone only writes text files.
 
 1. The phone NEVER runs gradle/java/aapt — all compilation happens on
    GitHub Actions.
-2. Always produce a MODERN, good-looking UI (Material 3 style) — never ship
-   a bare default-looking app. Follow the Design System section below, and
-   when the app type is unusual, fetch design inspiration with WebFetch from
-   https://m3.material.io/components and similar pages.
+2. A build that succeeds with BAD UI is a FAILED build. The UI doctrine in
+   this skill (Design System + Screen Recipes + QA checklist) is not
+   optional — an app that "builds but is unusable" does not ship.
 3. Keep sources in `$HOME/<project>` — never in shared storage
    (`/storage` is mounted noexec and git there is unreliable).
 4. NEVER put the user's GitHub token inside any committed file.
@@ -26,10 +25,9 @@ the cloud (free for public repos). The phone only writes text files.
 Be fully autonomous: collect missing credentials/info ONCE at the start
 (app idea, GitHub username + token, app name if the user names it), then
 decide everything else yourself — package id, project structure, screens,
-design (design-standards rules), workflow. Never ask intermediate
-questions. If a push or build fails: read the error, fix, retry (up to 3
-attempts) silently. Deliver ONE final message: what you built, the repo
-link, and the APK download link.
+design, workflow. Never ask intermediate questions. If a push or build
+fails: read the error, fix, retry (up to 3 attempts) silently. Deliver ONE
+final message: what you built, the repo link, and the APK download link.
 
 ## Requirements checklist (do this first)
 
@@ -55,16 +53,19 @@ If the user has no token, show them exactly the steps above and wait.
 4. Repo name (default: the app shortname). Ask: public (free builds) or
    private? Default public.
 
-## Step 2 — Design pass
+## Step 2 — Design pass (do this BEFORE writing any UI code)
 
-- Look at the Design System below and pick a color pair (primary + dark
-  surfaces) that fits the app's purpose.
-- If the app type is uncommon, use WebFetch on
-  `https://m3.material.io/components` and
-  `https://m3.material.io/styles/color/overview` to pick components.
-- Decide the template: **native Java UI** (calculator/notes/tools) or
-  **WebView app** (HTML/CSS/JS UI — fastest path, full CSS design freedom).
-  Default to WebView for content-heavy apps, native for tool-like apps.
+1. **Pick the app's ONE brand accent** from its purpose (see palette table
+   below). State the mood to the user in one line before coding.
+2. **Pick the screen recipes** (see Screen Recipes below) that match each
+   screen the app needs. Every screen must map to a recipe.
+3. Decide the template: **native Java UI** (calculator/notes/tools) or
+   **WebView app** (HTML/CSS/JS UI — fastest path, full CSS design
+   freedom). Default to WebView for content-heavy apps, native for
+   tool-like apps.
+4. If the app type is uncommon, use WebFetch on
+   `https://m3.material.io/components` and
+   `https://m3.material.io/styles/color/overview` to pick components.
 
 ## Step 3 — Scaffold the project
 
@@ -127,7 +128,11 @@ android {
     }
     buildFeatures { viewBinding true }
 }
-dependencies { implementation 'androidx.appcompat:appcompat:1.7.0' }
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+}
 ```
 
 ### AndroidManifest.xml (minimum)
@@ -135,7 +140,7 @@ dependencies { implementation 'androidx.appcompat:appcompat:1.7.0' }
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <application android:label="@string/app_name" android:theme="@style/Theme.Zyvo"
-    android:icon="@mipmap/ic_launcher" android:supportsRtl="true">
+    android:supportsRtl="true">
     <activity android:name=".MainActivity" android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -145,61 +150,231 @@ dependencies { implementation 'androidx.appcompat:appcompat:1.7.0' }
   </application>
 </manifest>
 ```
-NOTE: `@mipmap/ic_launcher` needs an icon — simplest is to REMOVE the
-icon attribute (system default icon is used) unless you add res/mipmap
-files. Prefer removing it.
+NOTE: no `android:icon` attribute — the system default icon is used unless
+you ship the adaptive icon (see Design System §7; shipping the icon is
+REQUIRED for pro apps, then add the attribute back).
 
-### APP UI QUALITY BAR (Material 3) — the most important section
+---
 
-The generic AI app is instantly recognizable: default purple theme,
-unstyled square buttons, no dark mode, missing icon, tiny text. FORBIDDEN.
-Every app must pass this bar:
+# 🎨 UI DESIGN SYSTEM — every app must pass this
 
-**1. Design direction first** — derive the palette from the app's PURPOSE
-(a calculator: calm precision tones; a kids app: playful brights; a
-finance app: deep trust colors). State the mood to the user before coding.
+The generic AI app is instantly recognizable: default purple theme, unstyled
+square buttons, walls of text, no dark mode, missing icon, broken empty
+states. FORBIDDEN. What follows is extracted from real pro app templates
+(e-commerce, music, food-ordering, wallet, booking, calculator) — copy it.
 
-**2. Material 3 theme (REQUIRED)**
-- app/build.gradle: `implementation 'com.google.android.material:material:1.12.0'`
-- Theme: `Theme.Material3.DayNight.NoActionBar` (dark mode automatic)
-- colors.xml with M3 roles: primary, onPrimary, primaryContainer,
-  surface, surfaceVariant, outline — derived from the app's purpose.
-- values-night/colors.xml REQUIRED (darkened surfaces).
+## 1. One brand accent + neutral surfaces (the #1 rule of pro mobile UI)
 
-**3. Shape + spacing**
-- Cards/inputs: 16–24dp rounded corners (shapeAppearanceOverlay).
-- Screen padding 16dp, 8dp between related items, 24dp between sections.
+Pro apps use exactly ONE accent color, applied sparingly: FAB, active tab,
+CTA button, links, selection. Everything else is neutral white/gray surface
+with near-black text. If everything is colored, nothing is.
 
-**4. Typography**
-- TextAppearance.Material3: headlineSmall (24sp) titles, titleLarge
-  headers, bodyMedium (14sp) content, labelLarge buttons.
+Palette by app purpose (derive, don't copy blindly):
 
-**5. Components (always Material, never raw)**
-- MaterialCardView (rounded, 2dp elevation) for list items
-- MaterialButton (pill via shapeAppearance) for actions
-- TextInputLayout (outlined) for any input
-- Touch targets: minimum 48dp × 48dp — always.
+| App type | Accent | Mood |
+|---|---|---|
+| Finance / wallet / crypto | deep green `#1B7A43` or amber `#F5A623` | trust, growth |
+| Food / coffee / recipe | warm brown `#8D5A3B`, cream surfaces | warmth, appetite |
+| Health / fitness | energetic teal `#0E9F8A` | vitality |
+| Social / chat | vivid blue `#2563EB` or violet `#7C3AED` | connection |
+| Productivity / tools | indigo `#4F46E5` | focus |
+| E-commerce / shopping | single bold brand tone (blue/red/orange) | energy |
+| Kids / games | bright playful (2 accents max) | fun |
+| Music / media | artist-art-derived tone or vivid `#3B5BFE` | vibe |
 
-**6. App icon (REQUIRED — vector, no image tools)**
-- res/drawable/ic_launcher_foreground.xml — write a simple vector
-  (geometric shape or the app's initial letter in a brand color)
-- res/values/ic_launcher_background.xml (color) + mipmap anydpi-v26
-  adaptive icon XML. Never ship without an icon.
+## 2. The 3-level text system (never more, never less)
 
-**7. Design references (read BEFORE designing)**
-The installed mobile-design skill has deep references — read from
-`~/.config/zyvo/skills/mobile-design/references/`:
-platform-android.md (Android conventions), mobile-color-system.md,
-mobile-typography.md, touch-psychology.md, mobile-navigation.md.
-Also WebFetch https://m3.material.io/components for the components used.
+| Role | Style | Use |
+|---|---|---|
+| Primary | `#1A1A1A`, 16sp, weight 600 | titles, prices, amounts, item names |
+| Secondary | `#8A8A8E`, 13sp, weight 400 | subtitles, descriptions, meta |
+| Micro-label | accent or `#8A8A8E`, 11–12sp, weight 700, UPPERCASE, letterSpacing 0.08 | section headers, tabs, overlines |
 
-### WebView template (fast, full design freedom)
+In colors.xml:
+```xml
+<color name="text_primary">#1A1A1A</color>
+<color name="text_secondary">#8A8A8E</color>
+<color name="text_disabled">#C7C7CC</color>
+```
+Money amounts: right-aligned, bold, positive `#1B7A43` / negative `#E0453A`
+when the list mixes income/expense.
 
-If the app is content/UI-heavy (dashboard, landing page, simple tools),
-make it a WebView app: put the entire app in
-`app/src/main/assets/index.html` (+ css/js files) with a modern responsive
-design (inline CSS), and a tiny MainActivity:
+## 3. Surfaces, cards, spacing (the physical rhythm)
 
+- Screen background: `#F6F7F9` (light) / `#121214` (dark) — never pure white
+- Cards/tiles: white `#FFFFFF`, corner radius **16dp**, NO heavy elevation
+  (1–2dp shadow or none — flat tiles on gray bg read as cards for free)
+- Screen padding **16dp**; gap between cards **12dp**; between sections
+  **24dp**; inside card padding **16dp**
+- List rows: **56–72dp** tall; thumbnail/icon 40–48dp in a **tinted circle**
+  (accent at 10–12% opacity, icon itself accent-colored)
+- Dividers `#EFEFF0` 1dp, only between plain rows (cards never need them)
+
+## 4. Components (Material, always styled)
+
+- **CTA button**: full-width, filled, pill shape (`shapeAppearanceOverlay`
+  cornerSize 28dp), 56dp tall, bold 15sp label, accent bg + white text.
+  ONE per screen, docked at the bottom.
+- **FAB**: 56dp circle, accent bg, white icon, 16dp from edges — for the
+  single "create/add" action.
+- **Inputs**: `TextInputLayout` outlined style, 16dp corner, floating label,
+  accent when focused.
+- **Segmented control** for 2–4 mutually exclusive options (size S/M/L,
+  payment tabs): `MaterialButtonToggleGroup`.
+- **Stepper** for quantities: bordered pill `[-] 1 [+]`, 40dp tall.
+- **Choice rows** (select one): radio + label + trailing meta, 56dp rows.
+- **Status chips**: 20–24dp tall pills, tint 10% bg + accent text
+  ("Paid", "Pending", "New").
+- Touch targets: minimum **48dp × 48dp** — always.
+
+## 5. Every screen's skeleton
+
+```
+status bar (surface color, edge-to-edge feel)
+→ top app bar: back/menu (24dp icon) + 17sp/600 title centered or left,
+  56dp tall, surface color (NOT accent — accent headers only for hero brands)
+→ optional meta row: small centered gray count/subtitle ("24 items found")
+→ scrollable content on #F6F7F9
+→ docked bottom: ONE full-width CTA (or bottom navigation)
+```
+Bottom navigation (3–5 tabs): 56dp bar, icons 24dp with 10sp labels,
+active = accent + filled icon, inactive = `#8A8A8E` outline.
+
+## 6. States — an app without them is broken (this is what "unusable" means)
+
+Every list and every async screen implements ALL of:
+- **Loading**: centered 28dp `CircularProgressIndicator` (accent) + 13sp
+  gray "Loading…" — or 3 skeleton cards (gray rounded placeholders) that
+  pulse. Never a blank frozen screen.
+- **Empty**: centered 72dp outline illustration (simple vector), 16sp/600
+  "Nothing here yet", 13sp gray one-line hint, optional pill button.
+  e.g. "No notes yet — tap + to write your first one."
+- **Error**: centered 72dp warning vector + 16sp "Something went wrong" +
+  13sp gray detail + full-width retry button (pill, accent).
+- **Offline**: thin banner chip at top, `#FFF4E5` bg, `#8A5A00` text.
+
+## 7. App icon (REQUIRED — vector, no image tools)
+
+- `res/drawable/ic_launcher_foreground.xml` — geometric mark or the app's
+  initial as vector path, white on accent background
+- `res/values/ic_launcher_background.xml` (accent color) +
+  `res/mipmap-anydpi-v26/ic_launcher.xml` adaptive icon:
+```xml
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+  <background android:drawable="@color/ic_launcher_background"/>
+  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+</adaptive-icon>
+```
+Then reference `@mipmap/ic_launcher` in the manifest. Vector paths must sit
+within a 108×108 viewport with the mark inside the middle 66dp (safe zone).
+
+## 8. Dark mode (REQUIRED)
+
+`values-night/colors.xml` with: background `#121214`, cards `#1E1E20`,
+text_primary `#F2F2F4`, text_secondary `#9A9AA0`, accent unchanged (or
+lightened 10%). Theme `Theme.Material3.DayNight.NoActionBar`. Test ONE
+screen mentally in dark before shipping — accent-on-dark must keep ≥4.5:1
+contrast for text.
+
+---
+
+# 📱 SCREEN RECIPES (from real pro templates — follow these)
+
+### Recipe: LIST + GRID (products, notes, songs, contacts)
+2-column grid for visual items (products, photos): image tile fills card
+top (ratio ~1:1, `#F2F3F5` bg), price/name below the tile (not on it).
+1-column rows for text items: [tinted-circle icon/thumb 48dp] [title 16sp/
+600 + subtitle 13sp gray] [right-aligned meta: price/duration/chevron].
+Sort/filter row under the app bar: "Latest ▾" left, "Filters ▾" right,
+11sp uppercase. Centered gray count under it ("5182 items found").
+
+### Recipe: DETAIL (product, place, song, note)
+Full-bleed hero image top (~40% height) → title 20sp/700 + category 13sp
+gray → price 20sp/700 accent → section micro-label → content → option
+selectors as outlined dropdown chips (Color ▾ / Size ▾) → sticky bottom CTA
+"Add to cart / Buy" full-width pill.
+
+### Recipe: FORM / CHECKOUT
+Colored top bar allowed here (brand accent + white title). Segmented
+option tabs (Credit / NetBanking / Wallet). Choice rows with radio +
+masked data ("•••• 1234") + trailing brand chip. Outlined inputs. ONE
+full-width pill CTA at bottom ("CONFIRM AND PAY"). Trust/footnote row under
+CTA in 11sp gray.
+
+### Recipe: DASHBOARD / WALLET
+Header block on accent-tinted surface: greeting 13sp gray + balance/name
+24sp/700. Stat cards row: 2-up grid, each card = micro-label + big 18sp/700
+value. Below: transaction/list rows (recipe LIST 1-column) with money
+colored +green/−red, right-aligned.
+
+### Recipe: ONBOARDING / LOGIN (first screen — sets the whole vibe)
+Illustration or brand mark top 40% → headline 22sp/700 centered → 14sp gray
+one-liner → inputs (outlined, 16dp corner) → full-width pill CTA → 13sp
+footer link ("Don't have an account? Sign up"). Brand accent ONLY on CTA +
+links + focused inputs. Social buttons: 48dp outlined rows with 24dp icon.
+
+### Recipe: TOOL (calculator, timer, converter)
+Full-bleed brand-colored screen (gradient ok), white text. Display:
+right-aligned, small history line 13sp 60% white above current value
+32–40sp/700. Button grid: borderless text buttons 22sp on 64dp+ cells,
+generous gaps; operators slightly dimmer; ONE filled circle button
+(= / start) in the corner. No card chrome at all — the screen IS the tool.
+
+### Recipe: MAP / BOOKING (cab, delivery)
+Map fills the screen; UI = floating cards over it. Top search card: white,
+16dp radius, 8dp elevation, rows of [dot icon] [address 14sp] separated by
+1dp dividers. Bottom option card: car-type choice rows (radio + tiny
+illustration + price) + "Confirm" pill. Hamburger top-left, bell top-right
+as 40dp white circles with soft shadow.
+
+### Recipe: MEDIA PLAYER
+Rounded album art (16dp radius) ~70% width centered → title 18sp/700 +
+artist 13sp gray centered → slider with 11sp time labels at both ends →
+transport row: shuffle/prev [PLAY = 64dp filled accent circle, white icon]
+next/repeat at 32dp spacing → list of tracks below in recipe LIST rows.
+
+---
+
+# 🌐 WEBVIEW APP DESIGN KIT (HTML/CSS apps — use this token system)
+
+For WebView apps, write `assets/index.html` with CSS **custom properties as
+semantic tokens** (never raw hex inline) — light and dark from one palette:
+
+```css
+:root {
+  --accent: #2563EB; --on-accent: #FFFFFF;
+  --bg: #F6F7F9; --card: #FFFFFF;
+  --text-1: #1A1A1A; --text-2: #8A8A8E;
+  --line: #EFEFF0; --danger: #E0453A; --ok: #1B7A43;
+  --radius: 16px; --pad: 16px; --gap: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #121214; --card: #1E1E20;
+          --text-1: #F2F2F4; --text-2: #9A9AA0; --line: #2A2A2E; }
+}
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text-1);
+  font: 400 15px/1.45 -apple-system,"Segoe UI",Roboto,sans-serif;
+  margin: 0; padding: var(--pad); }
+.card { background: var(--card); border-radius: var(--radius);
+  padding: var(--pad); margin-bottom: var(--gap); }
+.btn { display: block; width: 100%; height: 56px; border: 0; border-radius: 28px;
+  background: var(--accent); color: var(--on-accent);
+  font-size: 15px; font-weight: 600; }
+.meta { font-size: 13px; color: var(--text-2); }
+.overline { font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-2); }
+.row { display: flex; align-items: center; gap: 12px; min-height: 64px; }
+.row .grow { flex: 1; min-width: 0; }
+.price { font-weight: 700; }
+.skeleton { background: var(--line); border-radius: var(--radius);
+  height: 72px; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .5; } }
+```
+Buttons/inputs need `:active` states (scale .97 or opacity .8) — a WebView
+app without touch feedback feels dead. Set `user-select: none` on controls.
+
+### WebView MainActivity (unchanged)
 ```java
 public class MainActivity extends Activity {
     @Override protected void onCreate(Bundle b) {
@@ -212,8 +387,8 @@ public class MainActivity extends Activity {
     }
 }
 ```
-Write the HTML/CSS with the same design system: dark/light surfaces,
-rounded cards, brand color accents, responsive layout.
+
+---
 
 ## Step 4 — GitHub Actions workflow
 
@@ -295,6 +470,8 @@ gradle typo, wrong namespace.
 - Never echo the token into logs or commit it.
 - Public repos give unlimited free Actions minutes; private repos have
   a 2000 min/month free limit.
+- Do NOT reference the old `mobile-design` skill — it was merged into this
+  skill. Everything UI-related lives here now.
 
 ## After the first build
 
@@ -302,71 +479,30 @@ gradle typo, wrong namespace.
 - New features: repeat the design pass (Step 2) before coding.
 - If the user wants updates without git: re-run Step 5 with `--force`
   (push -f) after editing.
+- Release builds: apksigner with a real keystore (keytool -genkeypair,
+  stored in $HOME, NEVER committed) + versionCode bumped per release.
 
+---
 
-## PRO UPGRADE PACK (app quality boosters)
+# ✅ UI QA CHECKLIST — run BEFORE pushing (every app, no exceptions)
 
-### Ready Material 3 theme (copy, change 5 color values to the brand)
-res/values/colors.xml:
-```xml
-<resources>
-  <color name="primary">#C4704A</color>
-  <color name="onPrimary">#FFFFFF</color>
-  <color name="primaryContainer">#FFDBCC</color>
-  <color name="onPrimaryContainer">#3A1205</color>
-  <color name="surface">#FFF8F6</color>
-  <color name="onSurface">#201A17</color>
-  <color name="surfaceVariant">#F4DED4</color>
-  <color name="outline">#85746D</color>
-</resources>
-```
-res/values/themes.xml:
-```xml
-<resources>
-  <style name="Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
-    <item name="colorPrimary">@color/primary</item>
-    <item name="colorOnPrimary">@color/onPrimary</item>
-    <item name="colorPrimaryContainer">@color/primaryContainer</item>
-    <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
-    <item name="colorSurface">@color/surface</item>
-    <item name="colorOnSurface">@color/onSurface</item>
-    <item name="colorOutline">@color/outline</item>
-  </style>
-</resources>
-```
-res/values-night/colors.xml: same keys, dark surfaces (#1A1210, #F4DED4
-stays as text accent, outline #5D4B43).
-
-### App icon without image tools (vector drawable)
-res/drawable/ic_launcher_foreground.xml — draw a simple mark (geometric
-shape or the app's initial) as vector paths in the brand color:
-```xml
-<vector width="108dp" height="108dp" viewportWidth="108" viewportHeight="108">
-  <path android:fillColor="#FFFFFF" android:pathData="M38,36 h32 v9 h-22 v9 h20 v9 h-20 v12 h-10 z"/>
-</vector>
-```
-res/mipmap-anydpi-v26/ic_launcher.xml:
-```xml
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-  <background android:drawable="@color/ic_launcher_background"/>
-  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
-</adaptive-icon>
-```
-Plus res/values/ic_launcher_background.xml with the brand color. Never
-ship an app without an icon.
-
-### App templates (pick by app type)
-- Calculator: GridLayout of MaterialButtons + one TextView display
-- Notes: RecyclerView of MaterialCardViews + FAB for new note
-- To-do: CheckBox rows in MaterialCardViews + progress counter
-- WebView app: assets/index.html (full HTML/CSS/JS freedom) + 5-line
-  MainActivity — design the HTML with the design-standards skill rules
-- Timer/Counter: MaterialButton + Chronometer, uses minimal UI
-
-### Polish that separates pro from amateur
-- Status bar color = surface color (edge-to-edge feel)
-- Activity transition: overridePendingTransition subtle fade
-- Every list item: ripple effect (Material gives it free)
-- App label = real app name (never the package id)
-- Release build: apksigner with a real keystore (keytool -genkeypair,
-  stored in $HOME, NEVER committed) + versionCode bumped per release
+1. ⬜ ONE accent color chosen from the app's purpose; everything else
+   neutral surfaces
+2. ⬜ Every screen maps to a Screen Recipe — no inventing layouts ad hoc
+3. ⬜ 3-level text system used: 16sp/600 primary, 13sp gray secondary,
+   11–12sp uppercase micro-labels — no random font sizes
+4. ⬜ Screen bg `#F6F7F9` + white 16dp cards; padding 16dp, gaps 12dp,
+   sections 24dp
+5. ⬜ Every list has loading + empty + error states — all three written
+6. ⬜ ONE primary CTA per screen, full-width pill, docked at bottom
+7. ⬜ All touch targets ≥ 48dp; lists 56–72dp rows
+8. ⬜ values-night/ dark palette present; accent text contrast ≥ 4.5:1
+9. ⬜ Adaptive icon shipped (vector foreground + accent background)
+10. ⬜ App label = real app name (never the package id)
+11. ⬜ Status bar / top bar = surface color; no harsh accent headers unless
+    the recipe calls for it
+12. ⬜ Money/status colors: +green −red, right-aligned; chips for status
+13. ⬜ No TODOs, no lorem ipsum with real content missing, no default
+    purple anywhere
+14. ⬜ WebView apps: tokens + dark media query + :active feedback + skeleton
+    loaders present
