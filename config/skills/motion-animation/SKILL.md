@@ -1,6 +1,6 @@
 ---
 name: motion-animation
-description: Make motion animation VIDEOS (MP4) — write Remotion compositions and render them on GitHub Actions, not on the phone. Motion animations, promos, intros, explainers, animated text/charts/logos, product or brand animation clips with springs and interpolation. Use when the user asks for a motion animation, animation video, motion graphics, video, promo, intro, product animation, or ANY short animated clip ("motion animation banao", "ai motion animation", "animation banao" even without the word "video", "video banao").
+description: Make motion animation VIDEOS (MP4) — write Remotion compositions and render them on GitHub Actions, not on the phone. Motion animations, promos, intros, explainers, animated text/charts/logos, product or brand animation clips with springs and interpolation. Signature "Clean Text Animation" preset style available (ghost text, selection box, doodles, chips, scramble). Use when the user asks for a motion animation, animation video, motion graphics, video, promo, intro, product animation, ANY short animated clip, or mentions clean text animation ("motion animation banao", "ai motion animation", "animation banao" even without the word "video", "video banao", "clean text animation").
 ---
 
 # Motion Animation Factory (Remotion + GitHub Actions)
@@ -346,6 +346,137 @@ const effects = [
 - Stagger delay: 6-15 frames between items (too fast = chaos, too slow = boring)
 - Every scene: enter (10-20 frames) → hold (main content) → exit (10-15 frames)
 - One focal point per scene — don't animate everything at once
+
+## 🧼 CLEAN TEXT STYLE PACK — the signature look (use on request)
+
+When the user asks for "clean text animation" / text-animation style (the
+After Effects / Alight Motion preset look), build with these exact
+ingredients. Monochrome world + ONE accent, soft shadows, grain overlay.
+
+### Style DNA
+- Background: flat light gray `#ECECEC` (light) or near-black `#0B0B0B`
+  with ONE soft corner gradient glow (radial, accent at 20% opacity)
+- Headline: Inter/Poppins 800, near-black `#1A1A1A`, with a GHOST duplicate
+- One accent hue used tiny (selection box, one chip, one word)
+- Film grain overlay on top (see Grade chain, Law #10)
+
+### 1. Ghost headline (the signature)
+```tsx
+export const Ghost: React.FC<{ children: string; off?: number }> = ({ children, off = 14 }) => (
+  <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: "absolute", inset: 0, transform: `translate(${off}px, ${off}px)`,
+      filter: "blur(7px)", opacity: 0.35, color: "#9AA0A6" }}>{children}</div>
+    <div style={{ position: "relative" }}>{children}</div>
+  </div>
+)
+// use: <Ghost>Clean Text</Ghost>
+```
+
+### 2. Text-editor selection box + corner handles
+```tsx
+const Selection: React.FC<{ f: number; delay?: number }> = ({ f, delay = 25 }) => {
+  const p = spring({ frame: f - delay, fps, config: { damping: 12 } })
+  const handle: React.CSSProperties = { position: "absolute", width: 12, height: 12,
+    background: "#fff", border: "3px solid #4A9EFF", borderRadius: 2 }
+  return (
+    <div style={{ position: "absolute", inset: -16, border: "2.5px solid #4A9EFF",
+      borderRadius: 3, opacity: p, transform: `scale(${0.92 + p * 0.08})` }}>
+      <div style={{ ...handle, top: -8, left: -8 }} /><div style={{ ...handle, top: -8, right: -8 }} />
+      <div style={{ ...handle, bottom: -8, left: -8 }} /><div style={{ ...handle, bottom: -8, right: -8 }} />
+    </div>
+  )
+}
+```
+
+### 3. Hand-drawn doodle (draw-on stroke)
+```tsx
+const Doodle: React.FC<{ f: number; d: string; delay?: number; style?: React.CSSProperties }> =
+({ f, d, delay = 0, style }) => {
+  const draw = interpolate(f, [delay, delay + 22], [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+  return (
+    <svg viewBox="0 0 200 120" style={{ position: "absolute", width: 220, ...style }}>
+      <path d={d} stroke="#1A1A1A" strokeWidth={7} fill="none" strokeLinecap="round"
+        strokeDasharray={420} strokeDashoffset={420 * draw} />
+    </svg>
+  )
+}
+// arrows/loops, e.g.: <Doodle f={frame} d="M10,20 C70,5 110,70 185,85" style={{ top: 100, left: 90 }} />
+```
+
+### 4. Bouncing chip tags (Colors / Bounce / Mix row)
+```tsx
+const chips = ["Colors", "Bounce", "Mix", "Typewriter", "Snapping"]
+<div style={{ display: "flex", gap: 24, justifyContent: "center" }}>
+  {chips.map((c, i) => {
+    const s = spring({ frame: frame - 8 - i * 5, fps, config: { damping: 10, mass: 0.9 } })
+    return <div key={c} style={{ transform: `scale(${s})`, background: "#141414",
+      color: i === 2 ? accent : "#fff", padding: "20px 44px", borderRadius: 14,
+      fontSize: 36, fontWeight: 600, opacity: s }}>{c}</div>
+  })}
+</div>
+```
+
+### 5. Snapping letters (per-letter drop)
+```tsx
+{word.split("").map((ch, i) => {
+  const s = spring({ frame: frame - i * 2, fps, config: { damping: 9, mass: 0.7 } })
+  return <span key={i} style={{ display: "inline-block",
+    transform: `translateY(${(1 - s) * -70}px)`, opacity: s }}>{ch}</span>
+})}
+```
+
+### 6. Scramble → resolve
+```tsx
+const GLYPHS = "ABCDEFGHKMNPRSTUVWXYZ#%&@"
+{text.split("").map((ch, i) => {
+  const settle = start + i * 3 + 14
+  return <span key={i}>{frame >= settle ? ch
+    : GLYPHS[Math.floor(random(`s${i}-${Math.floor(frame / 2)}`) * GLYPHS.length)]}</span>
+})}
+```
+
+### 7. Typewriter + blinking caret
+```tsx
+const shown = Math.floor(interpolate(frame, [start, start + text.length * 2], [0, text.length],
+  { extrapolateLeft: "clamp", extrapolateRight: "clamp" }))
+<div>{text.slice(0, shown)}<span style={{ opacity: Math.floor(frame / 8) % 2 }}>▍</span></div>
+```
+
+### 8. Paper/phone mockup cards + parallax drift (the 3-card wall)
+```tsx
+const drift = interpolate(frame, [0, 330], [50, -50], { extrapolateRight: "clamp" })
+<div style={{ display: "flex", gap: 60, justifyContent: "center",
+  transform: `translateX(${drift}px)` }}>
+  {cards.map((c, i) => (
+    <div key={i} style={{ width: 380, height: 760, background: "#fff", borderRadius: 26,
+      boxShadow: "0 40px 90px rgba(0,0,0,0.16)", overflow: "hidden",
+      transform: `rotate(${[-3, 0, 3][i]}deg)` }}>
+      <Img src={staticFile(c.img)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    </div>
+  ))}
+</div>
+// images in public/, grayscale filter: style filter "grayscale(1) contrast(1.05)"
+```
+
+### 9. Script word sweep (the "Motion Graphics" italic across)
+```tsx
+const x = interpolate(frame, [140, 185], [1920, -500],
+  { extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) })
+<div style={{ position: "absolute", bottom: 50, left: x, whiteSpace: "nowrap",
+  fontFamily: "'Great Vibes', cursive", fontSize: 150, color: "#1A1A1A" }}>
+  Motion Graphics
+</div>
+// add Google Font <link> for Great Vibes; alternate words per scene: Premium, Professional
+```
+
+### Composition recipe for this style (put together)
+Scene 1: dark bg + corner glow → ghost headline snaps in letter-by-letter
+→ selection box pops → doodle arrows draw → hold.
+Scene 2: white flash cut → paper cards wall settles with parallax →
+script sweep crosses → camera drifts.
+Scene 3: chips bounce in staggered → scramble resolves to final word →
+grain overlay + vignette on top (Law #10). Total ≥ 10s / 300 frames.
 
 ## 🎬 PRO MOTION MASTERCLASS — frame-level craft from 7 pro tutorials
 
