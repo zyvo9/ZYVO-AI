@@ -1,14 +1,16 @@
 <div align="center">
 
-# zyvo
+# Zyvo AI
 
 **The AI coding agent that lives on your phone.**
 
-Build Android apps, websites, and motion-graphics videos — straight from Termux.
-A fork of [opencode](https://github.com/anomalyco/opencode) (MIT), rebuilt
-natively for Android.
+**Zyvo AI** (the `zyvo` command) is a free, open-source **AI coding CLI** for
+**Android Termux** — build Android apps, websites, and motion-graphics videos
+from your phone, no PC needed. A fork of
+[opencode](https://github.com/anomalyco/opencode) (MIT), rebuilt natively
+for Android.
 
-`aarch64 · Termux · no proot · no PC needed`
+`AI coding CLI · Android · Termux · 58 AI models · Banglish`
 
 </div>
 
