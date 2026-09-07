@@ -1,220 +1,65 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "zyvo/auto/best-coding",
+  "model": "zyvo/nvidia/nemotron-3-ultra-550b-a55b:free",
   "provider": {
     "zyvo": {
       "name": "Zyvo",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https://hello-pty-projector-founder.trycloudflare.com/v1",
-        "apiKey": "sk-397a485ebe5ead01-043c14-36b8b7e5"
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "PASTE_OPENROUTER_KEY"
       },
       "models": {
-        "auto/best-coding": {
-          "name": "Auto: Best Coding"
+        "nvidia/nemotron-3-ultra-550b-a55b:free": {
+          "name": "Nemotron 3 Ultra 550B (Free)"
         },
-        "auto/pro-coding": {
-          "name": "Auto: Pro Coding"
-        },
-        "auto/coding": {
-          "name": "Auto: Coding"
-        },
-        "auto/best-reasoning": {
-          "name": "Auto: Best Reasoning"
-        },
-        "auto/pro-reasoning": {
-          "name": "Auto: Pro Reasoning"
-        },
-        "auto/best-fast": {
-          "name": "Auto: Best Fast"
-        },
-        "auto/fast": {
-          "name": "Auto: Fast"
-        },
-        "auto/best-vision": {
-          "name": "Auto: Best Vision"
-        },
-        "auto/vision": {
-          "name": "Auto: Vision"
-        },
-        "auto/best-free": {
-          "name": "Auto: Best Free"
-        },
-        "auto/coding:free": {
-          "name": "Auto: Coding (Free)"
-        },
-        "auto/coding:cheap": {
-          "name": "Auto: Coding (Cheap)"
-        },
-        "auto/coding:reliable": {
-          "name": "Auto: Coding (Reliable)"
-        },
-        "auto/claude-opus": {
-          "name": "Auto: Claude Opus"
-        },
-        "auto/claude-sonnet": {
-          "name": "Auto: Claude Sonnet"
-        },
-        "cline/anthropic/claude-opus-5": {
-          "name": "Claude Opus 5",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/anthropic/claude-sonnet-5": {
-          "name": "Claude Sonnet 5",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/anthropic/claude-fable-5.1": {
-          "name": "Claude Fable 5.1",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/openai/gpt-5.6-luna-pro": {
-          "name": "GPT-5.6 Luna Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/openai/gpt-5.6-luna": {
-          "name": "GPT-5.6 Luna",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/openai/gpt-5.6-terra-pro": {
-          "name": "GPT-5.6 Terra Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/openai/gpt-5.6-sol-pro": {
-          "name": "GPT-5.6 Sol Pro",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/x-ai/grok-4.6": {
-          "name": "Grok 4.6",
-          "variants": {
-            "minimal": {},
-            "low": {},
-            "medium": {},
-            "high": {},
-            "xhigh": {}
-          }
-        },
-        "cl/google/gemini-3.5-flash-lite": {
-          "name": "Gemini 3.5 Flash Lite"
-        },
-        "cl/z-ai/glm-5.2": {
-          "name": "GLM 5.2"
-        },
-        "cl/moonshotai/kimi-k2.7-code": {
-          "name": "Kimi K2.7 Code"
-        },
-        "cl/deepseek/deepseek-v3.2": {
-          "name": "DeepSeek v3.2"
-        },
-        "cl/minimax/minimax-m3": {
-          "name": "MiniMax M3"
-        },
-        "cl/qwen/qwen3.8-flash": {
-          "name": "Qwen3.8 Flash"
-        },
-        "cl/qwen/qwen3.8-27b": {
-          "name": "Qwen3.8 27B"
-        },
-        "cl/qwen/qwen3-coder-next": {
-          "name": "Qwen3 Coder Next"
-        },
-        "cl/qwen/qwen3.7-max": {
-          "name": "Qwen3.7 Max"
-        },
-        "cl/qwen/qwen3.7-flash": {
-          "name": "Qwen3.7 Flash"
-        },
-        "cl/mistralai/devstral-2512": {
-          "name": "Devstral 2512"
-        },
-        "cl/mistralai/codestral-2508": {
-          "name": "Codestral 2508"
-        },
-        "cl/nvidia/nemotron-3-ultra-550b-a55b": {
-          "name": "Nemotron 3 Ultra 550B"
-        },
-        "cl/nvidia/nemotron-3.5-lightning:free": {
-          "name": "Nemotron 3.5 Lightning (Free)"
-        },
-        "cl/anthropic/claude-haiku-4.5": {
-          "name": "Claude Haiku 4.5"
-        },
-        "cl/anthropic/claude-sonnet-4.6": {
-          "name": "Claude Sonnet 4.6"
-        },
-        "cl/google/gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro"
-        },
-        "cl/google/gemini-2.5-flash": {
-          "name": "Gemini 2.5 Flash"
-        },
-        "kc/poolside/laguna-s-2.1:free": {
+        "poolside/laguna-s-2.1:free": {
           "name": "Poolside Laguna S 2.1 (Free)"
         },
-        "cl/~anthropic/claude-sonnet-latest": {
-          "name": "Claude Sonnet (Latest)"
+        "minimax/minimax-m3:free": {
+          "name": "MiniMax M3 (Free)"
         },
-        "cl/~openai/gpt-latest": {
-          "name": "GPT (Latest)"
+        "nvidia/nemotron-3.5-lightning:free": {
+          "name": "Nemotron 3.5 Lightning (Free)"
         },
-        "cl/~z-ai/glm-latest": {
-          "name": "GLM (Latest)"
+        "thinkingmachines/inkling:free": {
+          "name": "Inkling (Free)"
         },
-        "cl/~x-ai/grok-latest": {
-          "name": "Grok (Latest)"
+        "cohere/north-mini-code:free": {
+          "name": "Cohere North Mini Code (Free)"
         },
-        "cl/google/gemma-4-31b-it:free": {
+        "nvidia/nemotron-3-super-120b-a12b:free": {
+          "name": "Nemotron 3 Super 120B (Free)"
+        },
+        "google/gemma-4-31b-it:free": {
           "name": "Gemma 4 31B (Free)"
         },
-        "cl/nvidia/nemotron-3-super-120b-a12b:free": {
-          "name": "Nemotron 3 Super (Free)"
+        "dots-studio/dots-3-note-preview:free": {
+          "name": "Dots3 Note Preview (Free)"
         },
-        "cl/openrouter/free": {
-          "name": "OpenRouter Free"
+        "inclusionai/ling-3.0-flash-sante:free": {
+          "name": "Ling 3.0 Flash Sante (Free)"
         },
-        "groq/qwen/qwen3.8-27b": {
-          "name": "Qwen3.8 27B (Groq)"
+        "inclusionai/ling-3.0-flash-fin:free": {
+          "name": "Ling 3.0 Flash Fin (Free)"
+        },
+        "poolside/laguna-xs-2.1:free": {
+          "name": "Poolside Laguna XS (Free)"
+        },
+        "google/gemma-4-26b-a4b-it:free": {
+          "name": "Gemma 4 26B (Free)"
+        },
+        "minimax/minimax-m2.7:free": {
+          "name": "MiniMax M2.7 (Free)"
+        },
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+          "name": "Nemotron Nano Omni (Free)"
+        },
+        "thinkingmachines/inkling-small:free": {
+          "name": "Inkling Small (Free)"
+        },
+        "liquid/lfm-2.5-2.6b:free": {
+          "name": "LFM 2.5 (Free)"
         }
       }
     }
