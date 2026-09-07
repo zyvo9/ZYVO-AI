@@ -82,15 +82,21 @@ NEVER build the app on the first design you imagine. The gate:
 2. **Write ONE self-contained preview page** — HTML mockups of the main
    screen inside phone frames (390×844), numbered ① ② ③ with a name and
    one-line mood under each. All inline CSS, no external files except
-   Google Fonts. Save to the SHARED storage session folder:
-   `/storage/emulated/0/ZYVO/ui-preview.html` (create dir if missing).
-3. **Open it in Chrome**:
+   Google Fonts. Save as `ui-preview.html` in the project folder.
+3. **Serve it on localhost and open in Chrome** (file:// links are
+   blocked by Chrome on modern Android — always use localhost):
    ```bash
-   termux-open /storage/emulated/0/ZYVO/ui-preview.html 2>/dev/null \
+   command -v python >/dev/null || pkg install -y python
+   cd "$HOME/<appname>"
+   # free the port if a previous preview server is still running
+   pkill -f "http.server 8484" 2>/dev/null
+   nohup python -m http.server 8484 --bind 127.0.0.1 >/dev/null 2>&1 &
+   sleep 1
+   termux-open-url "http://127.0.0.1:8484/ui-preview.html" 2>/dev/null \
      || am start -a android.intent.action.VIEW \
-          -d "file:///storage/emulated/0/ZYVO/ui-preview.html" \
-          -t "text/html"
+          -d "http://127.0.0.1:8484/ui-preview.html"
    ```
+   The server stays up — the user can refresh or reopen the URL anytime.
 4. **Tell the user**: "Chrome-এ ৩টা design খুলেছি — ১/২/৩ কোনটা পছন্দ?
    (চাইলে মিলিয়েও বলতে পারো: '২ কিন্তু রঙটা ১-এর')" — then WAIT for
    the pick. This is the ONE intentional interaction point; everything

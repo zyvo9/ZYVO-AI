@@ -132,16 +132,23 @@ NEVER build the site on the first design you imagine. The gate:
    self-contained HTML page: each direction = a mini hero + one content
    section (real copy, real picsum images, real fonts), stacked with big
    number badges ① ② ③, name + 3-word mood label above each. All inline
-   CSS; only Google Fonts external.
-2. Save to shared storage:
-   `/storage/emulated/0/ZYVO/ui-preview.html` (create dir if missing).
-3. **Open it in Chrome**:
+   CSS; only Google Fonts external. Save as `ui-preview.html` in the
+   project folder.
+2. **Serve it on localhost and open in Chrome** (file:// links are
+   blocked by Chrome on modern Android — always use localhost):
    ```bash
-   termux-open /storage/emulated/0/ZYVO/ui-preview.html 2>/dev/null \
+   command -v python >/dev/null || pkg install -y python
+   cd "$HOME/<sitename>"
+   # free the port if a previous preview server is still running
+   pkill -f "http.server 8484" 2>/dev/null
+   nohup python -m http.server 8484 --bind 127.0.0.1 >/dev/null 2>&1 &
+   sleep 1
+   termux-open-url "http://127.0.0.1:8484/ui-preview.html" 2>/dev/null \
      || am start -a android.intent.action.VIEW \
-          -d "file:///storage/emulated/0/ZYVO/ui-preview.html" \
-          -t "text/html"
+          -d "http://127.0.0.1:8484/ui-preview.html"
    ```
+   The server stays up — the user can refresh or reopen the URL anytime.
+   Serve the real site from the same server during iteration too.
 4. **Tell the user**: "Chrome-এ ২-৩টা design খুলেছি — কোন নম্বরটা পছন্দ?
    (মিশ্রও যায়: '২ এর layout + ১ এর রঙ')" — then WAIT for the pick.
    This is the ONE intentional interaction point; everything else stays
