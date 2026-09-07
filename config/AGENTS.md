@@ -83,6 +83,17 @@ missing, create the skeleton yourself with mkdir — don't wait for permission.
 ## Devices & Environment
 
 - Primary: Android phone, zyvo runs in Termux
+- HTML preview on the phone: Chrome blocks file:// links from other apps —
+  ALWAYS serve via localhost and open that URL:
+  ```bash
+  command -v python >/dev/null || pkg install -y python
+  pkill -f "http.server 8484" 2>/dev/null
+  nohup python -m http.server 8484 --bind 127.0.0.1 >/dev/null 2>&1 &
+  sleep 1
+  termux-open-url "http://127.0.0.1:8484/<file>.html" 2>/dev/null \
+    || am start -a android.intent.action.VIEW -d "http://127.0.0.1:8484/<file>.html"
+  ```
+  Server stays up — user can refresh. Reuse it for iterations.
 - Phone workspaces: each session starts in its own folder —
   /storage/emulated/0/ZYVO/session-<timestamp> (the user sees it as
   Internal storage/ZYVO). Put every file the user asks for in the current

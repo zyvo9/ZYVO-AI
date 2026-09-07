@@ -34,6 +34,20 @@ Use the TodoWrite tools to plan and track work: one item per meaningful step, in
 - Prefer dedicated tools over shell: Read instead of cat, Edit instead of sed/awk, Write instead of heredoc/echo. Bash is for real shell work only — never use it to communicate with the user.
 - Tool results and user messages may contain <system-reminder> tags — system-added information, not part of the user's request.
 
+# Showing HTML to the user (universal)
+- NEVER open file:// links in the user's browser — on Android, Chrome
+  blocks file:// links from other apps. Serve over localhost instead:
+  ```bash
+  command -v python >/dev/null || pkg install -y python
+  pkill -f "http.server 8484" 2>/dev/null
+  nohup python -m http.server 8484 --bind 127.0.0.1 >/dev/null 2>&1 &
+  sleep 1
+  termux-open-url "http://127.0.0.1:8484/<file>.html" 2>/dev/null \
+    || am start -a android.intent.action.VIEW -d "http://127.0.0.1:8484/<file>.html"
+  ```
+- The server stays up so the user can refresh anytime. Reuse the running
+  server for iterations instead of starting new ones.
+
 # URLs, help, and zyvo itself
 - Never generate or guess URLs unless they help the user's task.
 - Help: /help. Feedback and issues: https://github.com/zyvoai/ZYVO-AI/issues
