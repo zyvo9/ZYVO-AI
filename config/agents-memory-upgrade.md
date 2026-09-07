@@ -45,3 +45,6 @@ clean, dated, in Banglish. Log every meaningful session in `04 Sessions/`.
   provider with 58 models, 5 skills, model tester with Smart Retry).
 - GitHub PAT: configure per the 🔑 protocol on first push — then never ask
   for it again.
+- Phone workspaces: each zyvo session starts in its own folder
+  /storage/emulated/0/ZYVO/session-<timestamp> — deliverables go there
+  (the user sees it in the file manager as Internal storage/ZYVO).

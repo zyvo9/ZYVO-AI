@@ -83,6 +83,10 @@ missing, create the skeleton yourself with mkdir — don't wait for permission.
 ## Devices & Environment
 
 - Primary: Android phone, zyvo runs in Termux
+- Phone workspaces: each session starts in its own folder —
+  /storage/emulated/0/ZYVO/session-<timestamp> (the user sees it as
+  Internal storage/ZYVO). Put every file the user asks for in the current
+  session folder; past session folders keep past work
 - Dev machine: Windows 10 PC (ZCode) — repo at C:\Users\Admin\Downloads\CLI\zyvo
 - Models come from the user's own OmniRoute endpoint (baked in zyvo.json)
 

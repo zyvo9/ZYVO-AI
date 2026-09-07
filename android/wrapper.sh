@@ -37,6 +37,14 @@ mkdir -p "$TMPDIR" 2>/dev/null || true
 ZYVO_ROOT="${ZYVO_SESSION_ROOT:-$HOME/storage/shared/ZYVO}"
 if mkdir -p "$ZYVO_ROOT" 2>/dev/null && [ -w "$ZYVO_ROOT" ]; then
   export ZYVO_SESSION_ROOT="$ZYVO_ROOT"
+  # Default workspace: every session gets its own folder on shared storage
+  # (Internal storage/ZYVO/session-<timestamp>) so files stay browsable and
+  # separate per session. Only when launched bare from $HOME — if the user
+  # cd'd into a project, respect their choice.
+  if [ "$PWD" = "$HOME" ]; then
+    ZYVO_SESS="$ZYVO_ROOT/session-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$ZYVO_SESS" 2>/dev/null && cd "$ZYVO_SESS" || true
+  fi
 else
   unset ZYVO_SESSION_ROOT
 fi
