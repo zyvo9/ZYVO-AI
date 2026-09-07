@@ -29,9 +29,6 @@ curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | ba
 The installer checks your phone's architecture, installs dependencies, deploys
 58 AI models + 5 skills + agent memory, and verifies the binary runs.
 
-**বাংলা:** টার্মাক্সে উপরের এক লাইন paste করলেই install হয়ে যাবে। এরপর `zyvo`
-লিখে শুরু করো — API key লাগবে না, model গুলো আগেই বসানো আছে।
-
 Start it:
 
 ```bash
@@ -56,7 +53,7 @@ Skills are playbooks the agent loads on demand — just ask in plain language
 
 | Skill | Say something like | What you get |
 |---|---|---|
-| `apk` | "একটা todo app বানাও" | Complete Android project, APK-ready structure |
+| `apk` | "ekta todo app banao" | Complete Android project, APK-ready structure |
 | `webdev` | "landing page banao" | Modern responsive website |
 | `lets-scroll` | "reel-type scroll video" | Reel-style scrolling web animation |
 | `remotion` | "promo video banao" | Motion-graphics video — see below |
