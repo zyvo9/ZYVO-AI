@@ -56,10 +56,10 @@ Skills are playbooks the agent loads on demand — just ask in plain language
 | `apk` | "ekta todo app banao" | Complete Android project, APK-ready structure |
 | `webdev` | "landing page banao" | Modern responsive website |
 | `lets-scroll` | "reel-type scroll video" | Reel-style scrolling web animation |
-| `remotion` | "promo video banao" | Motion-graphics video — see below |
+| `motion-animation` | "motion animation banao" / "ai motion animation" | Motion-graphics video — see below |
 | `web2video` | "webpage theke video" | Turns a web animation into a rendered video |
 
-## 🎬 Motion-graphics studio — the remotion skill
+## 🎬 Motion-graphics studio — the motion-animation skill
 
 Not template-grade animation: a full **frame-level motion masterclass**,
 distilled from 7 professional motion-design tutorials and encoded as 10 hard
@@ -115,8 +115,8 @@ the same look.
 ## ☁️ How video rendering works
 
 Termux can't run a headless-browser render farm — so zyvo doesn't try. The
-remotion skill scaffolds your video project with a `render.yml` GitHub Actions
-workflow:
+motion-animation skill scaffolds your video project with a `render.yml`
+GitHub Actions workflow:
 
 | Stage | Where it runs |
 |---|---|
@@ -161,8 +161,8 @@ packages/    opencode source (the fork)
 - [x] One-command installer + delta updates
 - [x] `zyvo` rebrand — command, config, TUI
 - [x] Zyvo provider — 58 preloaded models
-- [x] Five built-in skills (apk, webdev, lets-scroll, remotion, web2video)
-- [x] Remotion motion masterclass + AI video pipeline
+- [x] Five built-in skills (apk, webdev, lets-scroll, motion-animation, web2video)
+- [x] Motion-animation masterclass + AI video pipeline
 - [x] Model tester with Smart Retry
 - [ ] OmniRoute on permanent public hosting
 - [ ] x86_64 build (emulators, Chromebooks)

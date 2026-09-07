@@ -1,9 +1,9 @@
 ---
-name: remotion
-description: Make motion graphic VIDEOS (MP4) — write Remotion compositions and render them on GitHub Actions, not on the phone. Promos, intros, explainers, animated text/charts/logos with springs and interpolation. Use when the user asks for a video, promo, intro, animation video, or motion graphics ("video banao", "promo lagbe").
+name: motion-animation
+description: Make motion animation VIDEOS (MP4) — write Remotion compositions and render them on GitHub Actions, not on the phone. Motion animations, promos, intros, explainers, animated text/charts/logos with springs and interpolation. Use when the user asks for a motion animation, animation video, motion graphics, video, promo, or intro ("motion animation banao", "ai motion animation", "animation video banao", "video banao").
 ---
 
-# Motion Video Factory (Remotion + GitHub Actions)
+# Motion Animation Factory (Remotion + GitHub Actions)
 
 Make real MP4 videos programmatically. You write React/TypeScript
 compositions (Remotion), push them to a repo, and GitHub Actions renders

@@ -74,9 +74,9 @@ missing, create the skeleton yourself with mkdir — don't wait for permission.
 
 - **zyvo** — opencode fork for Android/Termux: native aarch64 build, delta
   updates, Zyvo provider (58 models, default Claude Opus 5), 5 skills
-  (apk, webdev, lets-scroll, remotion, web2video), model tester with Smart
+  (apk, webdev, lets-scroll, motion-animation, web2video), model tester with Smart
   Retry. Repo: github.com/zyvoai/ZYVO-AI
-- **remotion skill** — Pro Motion Masterclass (10 laws) + AI video pipeline:
+- **motion-animation skill** — Pro Motion Masterclass (10 laws) + AI video pipeline:
   skill writes shot-by-shot AI prompts → user generates clips in
   Seedance/Kling/Higgsfield/Veo → drops in public/ → compose → render
 

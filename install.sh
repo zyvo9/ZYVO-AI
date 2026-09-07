@@ -120,10 +120,20 @@ deploy_skills() {
       for RURL in $(echo "$REF_LIST" | grep -o '"download_url": *"[^"]*"' | grep -o 'https[^"]*'); do
         RFILE="${RURL##*/}"
         curl -fsSL "$RURL" -o "$SKILL_DIR/references/$RFILE" 2>/dev/null || true
-      done
-    fi
-  done
-}
+        done
+      fi
+      NAMES="$NAMES $NAME"
+    done
+    # remove skills that no longer exist in the repo (renamed or deleted)
+    for OLDDIR in "$HOME"/.config/zyvo/skills/*; do
+      [ -d "$OLDDIR" ] || continue
+      BASE="$(basename "$OLDDIR")"
+      case " $NAMES " in
+        *" $BASE "*) ;;
+        *) rm -rf "$OLDDIR"; info "old skill removed: $BASE" ;;
+      esac
+    done
+  }
 
 # ---------------------------------------------------------------
 # 6c. Memory file (AGENTS.md) — deployed ONCE, never overwritten
