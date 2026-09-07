@@ -184,12 +184,20 @@ if [ -f "$AGENTS_FILE" ] && ! grep -q "Auto-memory protocol" "$AGENTS_FILE" 2>/d
   rm -f "$AGENTS_FILE.tmp4"
 fi
 
-# Privacy fix: some installs shipped personal "Known user facts" seeded in
-# AGENTS.md — every device got the same name. Strip that block; the agent
-# re-learns the user's name in the first conversation (first-session rule).
+# Privacy fix: older builds seeded personal facts ("Morad", GitHub handles,
+# personal paths) into AGENTS.md — every device then used the same name.
+# Strip ALL personal fingerprints and add the first-session rule; the agent
+# re-learns the user's name per device.
 if [ -f "$AGENTS_FILE" ] && grep -q "Known user facts (seeded" "$AGENTS_FILE" 2>/dev/null; then
   sed -i "/### Known user facts (seeded/,\$d" "$AGENTS_FILE"
-  info "personal seeded facts removed from AGENTS.md (agent asks the name now)"
+  info "seeded facts block removed from AGENTS.md"
+fi
+if [ -f "$AGENTS_FILE" ] && grep -q "Moradmd\|Windows Credential Manager\|Dev machine: Windows 10 PC\|নাম/handle" "$AGENTS_FILE" 2>/dev/null; then
+  sed -i '/Moradmd/d; /Windows Credential Manager/d; /Dev machine: Windows 10 PC/d; /full dossier lives in the vault/d; /github.com\/zyvoai\/ZYVO-AI/d; /নাম\/handle: \*\*Morad\*\*/d' "$AGENTS_FILE"
+  if ! grep -q "First-session rule" "$AGENTS_FILE" 2>/dev/null; then
+    printf '\n## First-session rule (name & identity)\n\nNEVER assume or hardcode any user name — every zyvo user is a\ndifferent person. In the FIRST conversation, gently ask what the user\nwants to be called (once, naturally), then save it in the User section.\nDo not address them by any name until they give one.\n' >> "$AGENTS_FILE"
+  fi
+  info "personal data stripped from memory (agent learns each user's name)"
 fi
 
 # Legacy config cleanup — pre-rebrand installs wrote ~/.config/opencode/
