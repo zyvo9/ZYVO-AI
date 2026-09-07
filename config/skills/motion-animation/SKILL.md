@@ -349,6 +349,14 @@ const effects = [
 
 ## 🧼 CLEAN TEXT STYLE PACK — the signature look (use on request)
 
+**⚡ SAME-TO-SAME fast path:** this skill ships with a complete, tuned
+composition at `references/CleanTextDemo.tsx` (4 scenes, 15s: dark intro
+→ ghost headline + selection + doodles → chips + scramble → mockup wall +
+script sweep). COPY it into your project's `src/`, register the
+composition, then change ONLY the words, the accent color, and the card
+images. Do not retune the timings — they ARE the style. Build on it
+(add scenes) rather than rewriting it.
+
 When the user asks for "clean text animation" / text-animation style (the
 After Effects / Alight Motion preset look), build with these exact
 ingredients. Monochrome world + ONE accent, soft shadows, grain overlay.
