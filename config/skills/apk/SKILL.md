@@ -33,17 +33,24 @@ message: what you built, the repo link, and the APK download link.
 
 ## Requirements checklist (do this first)
 
-- `git` installed: `pkg install -y git` (skip if present)
-- User has a GitHub account
-- User has a **Personal Access Token** with BOTH `repo` and `workflow`
-  scopes (workflow is required — the project always pushes GitHub Actions
-  files). Give them this DIRECT link, which lands on the token-creation
-  page with both scopes ALREADY pre-checked:
-  https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo%20APK%20builder
-  The user only scrolls down, clicks "Generate token", and copies it —
-  the token is shown only once, so they must paste it to you immediately.
-  (ask the user for it if not provided; store nothing in files)
-- GitHub username known (ask if needed)
+0. **Saved credentials FIRST — never re-ask.** Before asking the user for
+   ANY token, check:
+   ```bash
+   cat ~/.git-credentials 2>/dev/null | grep github.com
+   ```
+   If a github.com entry exists → extract username + token from it and use
+   them silently. The user gave that token once already — asking again is
+   a bug. Only if truly missing → ask ONCE with this DIRECT link (scopes
+   pre-checked):
+   https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo%20APK%20builder
+   …then save it immediately per the 🔑 Credentials protocol in AGENTS.md
+   (git credential store) so it is never asked again.
+1. `git` installed: `pkg install -y git` (skip if present)
+2. GitHub username: derive from the ~/.git-credentials URL (or
+   `git config user.name`); ask only if absent
+3. Repo name (default: the app shortname). Default public (free builds).
+4. App idea + name — collect ONCE at the start, together with the preview
+   gate (Step 2.5), not as separate question rounds.
 
 If the user has no token, show them exactly the steps above and wait.
 

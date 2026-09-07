@@ -34,13 +34,24 @@ mkdir -p "$TMPDIR" 2>/dev/null || true
 
 # zyvo: browsable sessions live on shared storage when it's writable
 # (grant access once with: termux-setup-storage). Otherwise fall back silently.
+# Default root: shared storage (visible in any file manager as
+# Internal storage/ZYVO). If the storage permission is missing, fall back
+# to a private folder so files still land somewhere predictable.
 ZYVO_ROOT="${ZYVO_SESSION_ROOT:-$HOME/storage/shared/ZYVO}"
-if mkdir -p "$ZYVO_ROOT" 2>/dev/null && [ -w "$ZYVO_ROOT" ]; then
+if ! mkdir -p "$ZYVO_ROOT" 2>/dev/null || [ ! -w "$ZYVO_ROOT" ]; then
+  ZYVO_ROOT="$HOME/ZYVO"
+  mkdir -p "$ZYVO_ROOT" 2>/dev/null || true
+  if [ -w "$ZYVO_ROOT" ]; then
+    echo "zyvo: storage permission missing — using $ZYVO_ROOT instead." >&2
+    echo "zyvo: run 'termux-setup-storage' once to use Internal storage/ZYVO." >&2
+  fi
+fi
+if [ -d "$ZYVO_ROOT" ] && [ -w "$ZYVO_ROOT" ]; then
   export ZYVO_SESSION_ROOT="$ZYVO_ROOT"
-  # Default workspace: every session gets its own folder on shared storage
-  # (Internal storage/ZYVO/session-<timestamp>) so files stay browsable and
-  # separate per session. Only when launched bare from $HOME — if the user
-  # cd'd into a project, respect their choice.
+  # Default workspace: every session gets its own folder
+  # (<root>/session-<timestamp>) so files stay browsable and separate per
+  # session. Only when launched bare from $HOME — if the user cd'd into a
+  # project, respect their choice.
   if [ "$PWD" = "$HOME" ]; then
     ZYVO_SESS="$ZYVO_ROOT/session-$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$ZYVO_SESS" 2>/dev/null && cd "$ZYVO_SESS" || true

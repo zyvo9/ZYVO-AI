@@ -1,6 +1,6 @@
 ---
 name: motion-animation
-description: Make motion animation VIDEOS (MP4) — write Remotion compositions and render them on GitHub Actions, not on the phone. Motion animations, promos, intros, explainers, animated text/charts/logos with springs and interpolation. Use when the user asks for a motion animation, animation video, motion graphics, video, promo, or intro ("motion animation banao", "ai motion animation", "animation video banao", "video banao").
+description: Make motion animation VIDEOS (MP4) — write Remotion compositions and render them on GitHub Actions, not on the phone. Motion animations, promos, intros, explainers, animated text/charts/logos, product or brand animation clips with springs and interpolation. Use when the user asks for a motion animation, animation video, motion graphics, video, promo, intro, product animation, or ANY short animated clip ("motion animation banao", "ai motion animation", "animation banao" even without the word "video", "video banao").
 ---
 
 # Motion Animation Factory (Remotion + GitHub Actions)
@@ -8,6 +8,31 @@ description: Make motion animation VIDEOS (MP4) — write Remotion compositions 
 Make real MP4 videos programmatically. You write React/TypeScript
 compositions (Remotion), push them to a repo, and GitHub Actions renders
 the MP4 in the cloud. The user's phone does nothing heavy.
+
+## ⛔ READ-BEFORE-CODE GATE (non-negotiable — read this first)
+
+Almost every bad video comes from writing Remotion code from memory
+instead of following THIS file. Before writing a SINGLE line of
+composition code:
+
+1. Read this ENTIRE file — the Pro Motion Masterclass (10 laws), the
+   reference scene, and the pre-render checklist are below. They are the
+   product; skipping them is how "faltu video" happens.
+2. **Copy the REFERENCE SCENE as your starting skeleton.** Never start a
+   composition from an empty component.
+3. **Every scene must contain real motion** — entrance animations,
+   camera push, floating, stagger, beat-synced cuts. A static slide
+   where text just sits there = total failure. Redo it.
+4. **Layout safety:** all text lives inside a centered container with
+   horizontal padding (≥ 120px at 1920px width). Text must NEVER clip
+   off the left or right edge of the frame. Long headline → split into
+   two lines. Check every AbsoluteFill/positioned element stays inside.
+5. **Apply the laws for real:** overlap cascade delays (next element at
+   ~60% of previous), ONE accent palette, entrance = opacity + scale +
+   blur together, exits faster than entrances, grade chain (vignette +
+   grain) as the top layer. Minimum 10s / 300 frames / 3 scenes.
+6. After writing the code, run the pre-render checklist (bottom of this
+   file) line by line BEFORE pushing. If any box fails, fix first.
 
 ## Golden rules
 
