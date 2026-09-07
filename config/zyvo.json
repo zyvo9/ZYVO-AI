@@ -7,7 +7,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "https://hello-pty-projector-founder.trycloudflare.com/v1",
-        "apiKey": "sk-397a485ebe5ead01-39f994-dff3ac9d"
+        "apiKey": "sk-397a485ebe5ead01-043c14-36b8b7e5"
       },
       "models": {
         "auto/best-coding": {
