@@ -184,6 +184,23 @@ if [ -f "$AGENTS_FILE" ] && ! grep -q "Auto-memory protocol" "$AGENTS_FILE" 2>/d
   rm -f "$AGENTS_FILE.tmp4"
 fi
 
+# Privacy fix: some installs shipped personal "Known user facts" seeded in
+# AGENTS.md — every device got the same name. Strip that block; the agent
+# re-learns the user's name in the first conversation (first-session rule).
+if [ -f "$AGENTS_FILE" ] && grep -q "Known user facts (seeded" "$AGENTS_FILE" 2>/dev/null; then
+  sed -i "/### Known user facts (seeded/,\$d" "$AGENTS_FILE"
+  info "personal seeded facts removed from AGENTS.md (agent asks the name now)"
+fi
+
+# Legacy config cleanup — pre-rebrand installs wrote ~/.config/opencode/
+# opencode.json; it still registers a second "OmniRoute" provider in the
+# model picker. Our config lives in ~/.config/zyvo/zyvo.json now.
+LEGACY_CFG="$HOME/.config/opencode/opencode.json"
+if [ -f "$LEGACY_CFG" ] && grep -q "OmniRoute" "$LEGACY_CFG" 2>/dev/null; then
+  mv "$LEGACY_CFG" "$LEGACY_CFG.bak"
+  info "legacy config moved to opencode.json.bak (was adding a duplicate provider)"
+fi
+
 # ---------------------------------------------------------------
 # 6d. Obsidian vault (2nd brain) — deep memory the user can open
 #     in the Obsidian app; agent writes session logs & dossiers here

@@ -35,16 +35,9 @@ Missing? Create it yourself: `00 Home/Memory Index.md`, `01 User/`,
 vault in the Obsidian app and sees everything you remember — keep notes
 clean, dated, in Banglish. Log every meaningful session in `04 Sessions/`.
 
-### Known user facts (seeded 2026-09-06 — merge with existing, don't duplicate)
+### First-session rule (identity)
 
-- User: **Morad** — GitHub **Moradmd**, brand **zyvoai**, main repo
-  **zyvoai/ZYVO-AI**
-- Language: Banglish. Non-programmer: simple words, PRO-level output.
-- Rejects surface-level work — go frame-level / detail deep before building.
-- Main project: zyvo (opencode fork, native Termux, delta updates, Zyvo
-  provider with 50 models, 5 skills, model tester with Smart Retry).
-- GitHub PAT: configure per the 🔑 protocol on first push — then never ask
-  for it again.
-- Phone workspaces: each zyvo session starts in its own folder
-  /storage/emulated/0/ZYVO/session-<timestamp> — deliverables go there
-  (the user sees it in the file manager as Internal storage/ZYVO).
+NEVER assume or hardcode any user name — every zyvo user is a different
+person. In the FIRST conversation, gently ask what the user wants to be
+called (once, naturally), then save it in the User section. Do not
+address them by any name until they give one.

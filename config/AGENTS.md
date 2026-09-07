@@ -21,6 +21,13 @@ Obsidian vault (see below).
 5. End of a meaningful session → one dated note in the vault `04 Sessions/`:
    what was done, what was decided, what is next.
 
+## First-session rule (name & identity)
+
+NEVER assume or hardcode any user name — every zyvo user is a different
+person. In the FIRST conversation, gently ask what the user wants to be
+called (once, naturally), then save it in the User section below. Do not
+address them by any name until they give one.
+
 ## 🔑 Credentials — the user never gives the same thing twice
 
 When the user gives a token / key / password:
@@ -51,34 +58,24 @@ Plain markdown the user can open in the Obsidian app. Path:
     03 Credentials/state.md   what is configured where (NO raw secrets)
     04 Sessions/              dated notes: done, decided, next
 
-Rules: write in Banglish, date everything, link related notes, add new notes
-to the Memory Index, never delete the user's own edits. If the vault is
-missing, create the skeleton yourself with mkdir — don't wait for permission.
+Rules: write in the user's own language, date everything, link related
+notes, add new notes to the Memory Index, never delete the user's own
+edits. If the vault is missing, create the skeleton yourself with mkdir —
+don't wait for permission.
 
 ## User
 
-- নাম/handle: **Morad** — GitHub **Moradmd**, brand account **zyvoai**
-- Language: Banglish (Bangla in Latin letters) — reply in Banglish
-- Non-programmer: simple words, PRO-level results
-- Rejects surface-level work — always go frame-level / detail deep first
-- Main project: **zyvo** — full dossier lives in the vault `02 Projects/`
+- (empty — the agent learns the user's name and details in the first
+  conversation and saves them here; never assume any name)
 
 ## Preferences
 
-- Decide and execute without questions mid-task; end with the result + ONE
-  simple next step
-- Direct links (token pages, downloads), never vague instructions
-- Everything remembered automatically — never make him repeat a fact
+- (empty — save what you learn: language, style, likes, dislikes)
 
 ## Projects
 
-- **zyvo** — opencode fork for Android/Termux: native aarch64 build, delta
-  updates, Zyvo provider (50 models, default auto/best-coding router), 5 skills
-  (apk, webdev, lets-scroll, motion-animation, web2video), model tester with Smart
-  Retry. Repo: github.com/zyvoai/ZYVO-AI
-- **motion-animation skill** — Pro Motion Masterclass (10 laws) + AI video pipeline:
-  skill writes shot-by-shot AI prompts → user generates clips in
-  Seedance/Kling/Higgsfield/Veo → drops in public/ → compose → render
+- (empty — one line per project the user works on, with pointers to the
+  vault dossiers)
 
 ## Devices & Environment
 
@@ -109,13 +106,11 @@ missing, create the skeleton yourself with mkdir — don't wait for permission.
   /storage/emulated/0/ZYVO/session-<timestamp> (the user sees it as
   Internal storage/ZYVO). Put every file the user asks for in the current
   session folder; past session folders keep past work
-- Dev machine: Windows 10 PC (ZCode) — repo at C:\Users\Admin\Downloads\CLI\zyvo
-- Models come from the user's own OmniRoute endpoint (baked in zyvo.json)
 
 ## Credentials (facts only — no secrets here)
 
-- GitHub PAT (zyvoai): PC → Windows Credential Manager. Phone → configure
-  per the 🔑 protocol on first push, then git never asks again.
+- (empty — record what is configured, where, username, date when the user
+  sets up credentials; never raw secrets)
 
 ## Notes
 
@@ -139,7 +134,8 @@ codebase — has src/, package.json, .git, etc.):
 
 ## How to treat the user (always — every session, every task)
 
-- Assume ZERO technical knowledge: speak Banglish, simply, kindly.
+- Assume ZERO technical knowledge: keep it simple, kind, and in the
+  user's own language.
 - Collect missing info ONCE at the start, gently — always give direct
   links (token creation, download pages) instead of instructions.
 - Never ask questions mid-task: decide, execute, deliver.
