@@ -122,18 +122,16 @@ deploy_skills() {
         curl -fsSL "$RURL" -o "$SKILL_DIR/references/$RFILE" 2>/dev/null || true
         done
       fi
-      NAMES="$NAMES $NAME"
-    done
-    # remove skills that no longer exist in the repo (renamed or deleted)
-    for OLDDIR in "$HOME"/.config/zyvo/skills/*; do
-      [ -d "$OLDDIR" ] || continue
-      BASE="$(basename "$OLDDIR")"
-      case " $NAMES " in
-        *" $BASE "*) ;;
-        *) rm -rf "$OLDDIR"; info "old skill removed: $BASE" ;;
-      esac
-    done
-  }
+  done
+  # remove skill folders that were renamed in the repo (known renames only —
+  # never touch anything the user may have added themselves)
+  OLDDIR="$HOME/.config/zyvo/skills/remotion"
+  NEWDIR="$HOME/.config/zyvo/skills/motion-animation"
+  if [ -d "$OLDDIR" ] && [ -f "$NEWDIR/SKILL.md" ]; then
+    rm -rf "$OLDDIR"
+    info "old skill removed: remotion (renamed)"
+  fi
+}
 
 # ---------------------------------------------------------------
 # 6c. Memory file (AGENTS.md) — deployed ONCE, never overwritten
