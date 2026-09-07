@@ -10,7 +10,7 @@ from your phone, no PC needed. A fork of
 [opencode](https://github.com/anomalyco/opencode) (MIT), rebuilt natively
 for Android.
 
-`aarch64 · Termux · no proot · no PC needed`
+`zyvo · zyvo ai · zyvoai · AI coding CLI · Termux · 58 AI models · Banglish`
 
 </div>
 
@@ -169,6 +169,18 @@ packages/    opencode source (the fork)
 - [x] Model tester with Smart Retry
 - [ ] OmniRoute on permanent public hosting
 - [ ] x86_64 build (emulators, Chromebooks)
+
+---
+
+<details>
+<summary>🔎 People search this as</summary>
+
+zyvo · zyvo ai · zyvoai · zyvo-ai · ZYVO-AI github · zyvo app · opencode for android ·
+opencode termux · ai coding cli android · ai coding app for phone · mobile ai code editor ·
+free ai models termux · claude on termux · bangla ai coding · banglish ai · phone e coding ·
+zyvo android · zyvo termux · zyvo download · ai coding agent android
+
+</details>
 
 ## 📄 License
 
