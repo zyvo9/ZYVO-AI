@@ -200,3 +200,36 @@ For web3, dev tools, AI products.
 - Founder quote with signature-style italic serif
 - Rotating circular badge "SCROLL - EXPLORE - SCROLL -" (SVG textPath)
 - Marquee ticker of press names / product words
+
+## 15. More directions & components (second batch)
+
+### J. Data Dashboard (dark analytics)
+Near-black #0D0F14, sidebar nav (64px icons+labels), content = KPI cards
+row (4-up: label + huge value + delta chip) + chart cards (rounded 16px,
+subtle grid lines) + data table (monospace numbers, right-aligned).
+Neon accent ONE (cyan #22D3EE or lime #A3E635). Font: Space Grotesk +
+JetBrains Mono for numbers.
+
+### Gradient credit-card component (fintech)
+390×220 card, 24px radius, diagonal gradient (two brand tones), chip SVG,
+masked number in mono with 4px letter-spacing, bank logo top-right,
+name/expiry bottom. Stack 2-3 cards with -60px overlap on a dark hero.
+
+### Logo/icon system rules
+Simple (one metaphor), scalable (clear at 16px AND 512px), memorable
+(distinctive silhouette), works in ONE color. Test: squint — still
+recognizable? App icons: consistent squircle, bold glyph, subtle
+top-to-bottom gradient, no text inside small icons.
+
+## 16. Font pairings that always work (Google Fonts)
+
+| Vibe | Display | Body |
+|---|---|---|
+| Editorial luxury | Playfair Display (italic accents) | Source Sans 3 |
+| Bold modern | Archivo Black / Anton | Inter |
+| Friendly startup | Clash Display* / Fraunces | Manrope |
+| Technical calm | Space Grotesk | Inter |
+| Humanist warm | DM Serif Display | DM Sans |
+| Brutalist | Bebas Neue | IBM Plex Sans |
+*Clash Display via fontshare.com — else Fraunces.
+Rule: display font ONLY for headlines; body always the body font.

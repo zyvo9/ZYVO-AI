@@ -135,3 +135,21 @@ Photos → Mockup → **user picks (preview gate)** → build.
 | Education soft | #F5F378 · #DCC1FF · #EC704B · #111111 — learning apps |
 | Elegant green SaaS | #004839 · #E9F8BE · #FFFFFF — premium web |
 | Beauty cream | #FE813C · #BC655A · #DEDFDB — skincare/luxury |
+
+## 13. Logo & app-icon system rules
+
+Simple (one metaphor), scalable (clear at 16dp AND 512dp), memorable
+(distinctive silhouette), works in ONE color. Squint test: still
+recognizable? App icons: consistent squircle, bold glyph, subtle
+top-to-bottom gradient, never tiny text inside an icon.
+
+## 14. Font pairing (mobile-safe)
+
+| Vibe | Display | Body |
+|---|---|---|
+| Editorial luxury | Playfair Display | Source Sans 3 |
+| Bold modern | Archivo Black | Inter |
+| Friendly startup | Fraunces | Manrope |
+| Technical calm | Space Grotesk | Inter |
+| Humanist warm | DM Serif Display | DM Sans |
+Display font ONLY for hero/headline text; everything else = body font.

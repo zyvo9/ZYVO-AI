@@ -353,6 +353,21 @@ one-liner → inputs (outlined, 16dp corner) → full-width pill CTA → 13sp
 footer link ("Don't have an account? Sign up"). Brand accent ONLY on CTA +
 links + focused inputs. Social buttons: 48dp outlined rows with 24dp icon.
 
+### Recipe: HOME / FEED (food, shop, social home)
+App bar: greeting + avatar circle (32dp). Search pill (52dp, gray fill,
+leading icon). Category chips row: horizontal scroll, active = accent
+filled, inactive = outline ("All", "Pizza", "Sushi"...). Horizontal card
+rails: 280dp-wide image cards, 16dp radius, title + price under image,
+scroll snap. Then a section micro-label + vertical list (recipe LIST).
+Bottom navigation 4-5 tabs. Popular screen pattern — use it for any
+browse/home screen.
+
+### Recipe: ONBOARDING (first launch)
+Full-screen illustration or photo (top 55%) → headline 22sp/700 centered
+→ 14sp gray one-liner → progress dots (active dot = accent, wider) →
+full-width pill CTA ("Get started") → "Skip" 13sp gray top-right.
+2-4 slides maximum, swipeable. Last slide's CTA goes to LOGIN/REGISTER.
+
 ### Recipe: TOOL (calculator, timer, converter)
 Full-bleed brand-colored screen (gradient ok), white text. Display:
 right-aligned, small history line 13sp 60% white above current value
