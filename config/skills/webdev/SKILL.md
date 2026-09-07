@@ -14,11 +14,14 @@ The phone only writes text files.
 1. The phone NEVER builds anything — all hosting/building is GitHub's.
 2. NEVER ship the generic AI look (see The Anti-AI-Look Doctrine — it is
    the most important section of this skill).
-3. The site MUST be responsive (mobile-first — the user is on a phone).
-4. Default to a **single self-contained index.html** (inline CSS + JS).
+3. A build that succeeds with BAD design is a FAILED build: the Web
+   Design System + Page Recipes + QA checklist below are not optional —
+   run the checklist before every push.
+4. The site MUST be responsive (mobile-first — the user is on a phone).
+5. Default to a **single self-contained index.html** (inline CSS + JS).
    Split files only when the site truly needs it.
-5. Sources live in `$HOME/<sitename>` — never in shared storage.
-6. NEVER put the user's GitHub token inside any committed file.
+6. Sources live in `$HOME/<sitename>` — never in shared storage.
+7. NEVER put the user's GitHub token inside any committed file.
 
 ## THE ANTI-AI-LOOK DOCTRINE
 
@@ -66,6 +69,59 @@ Re-read your page and ask: "Would a senior designer ship this? Can I tell
 which AI made it from a screenshot?" If any section looks templated, redo
 it with a different layout/palette. This loop is mandatory.
 
+## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
+
+The Doctrine says WHAT; this is the HOW with numbers. Every site you build
+uses these tokens and scales (adjust hues/fonts to the art direction —
+never the scale itself).
+
+### Token block (start every stylesheet with this, then theme it)
+```css
+:root {
+  --bg: #F7F5F0; --surface: #FFFFFF; --text-1: #16130E; --text-2: #6E675C;
+  --accent: #C2410C; --on-accent: #FFFFFF; --line: #E7E2D8;
+  --ok: #1B7A43; --danger: #C2331B;
+  --radius: 18px; --radius-sm: 10px;
+  --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px;
+  --space-5: 48px; --space-6: 96px;
+  --container: 1120px; --reading: 680px;
+}
+@media (prefers-color-scheme: dark) { /* re-map tokens, keep accent */ }
+```
+Rules: only tokens in CSS (no stray hex), max 4 colors on screen at once
+(bg/surface neutrals + ONE accent + a state color), 60/30/10 distribution.
+
+### Type scale (fluid — no breakpoint font jumps)
+| Role | CSS | Use |
+|---|---|---|
+| Display | `clamp(2.6rem, 7vw, 5.5rem)`, lh 1.05, ls -0.02em | hero headline |
+| H2 | `clamp(1.7rem, 4vw, 2.8rem)` | section titles |
+| H3 | `1.35rem`, 600 | card titles |
+| Body | `1rem/1.65` | paragraphs |
+| Small | `.875rem`, --text-2 | meta, captions |
+| Overline | `.75rem`, 700, UPPERCASE, +0.08em | eyebrows/labels |
+
+### Components
+- **Navbar**: 64–72px, sticky, `backdrop-filter: blur(12px)` + rgba
+  surface, content in `--container`; logo left, 5 links max, ONE CTA right.
+- **Primary button**: 52px tall, pill or 14px radius, accent bg, hover:
+  translateY(-2px) + shadow, active: scale(.97); secondary: 1px border
+  ghost. Focus-visible: 2px accent outline, offset 2px — ALWAYS.
+- **Cards**: `--radius`, border `1px var(--line)` or soft shadow
+  `0 8px 30px rgba(0,0,0,.06)` — never both heavy; hover: translateY(-4px).
+- **Sections**: `padding-block: var(--space-6)` desktop / `--space-5`
+  mobile — identical rhythm every section.
+- **Forms**: 52px inputs, 10px radius, border var(--line), focus: accent
+  border + subtle ring; labels above, never placeholder-only.
+- **Images**: always `aspect-ratio` + `object-fit: cover` (zero CLS),
+  `loading="lazy"`, real alt text.
+- **Footer**: 3–4 columns desktop → stacked mobile; giant brand word is a
+  pro signature.
+
+### Breakpoints
+Mobile-first. `min-width: 640px` (2-col), `900px` (nav unwraps, 3-col),
+`1200px` (container caps). Test 375px ALWAYS — the user browses on a phone.
+
 ## MOTION CRAFT (what separates pro from AI)
 
 Principles from professional web animation practice:
@@ -88,6 +144,42 @@ Principles from professional web animation practice:
   don't remove everything.
 - **Restraint:** motion serves hierarchy and feedback. If it doesn't help,
   cut it.
+
+## 📄 PAGE RECIPES (section-by-section — pick one, follow it)
+
+### LANDING / SAAS
+nav → hero (7-word headline + 1-line sub + CTA + product shot/gradient)
+→ logo/trust row (muted) → features as BENTO (mixed card sizes, never 3
+equal) → big stat row (3 huge numbers) → one testimonial with photo →
+pricing (3 tiers, middle emphasized) → FAQ (details/summary) → full-width
+CTA band → footer.
+
+### PORTFOLIO
+Oversized name hero (display type, maybe outline stroke) → selected work:
+asymmetric grid, hover reveals image/title → about strip with portrait +
+3 facts → services/numbers row → contact CTA → footer with the giant name
+again (designer signature).
+
+### RESTAURANT / LOCAL BUSINESS
+Full-bleed food photo hero + hours chip → "open now" badge (real logic if
+easy) → menu as classic list (name …… price, dotted leader) → gallery
+strip → address/hours/map card → reservation CTA (tel: link works).
+
+### BLOG / EDITORIAL
+Masthead with date → featured article (big image + serif headline) → 1+2
+card grid → article page: `--reading` width column, drop cap optional,
+pull-quotes break the column → related posts. Serif identity font shines
+here.
+
+### PRODUCT / E-COMM
+Gallery (stacked mobile / split desktop, aspect-ratio locked) → sticky
+buy box (title, price, CTA, trust line) → details accordion → specs table
+→ reviews with avatars → related items row.
+
+### EVENT
+Date + city hero with countdown (real JS, small) → speakers grid (photo
+cards, hover bio) → schedule timeline (time + talk + track) → ticket
+tiers CTA → sponsor logo row (grayscale, hover color).
 
 ## Autonomous delivery (the default flow)
 
@@ -239,3 +331,27 @@ tab icon with zero image files.
 - Empty state: what the user sees with no data (friendly, with a next step)
 - Loading: skeleton or spinner — never a blank screen
 - Error: clear message + what to do next
+
+---
+
+# ✅ WEB QA CHECKLIST — run BEFORE pushing (every site, no exceptions)
+
+1. ⬜ One page recipe followed (or a deliberate mix the user chose in the
+   preview gate) — no invented structure
+2. ⬜ Tokens only: no stray hex values; ≤4 colors on screen; 60/30/10
+3. ⬜ Type scale used exactly (display/H2/H3/body/small/overline) — no
+   random font sizes
+4. ⬜ Section rhythm identical (`--space-6` / `--space-5`); container caps
+   respected; no element touches the viewport edge
+5. ⬜ Tested at 375px AND 1440px — no horizontal scroll, no overflow,
+   nav usable at both
+6. ⬜ Every interactive element has hover + active + :focus-visible states
+7. ⬜ Body text contrast ≥ 4.5:1 (both light and dark if dark exists)
+8. ⬜ Images: alt text + aspect-ratio + loading=lazy — zero layout shift
+9. ⬜ Loading/empty/error states present for anything dynamic
+10. ⬜ Head: title, meta description, OG tags, theme-color, favicon
+11. ⬜ Identity font is NOT Inter/Roboto/system-ui; real copy, zero lorem
+12. ⬜ Anti-AI self-check passed: "Would a senior designer ship this?"
+13. ⬜ Page weight under ~500KB; no frameworks; vanilla only
+14. ⬜ Lighthouse-style sanity: semantic tags (header/main/section/footer),
+    one h1, buttons are <button>, links are <a>
