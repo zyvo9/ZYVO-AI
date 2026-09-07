@@ -182,5 +182,4 @@ zyvo android · zyvo termux · zyvo download · ai coding agent android
 ## 📄 License
 
 MIT — see [LICENSE](LICENSE). Built on
-[opencode](https://github.com/anomalyco/opencode) and
-[guysoft/opencode-termux](https://github.com/guysoft/opencode-termux), both MIT.
+both MIT.
