@@ -93,9 +93,12 @@ Principles from professional web animation practice:
 
 Be fully autonomous: collect missing info ONCE at the start (site
 purpose, GitHub username + token), then decide everything else yourself
-— design direction, palette, fonts, copy, structure, Pages setup. Never
-ask intermediate questions. Deliver ONE final message: the art direction
-you chose + the LIVE URL + one line on how to request changes.
+— design direction, palette, fonts, copy, structure, Pages setup. The
+ONLY intentional interaction is the UI preview gate (Step 1.5): show 2-3
+design directions in Chrome, user picks a number, you build the winner.
+Never ask other intermediate questions. Deliver ONE final message: the
+art direction the user picked + the LIVE URL + one line on how to
+request changes.
 
 ## Requirements checklist (do this first)
 
@@ -111,10 +114,40 @@ you chose + the LIVE URL + one line on how to request changes.
 
 ## Step 1 — Design pass
 
-1. Mood in 3 words → palette (60/30/10) → font pairing → layout concept.
-2. Fetch references with WebFetch if the app type is unfamiliar
+1. Read `references/ui-ideas.md` (same folder as this skill) — especially
+   §13 WEBSITE STYLE DIRECTIONS (9 complete personalities: dark editorial,
+   luxury cream serif, magazine, bento grid, soft 3D, brutalist, minimal
+   luxury, dark glass tech...) and §12 palettes. Pick 2-3 candidates that
+   fit the subject's mood.
+2. Mood in 3 words → palette (60/30/10) → font pairing → layout concept,
+   per the Anti-AI-Look Doctrine.
+3. Fetch references with WebFetch if the app type is unfamiliar
    (https://m3.material.io, design showcases).
-3. State the direction to the user — they can steer before you code.
+
+## Step 1.5 — UI PREVIEW GATE (always — the user picks the design)
+
+NEVER build the site on the first design you imagine. The gate:
+
+1. **Mock up the 2-3 candidate directions** from Step 1 as one
+   self-contained HTML page: each direction = a mini hero + one content
+   section (real copy, real picsum images, real fonts), stacked with big
+   number badges ① ② ③, name + 3-word mood label above each. All inline
+   CSS; only Google Fonts external.
+2. Save to shared storage:
+   `/storage/emulated/0/ZYVO/ui-preview.html` (create dir if missing).
+3. **Open it in Chrome**:
+   ```bash
+   termux-open /storage/emulated/0/ZYVO/ui-preview.html 2>/dev/null \
+     || am start -a android.intent.action.VIEW \
+          -d "file:///storage/emulated/0/ZYVO/ui-preview.html" \
+          -t "text/html"
+   ```
+4. **Tell the user**: "Chrome-এ ২-৩টা design খুলেছি — কোন নম্বরটা পছন্দ?
+   (মিশ্রও যায়: '২ এর layout + ১ এর রঙ')" — then WAIT for the pick.
+   This is the ONE intentional interaction point; everything else stays
+   autonomous.
+5. Build the full site with the chosen (or mixed) direction only. The
+   winner's exact mockup CSS becomes the seed of the real stylesheet.
 
 ## Step 2 — Scaffold
 

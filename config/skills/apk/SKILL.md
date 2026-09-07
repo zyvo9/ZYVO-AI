@@ -25,9 +25,11 @@ the cloud (free for public repos). The phone only writes text files.
 Be fully autonomous: collect missing credentials/info ONCE at the start
 (app idea, GitHub username + token, app name if the user names it), then
 decide everything else yourself — package id, project structure, screens,
-design, workflow. Never ask intermediate questions. If a push or build
-fails: read the error, fix, retry (up to 3 attempts) silently. Deliver ONE
-final message: what you built, the repo link, and the APK download link.
+design, workflow. The ONLY intentional interaction is the UI preview gate
+(Step 2.5): show 3 designs in Chrome, user picks a number, you build the
+winner. Never ask other intermediate questions. If a push or build fails:
+read the error, fix, retry (up to 3 attempts) silently. Deliver ONE final
+message: what you built, the repo link, and the APK download link.
 
 ## Requirements checklist (do this first)
 
@@ -55,17 +57,49 @@ If the user has no token, show them exactly the steps above and wait.
 
 ## Step 2 — Design pass (do this BEFORE writing any UI code)
 
-1. **Pick the app's ONE brand accent** from its purpose (see palette table
+1. Read `references/ui-ideas.md` (same folder as this skill) — UX laws,
+   form/button/icon rules, palettes. Apply them, not just the design system.
+2. **Pick the app's ONE brand accent** from its purpose (see palette table
    below). State the mood to the user in one line before coding.
-2. **Pick the screen recipes** (see Screen Recipes below) that match each
+3. **Pick the screen recipes** (see Screen Recipes below) that match each
    screen the app needs. Every screen must map to a recipe.
-3. Decide the template: **native Java UI** (calculator/notes/tools) or
+4. Decide the template: **native Java UI** (calculator/notes/tools) or
    **WebView app** (HTML/CSS/JS UI — fastest path, full CSS design
    freedom). Default to WebView for content-heavy apps, native for
    tool-like apps.
-4. If the app type is uncommon, use WebFetch on
+5. If the app type is uncommon, use WebFetch on
    `https://m3.material.io/components` and
    `https://m3.material.io/styles/color/overview` to pick components.
+
+## Step 2.5 — UI PREVIEW GATE (always — the user picks the design)
+
+NEVER build the app on the first design you imagine. The gate:
+
+1. **Design 3 DIFFERENT directions** for the app's main screen — different
+   accent palette, different layout personality (e.g. A: soft pastel cards,
+   B: bold flat color-blocks, C: dark neon glass). Each must still follow
+   the design system + recipes below.
+2. **Write ONE self-contained preview page** — HTML mockups of the main
+   screen inside phone frames (390×844), numbered ① ② ③ with a name and
+   one-line mood under each. All inline CSS, no external files except
+   Google Fonts. Save to the SHARED storage session folder:
+   `/storage/emulated/0/ZYVO/ui-preview.html` (create dir if missing).
+3. **Open it in Chrome**:
+   ```bash
+   termux-open /storage/emulated/0/ZYVO/ui-preview.html 2>/dev/null \
+     || am start -a android.intent.action.VIEW \
+          -d "file:///storage/emulated/0/ZYVO/ui-preview.html" \
+          -t "text/html"
+   ```
+4. **Tell the user**: "Chrome-এ ৩টা design খুলেছি — ১/২/৩ কোনটা পছন্দ?
+   (চাইলে মিলিয়েও বলতে পারো: '২ কিন্তু রঙটা ১-এর')" — then WAIT for
+   the pick. This is the ONE intentional interaction point; everything
+   else stays autonomous.
+5. Build the full app with the chosen (or mixed) direction only.
+
+Preview mockups are HTML (fast to write, pixel-accurate) — the real app is
+native/WebView per Step 2.4. Keep the mockups honest: same content,
+structure, and proportions as the real screen will have.
 
 ## Step 3 — Scaffold the project
 
