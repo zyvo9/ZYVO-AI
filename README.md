@@ -181,5 +181,4 @@ zyvo android · zyvo termux · zyvo download · ai coding agent android
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE). Built on
-both MIT.
+MIT — see [LICENSE](LICENSE).
