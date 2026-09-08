@@ -60,6 +60,47 @@ else
   unset ZYVO_SESSION_ROOT
 fi
 
+# Live model list refresh (UX rules: never block >10s, never break launch,
+# never lose the working config — atomic write + backup).
+# ZYVO_MODELS_URL can come from env or ~/.config/zyvo/models-url (one line).
+ZYVO_MODELS_URL="${ZYVO_MODELS_URL:-}"
+[ -z "$ZYVO_MODELS_URL" ] && [ -f "$HOME/.config/zyvo/models-url" ] && ZYVO_MODELS_URL="$(head -n1 "$HOME/.config/zyvo/models-url" 2>/dev/null)"
+if [ -n "$ZYVO_MODELS_URL" ] && command -v python >/dev/null 2>&1; then
+  MODELS_JSON="$(curl -fsS -m 10 "$ZYVO_MODELS_URL" 2>/dev/null || true)"
+  if [ -n "$MODELS_JSON" ]; then
+    MODELS_JSON="$MODELS_JSON" python - <<'PYREFRESH' 2>/dev/null || true
+import json, os, sys
+payload = json.loads(os.environ["MODELS_JSON"])
+models = payload.get("models") or []
+if not models:
+    sys.exit(1)  # empty/broken list -> keep current config
+cfg_path = os.path.expanduser("~/.config/zyvo/zyvo.json")
+try:
+    cfg = json.load(open(cfg_path, encoding="utf-8"))
+except Exception:
+    sys.exit(1)
+out = {}
+for m in models:
+    mid, name = m.get("id"), m.get("name") or m.get("id")
+    if mid:
+        out[mid] = {"name": name}
+if not out:
+    sys.exit(1)
+cfg.setdefault("provider", {}).setdefault("zyvo", {})["models"] = out
+first_active = next((m["id"] for m in models if m.get("status") == "active"), models[0]["id"])
+cfg["model"] = "zyvo/" + first_active
+os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
+if os.path.exists(cfg_path):
+    import shutil
+    shutil.copy2(cfg_path, cfg_path + ".bak")
+tmp = cfg_path + ".tmp"
+with open(tmp, "w", encoding="utf-8") as f:
+    json.dump(cfg, f, indent=2, ensure_ascii=False)
+os.replace(tmp, cfg_path)
+PYREFRESH
+  fi
+fi
+
 export OPENCODE_DISABLE_TUI_AUDIO="${OPENCODE_DISABLE_TUI_AUDIO:-1}"
 
 # Locate the native libraries we ship alongside the wrapper.
