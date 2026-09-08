@@ -137,6 +137,13 @@ deploy_skills() {
 # 6c. Memory file (AGENTS.md) — deployed ONCE, never overwritten
 #     (auto-loads in every session; the agent maintains it)
 # ---------------------------------------------------------------
+# Live model list source — the scanner gateway keeps only working models
+MODELS_URL_FILE="$HOME/.config/zyvo/models-url"
+if [ ! -f "$MODELS_URL_FILE" ]; then
+  echo "https://omniroute-render-production-52cf.up.railway.app/active-models" > "$MODELS_URL_FILE"
+  info "Live model list connected (scanner gateway)"
+fi
+
 AGENTS_FILE="$HOME/.config/zyvo/AGENTS.md"
 AGENTS_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/AGENTS.md"
 if [ ! -f "$AGENTS_FILE" ]; then
