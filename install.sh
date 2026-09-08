@@ -49,6 +49,15 @@ else
   info "ripgrep already installed"
 fi
 
+# The wrapper's live model-list updater needs python — without it the
+# active-model refresh silently skips and users see stale/dead models.
+if ! command -v python >/dev/null 2>&1; then
+  info "Installing python (needed for live model list)..."
+  pkg install -y python
+else
+  info "python already installed"
+fi
+
 if [ ! -d "$HOME/storage/shared" ] && command -v termux-setup-storage >/dev/null 2>&1; then
   info "Requesting storage permission — press ALLOW (sessions will appear in /storage/emulated/0/ZYVO)"
   termux-setup-storage || true
