@@ -83,12 +83,15 @@ out = {}
 for m in models:
     mid, name = m.get("id"), m.get("name") or m.get("id")
     if mid:
-        out[mid] = {"name": name}
+        # prefix so opencode never misreads vendor ids (poolside/..., moonshotai/...)
+        # as separate providers — the gateway strips this prefix on the way in
+        key = "omniroute/" + mid
+        out[key] = {"name": name}
 if not out:
     sys.exit(1)
 cfg.setdefault("provider", {}).setdefault("zyvo", {})["models"] = out
 first_active = next((m["id"] for m in models if m.get("status") == "active"), models[0]["id"])
-cfg["model"] = "zyvo/" + first_active
+cfg["model"] = "zyvo/omniroute/" + first_active
 os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
 if os.path.exists(cfg_path):
     import shutil
