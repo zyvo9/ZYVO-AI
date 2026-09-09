@@ -7,7 +7,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "https://omniroute-render-production-52cf.up.railway.app/v1",
-        "apiKey": "sk-ee0530b8502a3b35-242f34-e3b3ba97"
+        "apiKey": "sk-96a90e3831db0b8f-7f4f7c-b21eebc2"
       },
       "models": {
         "nvidia/nemotron-3-ultra-550b-a55b:free": {
