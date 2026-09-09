@@ -62,45 +62,21 @@ fi
 
 # Live model list refresh (UX rules: never block >10s, never break launch,
 # never lose the working config — atomic write + backup).
-# ZYVO_MODELS_URL can come from env or ~/.config/zyvo/models-url (one line).
+# The gateway serves a COMPLETE ready-to-use config at /zyvo-config — just
+# download and swap. No python, no JSON surgery on the phone.
 ZYVO_MODELS_URL="${ZYVO_MODELS_URL:-}"
 [ -z "$ZYVO_MODELS_URL" ] && [ -f "$HOME/.config/zyvo/models-url" ] && ZYVO_MODELS_URL="$(head -n1 "$HOME/.config/zyvo/models-url" 2>/dev/null)"
-if [ -n "$ZYVO_MODELS_URL" ] && command -v python >/dev/null 2>&1; then
-  MODELS_JSON="$(curl -fsS -m 10 "$ZYVO_MODELS_URL" 2>/dev/null || true)"
-  if [ -n "$MODELS_JSON" ]; then
-    MODELS_JSON="$MODELS_JSON" python - <<'PYREFRESH' 2>/dev/null || true
-import json, os, sys
-payload = json.loads(os.environ["MODELS_JSON"])
-models = payload.get("models") or []
-if not models:
-    sys.exit(1)  # empty/broken list -> keep current config
-cfg_path = os.path.expanduser("~/.config/zyvo/zyvo.json")
-try:
-    cfg = json.load(open(cfg_path, encoding="utf-8"))
-except Exception:
-    sys.exit(1)
-out = {}
-for m in models:
-    mid, name = m.get("id"), m.get("name") or m.get("id")
-    if mid:
-        # prefix so opencode never misreads vendor ids (poolside/..., moonshotai/...)
-        # as separate providers — the gateway strips this prefix on the way in
-        key = "omniroute/" + mid
-        out[key] = {"name": name}
-if not out:
-    sys.exit(1)
-cfg.setdefault("provider", {}).setdefault("zyvo", {})["models"] = out
-first_active = next((m["id"] for m in models if m.get("status") == "active"), models[0]["id"])
-cfg["model"] = "zyvo/omniroute/" + first_active
-os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
-if os.path.exists(cfg_path):
-    import shutil
-    shutil.copy2(cfg_path, cfg_path + ".bak")
-tmp = cfg_path + ".tmp"
-with open(tmp, "w", encoding="utf-8") as f:
-    json.dump(cfg, f, indent=2, ensure_ascii=False)
-os.replace(tmp, cfg_path)
-PYREFRESH
+if [ -n "$ZYVO_MODELS_URL" ]; then
+  ZYVO_CONFIG_URL="${ZYVO_MODELS_URL%/active-models}/zyvo-config"
+  NEWCFG="$(curl -fsS -m 10 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
+  if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ]; then
+    CFG="$HOME/.config/zyvo/zyvo.json"
+    mkdir -p "$(dirname "$CFG")"
+    [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
+    printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
+    echo "zyvo: live model list updated from scanner" >&2
+  else
+    echo "zyvo: live model list unavailable — keeping current config" >&2
   fi
 fi
 
