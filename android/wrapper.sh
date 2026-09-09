@@ -69,7 +69,7 @@ ZYVO_MODELS_URL="${ZYVO_MODELS_URL:-}"
 if [ -n "$ZYVO_MODELS_URL" ]; then
   ZYVO_CONFIG_URL="${ZYVO_MODELS_URL%/active-models}/zyvo-config"
   NEWCFG="$(curl -fsS -m 10 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
-  if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ]; then
+  if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ] && ! echo "$NEWCFG" | grep -q '"models":{}'; then
     CFG="$HOME/.config/zyvo/zyvo.json"
     mkdir -p "$(dirname "$CFG")"
     [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
