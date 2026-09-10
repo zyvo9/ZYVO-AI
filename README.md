@@ -23,7 +23,7 @@ F-Droid or GitHub build (the Play Store version is outdated and unsupported) —
 then run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install.sh | bash
 ```
 
 The installer checks your phone's architecture, installs dependencies, deploys
@@ -143,7 +143,7 @@ OpenTUI) against Android's own libc (bionic). The result is a single standalone
 arm64 binary that runs natively in Termux with no proot and no glibc layer.
 
 Builds run on GitHub Actions (`.github/workflows/android-build.yml`) and every
-successful build updates the [Releases](https://github.com/zyvoai/ZYVO-AI/releases)
+successful build updates the [Releases](https://github.com/zyvo9/ZYVO-AI/releases)
 page. The build system lives in [`android/`](android/), based on
 [guysoft/opencode-termux](https://github.com/guysoft/opencode-termux) (MIT).
 

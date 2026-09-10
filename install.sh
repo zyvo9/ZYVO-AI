@@ -3,7 +3,7 @@
 # Zyvo installer + delta updater for Termux (Android aarch64)
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install.sh | bash
 #
 # Update modes:
 #   - runtime unchanged: downloads ONLY the code graph (~11MB) and re-attaches
@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-GITHUB_REPO="${1:-${ZYVO_REPO:-zyvoai/ZYVO-AI}}"
+GITHUB_REPO="${1:-${ZYVO_REPO:-zyvo9/ZYVO-AI}}"
 FORCE=false
 for arg in "$@"; do [ "$arg" = "--force" ] && FORCE=true; done
 
