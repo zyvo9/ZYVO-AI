@@ -60,23 +60,28 @@ else
   unset ZYVO_SESSION_ROOT
 fi
 
-# Live model list refresh (UX rules: never block >10s, never break launch,
-# never lose the working config — atomic write + backup).
-# The gateway serves a COMPLETE ready-to-use config at /zyvo-config — just
-# download and swap. No python, no JSON surgery on the phone.
+# UPDATE-FIRST LAUNCH: fetch the latest model list BEFORE zyvo opens.
+# Try 1: fast (8s). Try 2: long (40s) — gives a sleeping cloud scanner time
+# to wake up. Only after both fail do we open with the current config.
+# Never lose the working config — atomic write + backup.
 ZYVO_MODELS_URL="${ZYVO_MODELS_URL:-}"
 [ -z "$ZYVO_MODELS_URL" ] && [ -f "$HOME/.config/zyvo/models-url" ] && ZYVO_MODELS_URL="$(head -n1 "$HOME/.config/zyvo/models-url" 2>/dev/null)"
 if [ -n "$ZYVO_MODELS_URL" ]; then
   ZYVO_CONFIG_URL="${ZYVO_MODELS_URL%/active-models}/zyvo-config"
-  NEWCFG="$(curl -fsS -m 10 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
+  echo "zyvo: সর্বশেষ model list নাওয়া হচ্ছে…" >&2
+  NEWCFG="$(curl -fsS -m 8 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
+  if [ -z "$NEWCFG" ]; then
+    echo "zyvo: scanner জাগছে — একটু অপেক্ষা…" >&2
+    NEWCFG="$(curl -fsS -m 40 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
+  fi
   if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ] && ! echo "$NEWCFG" | grep -q '"models":{}'; then
     CFG="$HOME/.config/zyvo/zyvo.json"
     mkdir -p "$(dirname "$CFG")"
     [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
     printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
-    echo "zyvo: live model list updated from scanner" >&2
+    echo "zyvo: ✓ সর্বশেষ list বসে গেছে" >&2
   else
-    echo "zyvo: live model list unavailable — keeping current config" >&2
+    echo "zyvo: scanner পাওয়া যায়নি — বর্তমান list দিয়েই চলছে" >&2
   fi
 fi
 
