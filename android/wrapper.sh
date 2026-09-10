@@ -48,14 +48,13 @@ if ! mkdir -p "$ZYVO_ROOT" 2>/dev/null || [ ! -w "$ZYVO_ROOT" ]; then
 fi
 if [ -d "$ZYVO_ROOT" ] && [ -w "$ZYVO_ROOT" ]; then
   export ZYVO_SESSION_ROOT="$ZYVO_ROOT"
-  # Default workspace: every session gets its own folder
-  # (<root>/session-<timestamp>) so files stay browsable and separate per
-  # session. Only when launched bare from $HOME — if the user cd'd into a
-  # project, respect their choice.
-  if [ "$PWD" = "$HOME" ]; then
-    ZYVO_SESS="$ZYVO_ROOT/session-$(date +%Y%m%d-%H%M%S)"
-    mkdir -p "$ZYVO_SESS" 2>/dev/null && cd "$ZYVO_SESS" || true
-  fi
+  # Per-session FILES folder (agent saves deliverables here — see AGENTS.md),
+  # but zyvo itself launches from a STABLE directory: opencode lists sessions
+  # per working directory, so launching from a new folder each time made all
+  # previous sessions invisible. Fixed cwd = session history always shows.
+  ZYVO_SESS="$ZYVO_ROOT/session-$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$ZYVO_SESS" 2>/dev/null || true
+  export ZYVO_SESSION_DIR="$ZYVO_SESS"
 else
   unset ZYVO_SESSION_ROOT
 fi
@@ -79,7 +78,7 @@ if [ -n "$ZYVO_MODELS_URL" ]; then
     mkdir -p "$(dirname "$CFG")"
     [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
     printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
-    echo "zyvo: ✓ সর্বশেষ list বসে গেছে" >&2
+    echo "zyvo: ✓ সর্বশেষ model list বসে গেছে" >&2
   else
     echo "zyvo: scanner পাওয়া যায়নি — বর্তমান list দিয়েই চলছে" >&2
   fi
