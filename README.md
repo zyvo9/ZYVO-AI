@@ -27,7 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install.sh | bas
 ```
 
 The installer checks your phone's architecture, installs dependencies, deploys
-17 free AI models + 5 skills + agent memory, and verifies the binary runs.
+17 free AI models + 6 skills + agent memory, and verifies the binary runs.
 
 Start it:
 
@@ -47,7 +47,7 @@ Run out of quota or hit a dead model? Use the built-in **model tester** — it
 probes every model, auto-retries failures (Smart Retry), and reports exactly
 which ones are alive right now.
 
-## 🧩 Five built-in skills
+## 🧩 Six built-in skills
 
 Skills are playbooks the agent loads on demand — just ask in plain language
 (Banglish works):
@@ -59,6 +59,7 @@ Skills are playbooks the agent loads on demand — just ask in plain language
 | `lets-scroll` | "reel-type scroll video" | Reel-style scrolling web animation |
 | `motion-animation` | "motion animation banao" / "ai motion animation" | Motion-graphics video — see below |
 | `web2video` | "webpage theke video" | Turns a web animation into a rendered video |
+| `phone-control` | "phone ta control koro" / "WiFi off koro" | Sees the screen (vision) and taps/swipes/types — Shizuku-style wireless pairing, no root |
 
 ## 🎬 Motion-graphics studio — the motion-animation skill
 
@@ -162,7 +163,7 @@ packages/    opencode source (the fork)
 - [x] One-command installer + delta updates
 - [x] `zyvo` rebrand — command, config, TUI
 - [x] Zyvo provider — 17 free models via OpenRouter
-- [x] Five built-in skills (apk, webdev, lets-scroll, motion-animation, web2video)
+- [x] Six built-in skills (apk, webdev, lets-scroll, motion-animation, web2video, phone-control)
 - [x] Motion-animation masterclass + AI video pipeline
 - [x] Model tester with Smart Retry
 - [ ] OmniRoute on permanent public hosting
