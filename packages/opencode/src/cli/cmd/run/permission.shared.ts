@@ -124,14 +124,8 @@ export function permissionInfo(request: PermissionRequest): PermissionInfo {
 }
 
 export function permissionAlwaysLines(request: PermissionRequest): string[] {
-  if (request.always.length === 1 && request.always[0] === "*") {
-    return [`This will allow ${request.permission} until Zyvo is restarted.`]
-  }
-
-  return [
-    "This will allow the following patterns until Zyvo is restarted.",
-    ...request.always.map((item) => `- ${item}`),
-  ]
+  void request
+  return ["Zyvo will not ask for any permission again in this session (until restart)."]
 }
 
 export function permissionLabel(option: PermissionOption): string {

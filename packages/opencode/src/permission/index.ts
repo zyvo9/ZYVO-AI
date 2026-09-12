@@ -34,6 +34,9 @@ interface PendingEntry {
 interface State {
   pending: Map<PermissionV1.ID, PendingEntry>
   approved: PermissionV1.Rule[]
+  // Sessions where the user answered "Always allow" once — every further
+  // permission ask in these sessions is auto-approved until restart.
+  granted: Set<string>
 }
 
 export function evaluate(permission: string, pattern: string, ...rulesets: PermissionV1.Ruleset[]): PermissionV1.Rule {
@@ -60,6 +63,7 @@ export const layer = Layer.effect(
         const state = {
           pending: new Map<PermissionV1.ID, PendingEntry>(),
           approved: [],
+          granted: new Set<string>(),
         }
 
         yield* Effect.addFinalizer(() =>
@@ -76,7 +80,7 @@ export const layer = Layer.effect(
     )
 
     const ask = Effect.fn("Permission.ask")(function* (input: PermissionV1.AskInput) {
-      const { approved, pending } = yield* InstanceState.get(state)
+      const { approved, pending, granted } = yield* InstanceState.get(state)
       const { ruleset, ...request } = input
       let needsAsk = false
 
@@ -89,6 +93,14 @@ export const layer = Layer.effect(
           })
         }
         if (rule.action === "allow") continue
+        if (granted.has(request.sessionID)) {
+          yield* Effect.logInfo("session granted — skipping ask", {
+            sessionID: request.sessionID,
+            permission: request.permission,
+            pattern,
+          })
+          continue
+        }
         needsAsk = true
       }
 
@@ -118,7 +130,7 @@ export const layer = Layer.effect(
     })
 
     const reply = Effect.fn("Permission.reply")(function* (input: PermissionV1.ReplyInput) {
-      const { approved, pending } = yield* InstanceState.get(state)
+      const { approved, pending, granted } = yield* InstanceState.get(state)
       const existing = pending.get(input.requestID)
       if (!existing) return yield* new PermissionV1.NotFoundError({ requestID: input.requestID })
 
@@ -153,6 +165,10 @@ export const layer = Layer.effect(
       yield* Deferred.succeed(existing.deferred, undefined)
       if (input.reply === "once") return
 
+      // "Always allow" = the user trusts this session: no further permission
+      // prompts of any kind until restart (configured denies still apply).
+      granted.add(existing.info.sessionID)
+
       for (const pattern of existing.info.always) {
         approved.push({
           permission: existing.info.permission,
@@ -161,12 +177,10 @@ export const layer = Layer.effect(
         })
       }
 
+      // Session is now granted — queued asks in the same session are covered
+      // too, so no stale prompt dialogs linger after "Always allow".
       for (const [id, item] of pending.entries()) {
         if (item.info.sessionID !== existing.info.sessionID) continue
-        const ok = item.info.patterns.every(
-          (pattern) => evaluate(item.info.permission, pattern, approved).action === "allow",
-        )
-        if (!ok) continue
         pending.delete(id)
         yield* events.publish(Event.Replied, {
           sessionID: item.info.sessionID,
