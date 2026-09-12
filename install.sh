@@ -256,15 +256,29 @@ EOF
 fi
 
 refresh_config() {
-  CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
-  if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
-    [ -f "$CONFIG_FILE" ] && cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
-    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    info "Model list config refreshed (backup: zyvo.json.bak)"
+  # Live scanner config first — so right after install/update the picker
+  # shows the CURRENTLY active models, not the stale repo snapshot.
+  # Repo config/zyvo.json is only the fallback when the scanner is unreachable.
+  LIVE_URL="https://omniroute-render-production-52cf.up.railway.app/zyvo-config"
+  if curl -fsSL -m 40 "$LIVE_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null \
+     && [ -s "$CONFIG_FILE.tmp" ] \
+     && [ "$(head -c1 "$CONFIG_FILE.tmp" 2>/dev/null)" = "{" ] \
+     && ! grep -q '"models":{}' "$CONFIG_FILE.tmp"; then
+    info "Live active-model list fetched from scanner"
   else
     rm -f "$CONFIG_FILE.tmp"
-    warn "Could not refresh config — keeping what you have"
+    CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
+    if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
+      info "Scanner unreachable — repo snapshot config used"
+    else
+      rm -f "$CONFIG_FILE.tmp"
+      warn "Could not refresh config — keeping what you have"
+      return 0
+    fi
   fi
+  [ -f "$CONFIG_FILE" ] && cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
+  mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+  info "Model list config refreshed (backup: zyvo.json.bak)"
 }
 
 # ---------------------------------------------------------------
