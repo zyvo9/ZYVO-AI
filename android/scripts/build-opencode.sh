@@ -98,7 +98,7 @@ if [ -n "$OPENTUI_NODE_MODULE" ]; then
     echo ">>> Swapping x86_64 libopentui.so with ARM64 version..."
     BACKUP_FILE="${OPENTUI_NODE_MODULE}.x64.bak"
     cp "$OPENTUI_NODE_MODULE" "$BACKUP_FILE"
-    cp "$ARM64_LIBOPENTUI" "$OPENTUI_NODE_MODULE"
+    cp "$LIBOPENTUI_EMBED" "$OPENTUI_NODE_MODULE"
     echo "    Backed up to $BACKUP_FILE"
 else
     echo "WARNING: Could not find x86_64 libopentui.so in node_modules"
