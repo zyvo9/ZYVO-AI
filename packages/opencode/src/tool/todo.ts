@@ -26,6 +26,9 @@ export const TodoWriteTool = Tool.define<typeof Parameters, Metadata, Todo.Servi
   "todowrite",
   Effect.gen(function* () {
     const todo = yield* Todo.Service
+    // anti-loop guard: identical consecutive lists from a spinning model get
+    // a firm nudge back to real work instead of another silent accept
+    const lastBySession = new Map<string, string>()
 
     return {
       description: DESCRIPTION_WRITE,
@@ -38,6 +41,21 @@ export const TodoWriteTool = Tool.define<typeof Parameters, Metadata, Todo.Servi
             always: ["*"],
             metadata: {},
           })
+
+          const signature = JSON.stringify(params.todos)
+          if (lastBySession.get(ctx.sessionID) === signature) {
+            return {
+              title: "unchanged todos",
+              output:
+                "⚠️ REJECTED: you submitted the EXACT same todo list again with no work done between. This is a loop. STOP re-writing todos. Immediately make ONE real tool call (Bash/Read/Edit) that advances the first incomplete item, then update todos only after that step actually happened.",
+              metadata: { todos: params.todos, rejected: true },
+            }
+          }
+          lastBySession.set(ctx.sessionID, signature)
+          if (lastBySession.size > 200) {
+            const first = lastBySession.keys().next().value
+            if (first) lastBySession.delete(first)
+          }
 
           yield* todo.update({
             sessionID: ctx.sessionID,
