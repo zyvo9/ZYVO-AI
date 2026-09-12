@@ -1,1 +1,0 @@
-{"id":"chatcmpl-msg_1f50d6c8-c787-414d-8719-9531464b29ee","object":"chat.completion","created":1789204563,"model":"x-ai/grok-4.6","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":"OK"}}],"usage":{"prompt_tokens":91,"completion_tokens":347,"total_tokens":438}}
