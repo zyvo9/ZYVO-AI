@@ -263,7 +263,8 @@ refresh_config() {
   # list. Repo snapshot is only for fresh installs (no config at all yet).
   STAMP_FILE="$HOME/.config/zyvo/models.fetched"
   NOW="$(date +%s)"
-  STAMP="$(cat "$STAMP_FILE" 2>/dev/null)"
+  # set -e: a missing marker file must not abort the installer
+  STAMP="$(cat "$STAMP_FILE" 2>/dev/null || echo 0)"
   case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
   if [ "$(( NOW - STAMP ))" -lt 21600 ] && [ -s "$CONFIG_FILE" ]; then
     info "Model list already fresh ($(( (NOW - STAMP) / 3600 ))h old) — skipping download"

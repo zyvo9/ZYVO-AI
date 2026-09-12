@@ -70,7 +70,8 @@ if [ -n "$ZYVO_MODELS_URL" ]; then
   ZYVO_CONFIG_URL="${ZYVO_MODELS_URL%/active-models}/zyvo-config"
   ZYVO_STAMP="$HOME/.config/zyvo/models.fetched"
   NOW="$(date +%s)"
-  STAMP="$(cat "$ZYVO_STAMP" 2>/dev/null)"
+  # set -e: a missing marker file must not kill the whole launcher
+  STAMP="$(cat "$ZYVO_STAMP" 2>/dev/null || echo 0)"
   case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
   AGE=$(( NOW - STAMP ))
   if [ "$AGE" -lt 21600 ]; then
