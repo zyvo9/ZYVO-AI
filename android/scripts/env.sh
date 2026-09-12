@@ -25,6 +25,20 @@ export ZIG_VERSION="${ZIG_VERSION:-0.15.2}"
 export OPENTUI_TAG="${OPENTUI_TAG:-v0.4.5}"
 export ANDROID_API="${ANDROID_API:-24}"
 
+# Full-source build (needed for arches without a prebuilt runtime, e.g. x86_64):
+# Bun + WebKit/JSC + ICU built from source. Values match guysoft's proven recipe.
+export BUN_VERSION="${BUN_VERSION:-1.2.13}"
+export BUN_TAG="bun-v${BUN_VERSION}"
+export WEBKIT_COMMIT="${WEBKIT_COMMIT:-017930ebf915121f8f593bef61cbbca82d78132d}"
+export ICU_VERSION="${ICU_VERSION:-75.1}"
+export BUN_SRC="${WORK_DIR}/bun-src"
+export BUN_BUILD="${WORK_DIR}/bun-build"
+export WEBKIT_SRC="${WORK_DIR}/webkit-src"
+export WEBKIT_BUILD="${WORK_DIR}/webkit-build"
+export WEBKIT_OUTPUT="${WORK_DIR}/webkit-android"
+export ICU_SRC="${WORK_DIR}/icu-src"
+export DEPS_PREFIX="${WORK_DIR}/deps-android/prefix"
+
 # Prebuilt Android runtime from guysoft/opencode-termux v0.2.1
 export PREBUILT_URL="${PREBUILT_URL:-https://github.com/guysoft/opencode-termux/releases/download/v0.2.1/opencode-1.17.9-android-aarch64.zip}"
 
