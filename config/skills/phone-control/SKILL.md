@@ -1,6 +1,6 @@
 ---
 name: phone-control
-description: Android phone control — screen দেখা, tap/swipe/text, app খোলা, screenshot — সব wireless debugging দিয়ে, root ছাড়া। zyvo নিজে ফোন চালাতে পারে (screenshot দেখে → action নেয় → verify করে)। Shizuku-স্টাইল auto mDNS pairing। Use when the user asks to control the phone, tap/open something on screen, take screenshots, automate phone UI, open/change phone settings, অথবা ফোন চালানোর কথা বলে।
+description: Android phone control — screen দেখা, tap/swipe/text, app খোলা, screenshot — সব wireless debugging দিয়ে, root ছাড়া। zyvo নিজে ফোন চালাতে পারে (screenshot দেখে → action নেয় → verify করে)। Pairing: user dialog-এর IP:PORT + code বললেই সাথে সাথে pair। Use when the user asks to control the phone, tap/open something on screen, take screenshots, automate phone UI, open/change phone settings, অথবা ফোন চালানোর কথা বলে।
 ---
 
 # Phone Control — zyvo নিজের ফোন চালায় (root ছাড়াই)
@@ -40,40 +40,33 @@ User-কে বলো (সহজ বাংলায়, ধাপে ধাপ�
 3. ওই page-টাই খোলা রাখো — ওখানে লেখা থাকে **IP address & port**
    (যেমন `192.168.0.112:37123`) — এটা connect port
 
-### ধাপ C — Pairing (user split-screen করবে, তুমি auto-detect করবে)
+### ধাপ C — Pairing (⚠️ এখানেই আগেরবার আটকে ছিলাম — এই নিয়ম মানো)
+
+**সত্যি:** `adb mdns services` ফোনে কাজ করে না (Termux multicast lock ছাড়া
+নিজের pairing service খুঁজে পায় না — প্রমাণিত)। তাই port scan/auto-detect
+করার চেষ্টা কোরো না। সঠিক নিয়ম: **user dialog-এর মানগুলো বলবে, তুমি
+সাথে সাথে pair করবে।**
 
 1. User-কে বলো: **"Pair device with pairing code"** tap করো → dialog-এ
-   একটা **আলাদা IP:PORT + ৬ ডিজিটের code** দেখাবে → **dialog খোলা রাখো**
-2. এই dialog খোলা থাকা অবস্থায় pairing service **mDNS-এ broadcast করে** —
-   তাই port তুমি **auto-detect** করতে পারবে (user টাইপ করবে না):
+   দেখাবে: **pairing IP:PORT + ৬ ডিজিটের code** — তিনটাই লাগবে
+2. ⏱️ dialog **~৬০ সেকেন্ডেই বন্ধ হয়** — তাই user-কে আগেই বলো split-screen
+   করে রাখতে, আর তুমি সাথে সাথে কাজ করো
+3. user বললে (যেমন: "192.168.0.113:43294, code 553210") সাথে সাথে:
 
 ```bash
-adb mdns services
-# output-এ খুঁজো:  _adb-tls-pairing._tcp   <IP>:<PORT>
-PAIR="$(adb mdns services | grep '_adb-tls-pairing' | grep -o '[0-9.]*:[0-9]*' | head -1)"
-echo "pairing port: $PAIR"
+adb pair 192.168.0.113:43294 553210     # → Successfully paired to ...
 ```
 
-3. **User-কে জিজ্ঞেস করো শুধু ৬ ডিজিটের code:** "Settings-এ যে ৬ সংখ্যার
-   code দেখাচ্ছে সেটা বলো" — পেলে:
+4. তারপর connect — **মূল page-এর port** (pairing port না, এটা আলাদা):
+   user-কে বলো Wireless debugging page-এ "IP address & port" পড়তে
 
 ```bash
-adb pair "$PAIR" "<CODE>"     # → Successfully paired ✓
+adb connect 192.168.0.113:37551         # user-এর দেখানো মূল port
+adb devices                              # <ip:port>  device  ← চালু ✓
 ```
 
-4. এবার connect (main port — mdns-এ `_adb-tls-connect._tcp` থেকে, না পেলে
-   user Wireless debugging page-এর "IP address & port" থেকে বলবে):
-
-```bash
-CONN="$(adb mdns services | grep '_adb-tls-connect' | grep -o '[0-9.]*:[0-9]*' | head -1)"
-[ -z "$CONN" ] && CONN="<user-এর বলা ip:port>"
-adb connect "$CONN"           # → connected to ...
-adb devices                   # দেখাবে:  <ip:port>   device   ← ব্যস, control চালু
-```
-
-5. শেষ টেস্ট: `adb shell echo ok` → `ok` আসলে **setup complete** 🎉
-
-**সমস্যা হলে:** নিচের Troubleshooting section দেখো।
+5. এরপর সব vision loop কমান্ড চলবে। Wireless debugging toggle বন্ধ বা
+   ফোন restart হলে আবার user-কে নতুন port পড়তে বলতে হবে (pairing মনে থাকে)
 
 ## 📡 STAGE 2 — প্রতিদিনের ব্যবহার (connect check)
 
@@ -81,16 +74,14 @@ adb devices                   # দেখাবে:  <ip:port>   device   ← �
 
 ```bash
 DEV="$(adb devices | grep -m1 'device$' | cut -d' ' -f1)"
-[ -z "$DEV" ] && {
-  CONN="$(adb mdns services | grep '_adb-tls-connect' | grep -o '[0-9.]*:[0-9]*' | head -1)"
-  [ -n "$CONN" ] && adb connect "$CONN"
-  DEV="$(adb devices | grep -m1 'device$' | cut -d' ' -f1)"
-}
+# খালি হলে → user-কে বলো Wireless debugging page-এর "IP address & port"
+# পড়তে (mdns-এ খোঁজা যায় না) — পেলেই: adb connect <ওই IP:PORT>
 # এরপর সব কমান্ড:  adb -s "$DEV" shell ...
 ```
 
-Pairing মনে থাকে — প্রতিবার connect করলেই হয়, code আর লাগে না।
-(Wireless debugging toggle বন্ধ করলে বা ফোন restart হলে user-কে বলবে।)
+Pairing মনে থাকে — একবার pair হলে পরে শুধু connect-ই লাগে, code নতুন করে
+লাগে না। (Wireless debugging toggle বন্ধ করলে বা ফোন restart হলে
+user-কে নতুন port পড়তে বলবে।)
 
 ## 👁️ STAGE 3 — Vision loop (এটাই মূল কাজ — ধাপে ধাপে, একটা একটা করে)
 
@@ -164,9 +155,9 @@ adb exec-out screencap -p > /storage/emulated/0/ZYVO/screen.png
 
 | সমস্যা | সমাধান |
 |---|---|
-| `adb mdns services` খালি | Pair dialog খোলা আছে কিনা; ফোন ও Termux এক WiFi-তে কিনা; WiFi-তে client isolation থাকলে hotspot দিয়ে চেষ্টা |
+| `adb pair` failed / timeout | dialog-এর IP:PORT আর code ঠিক কিনা মেলাও; dialog নতুন করে খুলে user-কে আবার বলতে দাও, সাথে সাথে pair |
 | `device offline` / `unauthorized` | Wireless debugging toggle off→on, আবার pair |
-| port বদলে গেছে | প্রতিবার mdns থেকে auto-detect — হাতে মনে রাখার দরকার নেই |
+| port বদলে গেছে | স্বাভাবিক — user-কে মূল page-এর "IP address & port" পড়তে বলো, সেটা দিয়ে connect |
 | screenshot কালো | Secure screen — ওই কাজ user-কে দাও |
 | `input text` স্পেস কাজ করছে না | স্পেসের জায়গায় `%s` দাও |
 | কিছুই হচ্ছে না | `adb kill-server && adb start-server` তারপর connect আবার |
