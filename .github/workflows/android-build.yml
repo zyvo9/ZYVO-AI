@@ -18,6 +18,11 @@ on:
         description: 'OpenCode version to build'
         required: false
         default: '1.17.9'
+      build_x86_64:
+        description: 'Also build Android x86_64 (experimental, from source ~2-3h)'
+        required: false
+        default: false
+        type: boolean
   push:
     tags:
       - 'android-v*'
@@ -200,3 +205,133 @@ jobs:
           rm -rf "${WORK_DIR}/opencode-src"
           echo "Cleaned up intermediate files"
           df -h /
+
+  # =============================================
+  # Experimental: native Android x86_64 (emulators / x86 devices).
+  # No prebuilt runtime exists for x86_64, so this builds the FULL
+  # stack from source: ICU -> WebKit/JSC -> Bun -> libopentui -> zyvo.
+  # First runs may fail — that is expected; iterate on the logs.
+  # =============================================
+  build-x86_64:
+    name: Build Android x86_64 (experimental)
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+    if: github.event_name == 'workflow_dispatch' && inputs.build_x86_64 == true
+
+    env:
+      ANDROID_ARCH: x86_64
+      ANDROID_TRIPLE: x86_64-linux-android
+      ANDROID_ABI: x86_64
+      ANDROID_NDK_HOME: /opt/android-ndk
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Override OpenCode version from input
+        if: github.event.inputs.opencode_version
+        run: echo "OPENCODE_VERSION=${{ github.event.inputs.opencode_version }}" >> $GITHUB_ENV
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup || true
+          sudo docker image prune -af || true
+          df -h /
+
+      - name: Create swap
+        run: |
+          sudo fallocate -l 12G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
+      - name: Ensure build scripts are executable
+        run: chmod +x android/scripts/*.sh install.sh
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl wget unzip zip file binutils cmake ninja-build git pkg-config python3
+
+      - name: Install host Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash -s "bun-v${{ env.HOST_BUN_VERSION }}"
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Install Android NDK
+        run: |
+          cd /opt
+          curl -fL --retry 3 -o ndk.zip https://dl.google.com/android/repository/android-ndk-r27c-linux.zip
+          unzip -q ndk.zip
+          mv android-ndk-r27c android-ndk
+          rm ndk.zip
+          "$ANDROID_NDK_HOME/ndk-build" --version | head -1
+
+      - name: Clone sources and apply Android patches
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/apply-patches.sh
+
+      - name: Build ICU (x86_64)
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/build-icu.sh
+
+      - name: Build WebKit/JSC (x86_64)
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/build-webkit.sh
+
+      - name: Build Bun (x86_64)
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/build-bun.sh
+
+      - name: Build libopentui (x86_64)
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/build-opentui.sh
+
+      - name: Assemble runtime libraries
+        run: |
+          source android/scripts/env.sh
+          mkdir -p "${WORK_DIR}/runtime-so"
+          cp "${WORK_DIR}/opentui-src/packages/core/src/lib/${ANDROID_TRIPLE}/libopentui.so" "${WORK_DIR}/runtime-so/" 2>/dev/null             || find "${WORK_DIR}/opentui-src" -name "libopentui.so" -exec cp {} "${WORK_DIR}/runtime-so/" \;
+          cp "${NDK_TOOLCHAIN}/sysroot/usr/lib/${ANDROID_TRIPLE}/libc++_shared.so" "${WORK_DIR}/runtime-so/"
+          ls -lh "${WORK_DIR}/runtime-so/"
+
+      - name: Build OpenCode standalone binary (x86_64)
+        env:
+          ANDROID_BUN: ${{ env.WORK_DIR }}/bun-build/bun
+          LIBOPENTUI_EMBED: ${{ env.WORK_DIR }}/runtime-so/libopentui.so
+          RUNTIME_SO_SRC: ${{ env.WORK_DIR }}/runtime-so
+        run: |
+          source android/scripts/env.sh
+          ANDROID_BUN="${WORK_DIR}/bun-build/bun"           LIBOPENTUI_EMBED="${WORK_DIR}/runtime-so/libopentui.so"           RUNTIME_SO_SRC="${WORK_DIR}/runtime-so"           ./android/scripts/build-opencode.sh
+          file "${WORK_DIR}/dist/zyvo" | grep -i x86-64 || true
+
+      - name: Create distribution packages (x86_64)
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/make-packages.sh
+          ls -lh "${WORK_DIR}/packages/"
+
+      - name: Upload x86_64 packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-termux-x86_64-${{ env.OPENCODE_VERSION }}
+          path: |
+            ${{ env.WORK_DIR }}/packages/*.zip
+            ${{ env.WORK_DIR }}/packages/*.tar.zst
+
+      - name: Attach x86_64 packages to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v${{ env.OPENCODE_VERSION }}
+          files: |
+            ${{ env.WORK_DIR }}/packages/*x86_64*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -49,7 +49,7 @@ if [ ! -f "$DEPS_PREFIX/lib/libicuuc.a" ]; then
     mkdir -p "$ICU_ANDROID_BUILD"
     cd "$ICU_ANDROID_BUILD"
     "$ICU_SRC/source/configure" \
-        --host=aarch64-linux-android \
+        --host="${ANDROID_TRIPLE}" \
         --with-cross-build="$ICU_HOST_BUILD" \
         --prefix="$DEPS_PREFIX" \
         CC="$ANDROID_CC" \

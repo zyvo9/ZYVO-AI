@@ -114,7 +114,11 @@ do
 done
 
 if [ -n "$NATIVE_LIB_DIR" ]; then
-    export LD_PRELOAD="${NATIVE_LIB_DIR}/libtagfix.so${LD_PRELOAD:+:$LD_PRELOAD}"
+    # libtagfix disables heap tagging — an ARM64-only bionic feature; on
+    # x86_64 Android it doesn't exist, so skip the LD_PRELOAD there.
+    if [ "$(uname -m)" = "aarch64" ]; then
+        export LD_PRELOAD="${NATIVE_LIB_DIR}/libtagfix.so${LD_PRELOAD:+:$LD_PRELOAD}"
+    fi
     # Bun's JIT-compiled modules need libc++_shared.so. Android's /system/lib64/
     # does not contain it, so point the linker at the directory where we ship it.
     export LD_LIBRARY_PATH="${NATIVE_LIB_DIR}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"

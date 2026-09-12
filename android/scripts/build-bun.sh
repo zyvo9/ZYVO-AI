@@ -56,8 +56,21 @@ echo "    Symlinked $BUN_SRC/.zig-cache -> $BUN_BUILD/cache/zig/local"
 # Create build directory
 mkdir -p "$BUN_BUILD"
 
-# CMake toolchain is inside the patched Bun source
-BUN_TOOLCHAIN="$BUN_SRC/cmake/toolchains/android-aarch64.cmake"
+# CMake toolchain is inside the patched Bun source. Upstream Bun only ships
+# android-aarch64.cmake — for other arches derive one from it (triple swap).
+BUN_TOOLCHAIN="$BUN_SRC/cmake/toolchains/android-${ANDROID_ARCH}.cmake"
+if [ "$ANDROID_ARCH" != "aarch64" ] && [ ! -f "$BUN_TOOLCHAIN" ]; then
+    BASE="$BUN_SRC/cmake/toolchains/android-aarch64.cmake"
+    if [ ! -f "$BASE" ]; then
+        echo "ERROR: base Android toolchain not found at $BASE"
+        echo "       Did apply-patches.sh run successfully?"
+        exit 1
+    fi
+    echo ">>> Generating android-${ANDROID_ARCH}.cmake from the aarch64 toolchain..."
+    sed -e "s/aarch64-linux-android/${ANDROID_TRIPLE}/g"         -e "s/aarch64/${ANDROID_ARCH}/g"         -e "s/armv8-a/x86-64/g"         -e "s/+crc,+aes,+sha2/+(no arch flags for ${ANDROID_ARCH})/g"         "$BASE" > "$BUN_TOOLCHAIN"
+    # arm-specific -march/-mflags make no sense on other arches; neutralize them
+    sed -i -E "s/-march=[a-z0-9+-]+//g; s/-mcpu=[a-z0-9.+-]+//g" "$BUN_TOOLCHAIN"
+fi
 if [ ! -f "$BUN_TOOLCHAIN" ]; then
     echo "ERROR: Android toolchain not found at $BUN_TOOLCHAIN"
     echo "       Did apply-patches.sh run successfully?"

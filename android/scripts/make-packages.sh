@@ -46,7 +46,7 @@ PREFIX_DIR="data/data/com.termux/files/usr"
 #   libexec/zyvo/zyvo.bin   <- OUR standalone binary (this build)
 #   lib/libopentui.so, libtagfix.so, libc++_shared.so
 echo ">>> Creating ZIP package..."
-ZIP_NAME="zyvo-${OPENCODE_VERSION}-android-aarch64.zip"
+ZIP_NAME="zyvo-${OPENCODE_VERSION}-android-${ANDROID_ARCH}.zip"
 ZIP_STAGING="$PKG_DIR/zip-staging"
 mkdir -p "$ZIP_STAGING/$PREFIX_DIR/bin" \
          "$ZIP_STAGING/$PREFIX_DIR/libexec/zyvo" \
@@ -67,7 +67,7 @@ echo "    Created $ZIP_NAME"
 # 1b. ZSTD package (smaller + faster to unpack on the phone)
 # ==========================================
 echo ">>> Creating ZSTD package..."
-ZSTD_NAME="zyvo-${OPENCODE_VERSION}-android-aarch64.tar.zst"
+ZSTD_NAME="zyvo-${OPENCODE_VERSION}-android-${ANDROID_ARCH}.tar.zst"
 cd "$ZIP_STAGING"
 tar --zstd -cf "$PKG_DIR/$ZSTD_NAME" data
 echo "    Created $ZSTD_NAME"
@@ -90,12 +90,12 @@ url = https://github.com/zyvoai/zyvo
 builddate = ${BUILD_DATE}
 packager = zyvo
 size = ${BINARY_SIZE}
-arch = aarch64
+arch = ${ANDROID_ARCH}
 license = MIT
 depend = ripgrep
 EOF
 
-PACMAN_NAME="zyvo-${OPENCODE_VERSION}-1-aarch64.pkg.tar.xz"
+PACMAN_NAME="zyvo-${OPENCODE_VERSION}-1-${ANDROID_ARCH}.pkg.tar.xz"
 cd "$PACMAN_STAGING"
 tar cf - .PKGINFO data | xz -9 > "$PKG_DIR/$PACMAN_NAME"
 echo "    Created $PACMAN_NAME"
@@ -112,7 +112,7 @@ INSTALLED_SIZE=$((BINARY_SIZE / 1024))
 cat > "$DEB_STAGING/DEBIAN/control" << EOF
 Package: zyvo
 Version: ${OPENCODE_VERSION}
-Architecture: aarch64
+Architecture: ${ANDROID_ARCH}
 Maintainer: zyvo
 Installed-Size: ${INSTALLED_SIZE}
 Depends: ripgrep
@@ -124,7 +124,7 @@ Description: AI-powered coding assistant for the terminal
  This package provides a standalone binary compiled for Android/Termux.
 EOF
 
-DEB_NAME="zyvo_${OPENCODE_VERSION}_aarch64.deb"
+DEB_NAME="zyvo_${OPENCODE_VERSION}_${ANDROID_ARCH}.deb"
 cd "$DEB_STAGING/data"
 tar czf "$DEB_STAGING/data.tar.gz" data
 cd "$DEB_STAGING/DEBIAN"

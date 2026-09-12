@@ -30,9 +30,24 @@ export PREBUILT_URL="${PREBUILT_URL:-https://github.com/guysoft/opencode-termux/
 
 # Android NDK
 export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-/opt/android-ndk}"
-export ANDROID_ABI=arm64-v8a
-export ANDROID_ARCH=aarch64
-export ANDROID_TRIPLE="aarch64-linux-android"
+# Arch is overridable so CI can build android-x86_64 from the same scripts:
+#   ANDROID_ARCH=x86_64 ANDROID_TRIPLE=x86_64-linux-android ANDROID_ABI=x86_64
+export ANDROID_ARCH="${ANDROID_ARCH:-aarch64}"
+if [ -z "${ANDROID_ABI:-}" ]; then
+  case "$ANDROID_ARCH" in
+    aarch64) ANDROID_ABI=arm64-v8a ;;
+    x86_64)  ANDROID_ABI=x86_64 ;;
+    *)       ANDROID_ABI="$ANDROID_ARCH" ;;
+  esac
+fi
+export ANDROID_ABI
+if [ -z "${ANDROID_TRIPLE:-}" ]; then
+  case "$ANDROID_ARCH" in
+    aarch64) ANDROID_TRIPLE=aarch64-linux-android ;;
+    *)       ANDROID_TRIPLE="${ANDROID_ARCH}-linux-android" ;;
+  esac
+fi
+export ANDROID_TRIPLE
 export ANDROID_TRIPLE_API="${ANDROID_TRIPLE}${ANDROID_API}"
 
 # NDK toolchain paths

@@ -30,9 +30,12 @@ die()   { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 # ---------------------------------------------------------------
 [ -d "/data/data/com.termux" ] || die "This installer is for Termux only. Install Termux from F-Droid or GitHub: https://github.com/termux/termux-app/releases"
 
+# zyvo builds are per-arch; aarch64 (all real phones) is the proven path.
+# x86_64 (emulators / x86 Android devices) uses the android-x86_64 package.
 case "$(uname -m)" in
-  aarch64|arm64) ;;
-  *) die "Unsupported architecture: $(uname -m). Currently only aarch64 (64-bit ARM) phones are supported." ;;
+  aarch64|arm64) ARCH_TAG="aarch64" ;;
+  x86_64)        ARCH_TAG="x86_64" ;;
+  *) die "Unsupported architecture: $(uname -m). zyvo supports aarch64 (64-bit ARM) phones, and experimentally x86_64." ;;
 esac
 
 command -v curl >/dev/null 2>&1 || { info "Installing curl..."; pkg install -y curl; }
@@ -324,6 +327,7 @@ CURRENT=false
 
 NEED_FULL=false
 NEED_GRAPH=false
+[ "$ARCH_TAG" = "x86_64" ] && NEED_FULL=true  # delta graph is aarch64-only
 if [ "$FORCE" = true ]; then NEED_FULL=true
 elif [ "$CURRENT" = true ]; then NEED_FULL=false
 elif [ "$INSTALLED" = false ]; then NEED_FULL=true
@@ -393,11 +397,14 @@ fi
 # ---------------------------------------------------------------
 # 5c. Full path: download + install the complete package
 # ---------------------------------------------------------------
-ASSET_PATTERN="android-aarch64.tar.zst"
-FULL_URL="$(asset_url "android-aarch64.tar.zst")"
+ASSET_PATTERN="android-${ARCH_TAG}.tar.zst"
+FULL_URL="$(asset_url "android-${ARCH_TAG}.tar.zst")"
 if [ -z "$FULL_URL" ]; then
-  ASSET_PATTERN="android-aarch64.zip"
-  FULL_URL="$(asset_url "android-aarch64.zip")"
+  ASSET_PATTERN="android-${ARCH_TAG}.zip"
+  FULL_URL="$(asset_url "android-${ARCH_TAG}.zip")"
+fi
+if [ -z "$FULL_URL" ] && [ "$ARCH_TAG" = "x86_64" ]; then
+  die "x86_64 (এমুলেটর/x86 ডিভাইস)-এর বিল্ড এখনো রেডি হয়নি — CI তৈরি করছে। কিছুক্ষণ পরে আবার চেষ্টা করো, বা aarch64 ফোনে ইনস্টল করো।"
 fi
 [ -n "$FULL_URL" ] || die "No package asset found in the latest release of ${GITHUB_REPO}."
 

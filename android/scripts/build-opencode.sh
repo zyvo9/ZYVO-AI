@@ -55,22 +55,22 @@ cd "$OPENCODE_PKG"
 "$HOST_BUN" install --os='*' --cpu='*' @parcel/watcher@2.5.1
 "$HOST_BUN" install --os='*' --cpu='*' @ff-labs/fff-bun@0.9.4
 
-# Find the Android bun binary (prebuilt runtime from guysoft release,
-# downloaded into $PREBUILT_DIR by the workflow / download-prebuilt.sh)
-ANDROID_BUN="$PREBUILT_DIR/opencode.bin"
+# Android bun binary: for aarch64 this is the prebuilt guysoft runtime; for
+# other arches (x86_64) the workflow passes OUR source-built bun via
+# ANDROID_BUN=<path>. Same for the runtime libopentui.so (LIBOPENTUI_EMBED).
+ANDROID_BUN="${ANDROID_BUN:-$PREBUILT_DIR/opencode.bin}"
 if [ ! -f "$ANDROID_BUN" ]; then
     echo "ERROR: Android bun binary not found at $ANDROID_BUN"
-    echo "       Download the prebuilt runtime first (PREBUILT_URL)."
+    echo "       For aarch64: run download-prebuilt.sh. For other arches set"
+    echo "       ANDROID_BUN to the source-built bun binary."
     exit 1
 fi
 
-# Find ARM64 libopentui.so (prebuilt, matching @opentui/core version)
-# On Android the .so is loaded from the real filesystem via OPENTUI_LIB_PATH
-# (set by the wrapper script), not from the bunfs virtual path.
-ARM64_LIBOPENTUI="$PREBUILT_DIR/libopentui.so"
-if [ ! -f "$ARM64_LIBOPENTUI" ]; then
-    echo "ERROR: ARM64 libopentui.so not found at $ARM64_LIBOPENTUI"
-    echo "       Run scripts/download-prebuilt.sh first."
+LIBOPENTUI_EMBED="${LIBOPENTUI_EMBED:-$PREBUILT_DIR/libopentui.so}"
+if [ ! -f "$LIBOPENTUI_EMBED" ]; then
+    echo "ERROR: runtime libopentui.so not found at $LIBOPENTUI_EMBED"
+    echo "       aarch64: download-prebuilt.sh; other arches: build-opentui.sh"
+    echo "       then set LIBOPENTUI_EMBED to the built library."
     exit 1
 fi
 
@@ -136,7 +136,10 @@ fi
 # Ship the prebuilt runtime pieces: wrapper script (Android env fixes), the
 # original prebuilt binary (reference/backup), and the runtime .so files
 # (libopentui, libtagfix heap-tagging fix, libc++_shared for the JIT).
-for f in "$PREBUILT_DIR"/*.so; do
+# Runtime .so set: aarch64 ships the prebuilt set (incl. libtagfix, which is
+# an ARM heap-tagging fix and pointless on x86_64). Other arches: workflow
+# passes RUNTIME_SO_SRC with libopentui.so + libc++_shared.so.
+for f in "${RUNTIME_SO_SRC:-$PREBUILT_DIR}"/*.so; do
     if [ -f "$f" ]; then cp "$f" "$DIST_DIR/"; fi
 done
 if [ -f "$PREBUILT_DIR/opencode" ]; then
