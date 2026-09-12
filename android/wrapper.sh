@@ -60,27 +60,38 @@ else
 fi
 
 # UPDATE-FIRST LAUNCH: fetch the latest model list BEFORE zyvo opens.
-# Try 1: fast (8s). Try 2: long (40s) — gives a sleeping cloud scanner time
-# to wake up. Only after both fail do we open with the current config.
-# Never lose the working config — atomic write + backup.
+# Data/wait budget: the config is only ~4 KB, but waking a sleeping Railway
+# scanner can cost 40s. So: if we fetched a live list <6h ago, open instantly
+# with zero network. Otherwise one 8s fast try; only if that fails, one 40s
+# wake try — at most once per 6h. Success stamps models.fetched for next time.
 ZYVO_MODELS_URL="${ZYVO_MODELS_URL:-}"
 [ -z "$ZYVO_MODELS_URL" ] && [ -f "$HOME/.config/zyvo/models-url" ] && ZYVO_MODELS_URL="$(head -n1 "$HOME/.config/zyvo/models-url" 2>/dev/null)"
 if [ -n "$ZYVO_MODELS_URL" ]; then
   ZYVO_CONFIG_URL="${ZYVO_MODELS_URL%/active-models}/zyvo-config"
-  echo "zyvo: সর্বশেষ model list নাওয়া হচ্ছে…" >&2
-  NEWCFG="$(curl -fsS -m 8 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
-  if [ -z "$NEWCFG" ]; then
-    echo "zyvo: scanner জাগছে — একটু অপেক্ষা…" >&2
-    NEWCFG="$(curl -fsS -m 40 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
-  fi
-  if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ] && ! echo "$NEWCFG" | grep -q '"models":{}'; then
-    CFG="$HOME/.config/zyvo/zyvo.json"
-    mkdir -p "$(dirname "$CFG")"
-    [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
-    printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
-    echo "zyvo: ✓ সর্বশেষ model list বসে গেছে" >&2
+  ZYVO_STAMP="$HOME/.config/zyvo/models.fetched"
+  NOW="$(date +%s)"
+  STAMP="$(cat "$ZYVO_STAMP" 2>/dev/null)"
+  case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
+  AGE=$(( NOW - STAMP ))
+  if [ "$AGE" -lt 21600 ]; then
+    echo "zyvo: model list তাজা ($(( AGE / 3600 )) ঘণ্টা আগে নেওয়া) — সরাসরি খুলছি" >&2
   else
-    echo "zyvo: scanner পাওয়া যায়নি — বর্তমান list দিয়েই চলছে" >&2
+    echo "zyvo: সর্বশেষ model list নাওয়া হচ্ছে…" >&2
+    NEWCFG="$(curl -fsS -m 8 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
+    if [ -z "$NEWCFG" ]; then
+      echo "zyvo: scanner জাগছে — একটু অপেক্ষা…" >&2
+      NEWCFG="$(curl -fsS -m 40 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
+    fi
+    if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ] && ! echo "$NEWCFG" | grep -q '"models":{}'; then
+      CFG="$HOME/.config/zyvo/zyvo.json"
+      mkdir -p "$(dirname "$CFG")"
+      [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
+      printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
+      date +%s > "$ZYVO_STAMP" 2>/dev/null || true
+      echo "zyvo: ✓ সর্বশেষ model list বসে গেছে" >&2
+    else
+      echo "zyvo: scanner পাওয়া যায়নি — বর্তমান list দিয়েই চলছে" >&2
+    fi
   fi
 fi
 

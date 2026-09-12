@@ -256,29 +256,43 @@ EOF
 fi
 
 refresh_config() {
-  # Live scanner config first — so right after install/update the picker
-  # shows the CURRENTLY active models, not the stale repo snapshot.
-  # Repo config/zyvo.json is only the fallback when the scanner is unreachable.
+  # Data/wait budget: live config is ~4 KB, but waking a sleeping scanner
+  # can cost 40s — install must stay fast. So: if the wrapper fetched a
+  # live list <6h ago, keep it and skip the network entirely. Otherwise one
+  # short 8s live try; on failure NEVER downgrade — keep the phone's current
+  # list. Repo snapshot is only for fresh installs (no config at all yet).
+  STAMP_FILE="$HOME/.config/zyvo/models.fetched"
+  NOW="$(date +%s)"
+  STAMP="$(cat "$STAMP_FILE" 2>/dev/null)"
+  case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
+  if [ "$(( NOW - STAMP ))" -lt 21600 ] && [ -s "$CONFIG_FILE" ]; then
+    info "Model list already fresh ($(( (NOW - STAMP) / 3600 ))h old) — skipping download"
+    return 0
+  fi
   LIVE_URL="https://omniroute-render-production-52cf.up.railway.app/zyvo-config"
-  if curl -fsSL -m 40 "$LIVE_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null \
+  if curl -fsSL -m 8 "$LIVE_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null \
      && [ -s "$CONFIG_FILE.tmp" ] \
      && [ "$(head -c1 "$CONFIG_FILE.tmp" 2>/dev/null)" = "{" ] \
      && ! grep -q '"models":{}' "$CONFIG_FILE.tmp"; then
+    [ -f "$CONFIG_FILE" ] && cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
+    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+    date +%s > "$STAMP_FILE" 2>/dev/null || true
     info "Live active-model list fetched from scanner"
   else
     rm -f "$CONFIG_FILE.tmp"
-    CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
-    if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
-      info "Scanner unreachable — repo snapshot config used"
+    if [ -s "$CONFIG_FILE" ]; then
+      warn "Scanner unreachable — keeping your current model list"
     else
-      rm -f "$CONFIG_FILE.tmp"
-      warn "Could not refresh config — keeping what you have"
-      return 0
+      CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
+      if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
+        mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+        info "Fresh install — repo snapshot used (live list loads on first start)"
+      else
+        rm -f "$CONFIG_FILE.tmp"
+        warn "Could not refresh config — keeping what you have"
+      fi
     fi
   fi
-  [ -f "$CONFIG_FILE" ] && cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
-  mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-  info "Model list config refreshed (backup: zyvo.json.bak)"
 }
 
 # ---------------------------------------------------------------
