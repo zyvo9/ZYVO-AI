@@ -63,7 +63,33 @@ if grep -q 'artifact.linkSystemLibrary("dl");' "$OPENTUI_ZIG_DIR/build.zig"; the
     echo "    Done."
 fi
 
-echo ">>> Building with Zig (target: aarch64-linux-android)..."
+# zig 0.15's bundled libc++ wrapper headers (<stdlib.h>, <math.h>) use
+# #include_next to find the C library's headers — for bionic targets the
+# NDK sysroot must be explicitly on the include chain or ldiv_t / FP_NAN
+# and friends go missing (366 errors). Anchor: the wrapped dl line that the
+# dl-guard block above produced.
+if [ -f "$OPENTUI_ZIG_DIR/build.zig" ] && ! grep -q "NDK_SYSROOT_INCLUDE" "$OPENTUI_ZIG_DIR/build.zig"; then
+    echo ">>> Injecting NDK sysroot include paths into build.zig..."
+    python3 - "$OPENTUI_ZIG_DIR/build.zig" <<'PYEOF'
+import sys, os
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+anchor = 'artifact.linkSystemLibrary("pthread"); } }'
+inc = ('artifact.addSystemIncludePath(.{ .cwd_relative = "%s/usr/include" }); '
+       'artifact.addSystemIncludePath(.{ .cwd_relative = "%s/usr/include/%s" }); // NDK_SYSROOT_INCLUDE'
+       % (os.environ["NDK_SYSROOT"], os.environ["NDK_SYSROOT"], os.environ["ANDROID_TRIPLE"]))
+if "NDK_SYSROOT_INCLUDE" in s:
+    print("    already injected")
+elif anchor in s:
+    s = s.replace(anchor, anchor + " " + inc, 1)
+    open(p, "w", encoding="utf-8").write(s)
+    print("    NDK sysroot includes injected")
+else:
+    print("    WARNING: anchor not found — includes NOT injected")
+PYEOF
+fi
+
+echo ">>> Building with Zig (target: $ANDROID_TRIPLE)..."
 
 # Zig does not bundle bionic libc. Provide NDK sysroot paths via a libc.txt
 # so the C/C++ parts (yoga, miniaudio shim) can compile against bionic.
