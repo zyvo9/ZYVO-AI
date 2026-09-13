@@ -317,6 +317,11 @@ jobs:
           [ -n "$ZIG_DIR" ] || { echo "Zig download failed"; exit 1; }
           echo "$ZIG_DIR" >> $GITHUB_PATH
           "$ZIG_DIR/zig" version
+          # zig 0.15 libcxx can't find mbstate_t for bionic targets — teach it
+          # to fall back to <wchar.h> from the NDK sysroot (passed via --libc)
+          MBFILE=$(find "$ZIG_DIR/lib/libcxx/include" -name "__mbstate_t.h" | head -1)
+          sed -i 's|^#  error "We don.t know how to get the definition of mbstate_t without <wchar.h> on your platform."|#  include <wchar.h> // android bionic: sysroot wchar.h defines mbstate_t|' "$MBFILE"
+          grep -n "android bionic" "$MBFILE"
 
       - name: Build libopentui (x86_64)
         run: |
