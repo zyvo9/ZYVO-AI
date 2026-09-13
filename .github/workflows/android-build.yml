@@ -290,6 +290,11 @@ jobs:
           source android/scripts/env.sh
           ./android/scripts/build-webkit.sh
 
+      - name: Build TinyCC (x86_64)
+        run: |
+          source android/scripts/env.sh
+          ./android/scripts/build-tinycc.sh
+
       - name: Build Bun (x86_64)
         run: |
           source android/scripts/env.sh
