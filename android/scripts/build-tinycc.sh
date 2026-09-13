@@ -17,7 +17,7 @@ TINYCC_COMMIT="${TINYCC_COMMIT:-b91835d8701523e895a2b447713630069514e291}"
 TINYCC_SRC="${WORK_DIR}/tinycc-src"
 TINYCC_BUILD="${TINYCC_SRC}/build-android"
 
-echo "=== Building TinyCC (libtcc.a) for Android aarch64 ==="
+echo "=== Building TinyCC (libtcc.a) for Android ${ANDROID_ARCH} ==="
 
 # Check if already built and installed
 if [ -f "$WEBKIT_OUTPUT/lib/libtcc.a" ]; then
