@@ -67,7 +67,7 @@ if [ "$ANDROID_ARCH" != "aarch64" ] && [ ! -f "$BUN_TOOLCHAIN" ]; then
         exit 1
     fi
     echo ">>> Generating android-${ANDROID_ARCH}.cmake from the aarch64 toolchain..."
-    sed -e "s/aarch64-linux-android/${ANDROID_TRIPLE}/g"         -e "s/aarch64/${ANDROID_ARCH}/g"         -e "s/armv8-a/x86-64/g"         -e "s/+crc,+aes,+sha2/+(no arch flags for ${ANDROID_ARCH})/g"         "$BASE" > "$BUN_TOOLCHAIN"
+    sed -e "s/aarch64-linux-android/${ANDROID_TRIPLE}/g"         -e "s/aarch64/${ANDROID_ARCH}/g"         -e "s/arm64-v8a/${ANDROID_ABI}/g"         -e "s/armv8-a/x86-64/g"         "$BASE" > "$BUN_TOOLCHAIN"
     # arm-specific -march/-mflags make no sense on other arches; neutralize them
     sed -i -E "s/-march=[a-z0-9+-]+//g; s/-mcpu=[a-z0-9.+-]+//g" "$BUN_TOOLCHAIN"
 fi
