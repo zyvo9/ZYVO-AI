@@ -77,6 +77,17 @@ if [ ! -f "$BUN_TOOLCHAIN" ]; then
     exit 1
 fi
 
+# The bun android patch hardcodes aarch64 paths (the lolhtml rust linker and
+# the zig sysroot include). For other arches rewrite them to the real triple.
+if [ "$ANDROID_ARCH" != "aarch64" ]; then
+    for f in "$BUN_SRC/cmake/targets/BuildLolHtml.cmake" "$BUN_SRC/build.zig"; do
+        if [ -f "$f" ] && grep -q "aarch64-linux-android" "$f"; then
+            sed -i "s|aarch64-linux-android|${ANDROID_TRIPLE}|g" "$f"
+            echo ">>> rewrote aarch64 paths -> ${ANDROID_TRIPLE} in $(basename "$f")"
+        fi
+    done
+fi
+
 # Configure
 echo ">>> Configuring Bun..."
 cd "$BUN_BUILD"
