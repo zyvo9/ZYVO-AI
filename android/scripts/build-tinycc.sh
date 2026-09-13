@@ -83,6 +83,10 @@ $ARCH_CFG
 #define CONFIG_TCC_CROSSPREFIX ""
 #define CONFIG_TCCDIR "/data/data/com.termux/files/usr/lib/tcc"
 CONFEOF
+echo ">>> config.h contents:"
+cat "$TINYCC_SRC/config.h"
+echo ">>> TCC_TARGET leakage in environment:"
+env | grep -i "TCC_TARGET" || echo "  (none)"
 
 for src in "${SOURCES[@]}"; do
     echo "  Compiling $src..."
@@ -91,9 +95,9 @@ for src in "${SOURCES[@]}"; do
         -DONE_SOURCE=0 \
         '-DTCC_LIBTCC1="\0"' \
         '-DTCC_VERSION="0.9.27"' \
-        -DTCC_TARGET_ARM64 \
+        -UTCC_TARGET_ARM -UTCC_TARGET_ARM64 -UTCC_TARGET_I386 -UTCC_TARGET_RISCV64 \
+        $ARCH_DEFINE \
         -I"$TINYCC_SRC" \
-        -I"$TINYCC_SRC/include" \
         -c "$src" \
         -o "$TINYCC_BUILD/${src%.c}.o"
 done
