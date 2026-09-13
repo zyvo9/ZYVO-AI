@@ -305,6 +305,19 @@ jobs:
           source android/scripts/env.sh
           ./android/scripts/build-bun.sh
 
+      - name: Install Zig
+        run: |
+          cd /opt
+          for name in zig-x86_64-linux-0.15.2.tar.xz zig-linux-x86_64-0.15.2.tar.xz; do
+            if curl -fsSL -o zig.tar.xz "https://ziglang.org/download/0.15.2/$name"; then
+              tar xf zig.tar.xz && rm -f zig.tar.xz && break
+            fi
+          done
+          ZIG_DIR=$(find /opt -maxdepth 1 -type d -name "zig-*" | head -1)
+          [ -n "$ZIG_DIR" ] || { echo "Zig download failed"; exit 1; }
+          echo "$ZIG_DIR" >> $GITHUB_PATH
+          "$ZIG_DIR/zig" version
+
       - name: Build libopentui (x86_64)
         run: |
           source android/scripts/env.sh
