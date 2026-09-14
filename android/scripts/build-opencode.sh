@@ -142,8 +142,9 @@ fi
 for f in "${RUNTIME_SO_SRC:-$PREBUILT_DIR}"/*.so; do
     if [ -f "$f" ]; then cp "$f" "$DIST_DIR/"; fi
 done
-if [ -f "$PREBUILT_DIR/opencode" ]; then
-    # Ship OUR wrapper (guysoft's logic + zyvo env fixes) instead of his copy
+# Ship OUR wrapper unconditionally — aarch64's prebuilt dir carries guysoft's
+# copy, other arches have no prebuilt at all; either way ours is what ships.
+if [ -f "$REPO_ROOT/wrapper.sh" ]; then
     cp "$REPO_ROOT/wrapper.sh" "$DIST_DIR/opencode-wrapper"
 fi
 if [ -f "$PREBUILT_DIR/opencode.bin" ]; then cp "$PREBUILT_DIR/opencode.bin" "$DIST_DIR/opencode-prebuilt.bin"; fi
