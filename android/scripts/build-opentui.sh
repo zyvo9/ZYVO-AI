@@ -100,18 +100,25 @@ if [ ! -d "$NDK_SYSROOT/usr/include" ]; then
 fi
 LIBC_TXT="$WORK_DIR/android-libc.txt"
 mkdir -p "$WORK_DIR"
-# NDK clang finds arch headers (asm/, machine/) via the triple-specific
-# include dir; zig libc.txt takes colon-separated include paths.
+# zig's LibCInstallation parser takes ONE path per line (LibCDirs.zig builds
+# the include list from include_dir + sys_include_dir as-is — no colon
+# splitting). A colon-joined value becomes a single non-existent directory
+# and the libcxx/libunwind sub-compiles fail to find inttypes.h/assert.h.
+# Common C headers live in usr/include; arch headers (asm/) in the triple dir.
 TRIPLE_INC="$NDK_SYSROOT/usr/include/${ANDROID_TRIPLE}"
 cat > "$LIBC_TXT" << EOF
-include_dir=$NDK_SYSROOT/usr/include:$TRIPLE_INC
-sys_include_dir=$NDK_SYSROOT/usr/include:$TRIPLE_INC
+include_dir=$NDK_SYSROOT/usr/include
+sys_include_dir=$TRIPLE_INC
 crt_dir=$NDK_SYSROOT/usr/lib/${ANDROID_TRIPLE}/${ANDROID_API}
 msvc_lib_dir=
 kernel32_lib_dir=
 gcc_dir=
 EOF
 echo "    libc paths: $LIBC_TXT"
+
+# The android-libc-link patch links the NDK libc.so stub; its fallback path
+# is aarch64-only, so always hand it the arch-correct lib dir explicitly.
+export ANDROID_NDK_LIB_DIR="$NDK_SYSROOT/usr/lib/${ANDROID_TRIPLE}/${ANDROID_API}"
 
 cd "$OPENTUI_ZIG_DIR"
 
