@@ -48,7 +48,7 @@ esac
 # working even while apt cannot).
 apt_ok() { "$PREFIX/bin/apt" --version >/dev/null 2>&1; }
 if ! apt_ok; then
-  warn "apt ভাঙা দেখাচ্ছে (CANNOT LINK EXECUTABLE) — pool থেকে সর্বশেষ apt সরাসরি বসানো হচ্ছে…"
+  warn "apt appears broken (CANNOT LINK EXECUTABLE) — installing the latest apt directly from the pool…"
   APT_DEB="$(curl -fsSL "https://packages.termux.dev/apt/termux-main/pool/main/a/apt/" 2>/dev/null | grep -o "apt_[^\"]*_${ARCH_TAG}.deb" | tail -1)"
   if [ -n "$APT_DEB" ] && command -v dpkg-deb >/dev/null 2>&1; then
     TMPAPT="$PREFIX/tmp/apt-repair.deb"
@@ -59,10 +59,10 @@ if ! apt_ok; then
     fi
   fi
   if apt_ok; then
-    info "apt ঠিক হয়ে গেছে ✓"
+    info "apt repaired ✓"
   else
-    warn "apt এখনো ভাঙা — python/ripgrep-জাতীয় এক্সট্রা ইনস্টল স্কিপ হবে (zyvo তবুও চলবে)।"
-    warn "পূর্ণ সমাধান: Termux app-টা আপডেট করো (F-Droid/GitHub) বা নতুন করে ইনস্টল করো।"
+    warn "apt is still broken — optional installs (ripgrep) will be skipped (zyvo will still run)."
+    warn "Full fix: update the Termux app (F-Droid/GitHub) or reinstall it."
   fi
 fi
 
@@ -76,9 +76,9 @@ command -v unzip >/dev/null 2>&1 || { info "Installing unzip..."; pkg install -y
 if ! command -v rg >/dev/null 2>&1; then
   if apt_ok; then
     info "Installing ripgrep..."
-    pkg install -y ripgrep || warn "ripgrep ইনস্টল হলো না — কোড খোঁজা ধীর হবে, পরে 'pkg install ripgrep' চালাও।"
+    pkg install -y ripgrep || warn "ripgrep install failed — code search will be slower; run 'pkg install ripgrep' later."
   else
-    warn "ripgrep স্কিপ (apt ভাঙা) — পরে 'pkg install ripgrep' চালালেই হবে।"
+    warn "ripgrep skipped (apt broken) — run 'pkg install ripgrep' later to fix."
   fi
 else
   info "ripgrep already installed"
@@ -267,22 +267,22 @@ if [ ! -f "$VAULT/00 Home/Memory Index.md" ]; then
   cat > "$VAULT/00 Home/Memory Index.md" <<'EOF'
 # ZyvoVault — Memory Index (2nd brain)
 
-zyvo এই vault-এ গভীর memory রাখে। Obsidian app-এ এই ফোল্ডারটা "Open folder
-as vault" দিয়ে খুললেই user সব দেখতে ও বদলাতে পারে।
+zyvo keeps long-term memory in this vault. Open this folder as a vault in
+the Obsidian app to view and edit everything.
 
-## Agent-এর নিয়ম
-- History দরকার হলে: আগে AGENTS.md (hot memory), তারপর এই index + দরকারি note।
-- Lasting fact শিখলে **সেই মুহূর্তেই** সঠিক ফোল্ডারে লিখে ফেলো — পরের জন্য জমাতে না।
-- কাজের session শেষে `04 Sessions/YYYY-MM-DD <বিষয়>.md` নোট: কী হলো, কী সিদ্ধান্ত, পরের ধাপ।
-- Raw token/key কোথাও না — শুধু কোথায় সেভ আছে তার state (`03 Credentials/state.md`)।
+## Agent rules
+- Need history? Read AGENTS.md (hot memory) first, then this index and the relevant note.
+- When a lasting fact is learned, write it to the right folder immediately — never stockpile for later.
+- At the end of a work session, add `04 Sessions/YYYY-MM-DD <topic>.md`: what happened, what was decided, next steps.
+- Never store raw tokens/keys — only the state of where each is configured (`03 Credentials/state.md`).
 
-## কাঠামো
-- `01 User/` — user profile, পছন্দ
-- `02 Projects/` — প্রতি project-এর একটি dossier
-- `03 Credentials/state.md` — কোন credential কোথায় configure করা
+## Structure
+- `01 User/` — user profile, preferences
+- `02 Projects/` — one dossier per project
+- `03 Credentials/state.md` — where each credential is configured
 - `04 Sessions/` — dated session logs
 EOF
-  info "Memory vault created: $VAULT (Obsidian app-এ খুললেই দেখা যাবে)"
+  info "Memory vault created: $VAULT (open this folder as a vault in the Obsidian app)"
 fi
 
 refresh_config() {
@@ -431,7 +431,7 @@ if [ -z "$FULL_URL" ]; then
   FULL_URL="$(asset_url "android-${ARCH_TAG}.zip")"
 fi
 if [ -z "$FULL_URL" ] && [ "$ARCH_TAG" = "x86_64" ]; then
-  die "x86_64 (এমুলেটর/x86 ডিভাইস)-এর বিল্ড এখনো রেডি হয়নি — CI তৈরি করছে। কিছুক্ষণ পরে আবার চেষ্টা করো, বা aarch64 ফোনে ইনস্টল করো।"
+  die "The x86_64 build is not available yet — CI is building it. Try again shortly, or install on an aarch64 phone."
 fi
 [ -n "$FULL_URL" ] || die "No package asset found in the latest release of ${GITHUB_REPO}."
 

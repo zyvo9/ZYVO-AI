@@ -75,12 +75,12 @@ if [ -n "$ZYVO_MODELS_URL" ]; then
   case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
   AGE=$(( NOW - STAMP ))
   if [ "$AGE" -lt 21600 ]; then
-    echo "zyvo: model list তাজা ($(( AGE / 3600 )) ঘণ্টা আগে নেওয়া) — সরাসরি খুলছি" >&2
+    echo "zyvo: model list is fresh (fetched $(( AGE / 3600 ))h ago) — opening directly" >&2
   else
-    echo "zyvo: সর্বশেষ model list নাওয়া হচ্ছে…" >&2
+    echo "zyvo: fetching the latest model list…" >&2
     NEWCFG="$(curl -fsS -m 8 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
     if [ -z "$NEWCFG" ]; then
-      echo "zyvo: scanner জাগছে — একটু অপেক্ষা…" >&2
+      echo "zyvo: waking the scanner — one moment…" >&2
       NEWCFG="$(curl -fsS -m 40 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
     fi
     if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ] && ! echo "$NEWCFG" | grep -q '"models":{}'; then
@@ -89,9 +89,9 @@ if [ -n "$ZYVO_MODELS_URL" ]; then
       [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
       printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
       date +%s > "$ZYVO_STAMP" 2>/dev/null || true
-      echo "zyvo: ✓ সর্বশেষ model list বসে গেছে" >&2
+      echo "zyvo: ✓ latest model list installed" >&2
     else
-      echo "zyvo: scanner পাওয়া যায়নি — বর্তমান list দিয়েই চলছে" >&2
+      echo "zyvo: scanner unreachable — continuing with the current list" >&2
     fi
   fi
 fi
