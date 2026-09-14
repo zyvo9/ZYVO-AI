@@ -38,6 +38,34 @@ case "$(uname -m)" in
   *) die "Unsupported architecture: $(uname -m). zyvo supports aarch64 (64-bit ARM) phones, and experimentally x86_64." ;;
 esac
 
+# ---------------------------------------------------------------
+# 1b. Termux package-manager health (issue #1: CANNOT LINK EXECUTABLE "apt")
+# ---------------------------------------------------------------
+# A stale half-upgraded Termux can carry an apt whose libapt-pkg.so needs
+# libraries that no longer exist (e.g. liblz4.so.1) — every `pkg install`
+# then dies instantly. Repair it by laying the CURRENT apt package directly
+# over $PREFIX with dpkg-deb (dpkg does not link libapt-pkg, so it keeps
+# working even while apt cannot).
+apt_ok() { "$PREFIX/bin/apt" --version >/dev/null 2>&1; }
+if ! apt_ok; then
+  warn "apt ভাঙা দেখাচ্ছে (CANNOT LINK EXECUTABLE) — pool থেকে সর্বশেষ apt সরাসরি বসানো হচ্ছে…"
+  APT_DEB="$(curl -fsSL "https://packages.termux.dev/apt/termux-main/pool/main/a/apt/" 2>/dev/null | grep -o "apt_[^\"]*_${ARCH_TAG}.deb" | tail -1)"
+  if [ -n "$APT_DEB" ] && command -v dpkg-deb >/dev/null 2>&1; then
+    TMPAPT="$PREFIX/tmp/apt-repair.deb"
+    mkdir -p "$PREFIX/tmp" 2>/dev/null || true
+    if curl -fsSL "https://packages.termux.dev/apt/termux-main/pool/main/a/apt/$APT_DEB" -o "$TMPAPT" 2>/dev/null; then
+      dpkg-deb -x "$TMPAPT" "$PREFIX/" 2>/dev/null || true
+      rm -f "$TMPAPT"
+    fi
+  fi
+  if apt_ok; then
+    info "apt ঠিক হয়ে গেছে ✓"
+  else
+    warn "apt এখনো ভাঙা — python/ripgrep-জাতীয় এক্সট্রা ইনস্টল স্কিপ হবে (zyvo তবুও চলবে)।"
+    warn "পূর্ণ সমাধান: Termux app-টা আপডেট করো (F-Droid/GitHub) বা নতুন করে ইনস্টল করো।"
+  fi
+fi
+
 command -v curl >/dev/null 2>&1 || { info "Installing curl..."; pkg install -y curl; }
 command -v zstd >/dev/null 2>&1 || { info "Installing zstd..."; pkg install -y zstd; }
 command -v unzip >/dev/null 2>&1 || { info "Installing unzip..."; pkg install -y unzip; }
@@ -46,20 +74,19 @@ command -v unzip >/dev/null 2>&1 || { info "Installing unzip..."; pkg install -y
 # 2. Dependencies
 # ---------------------------------------------------------------
 if ! command -v rg >/dev/null 2>&1; then
-  info "Installing ripgrep..."
-  pkg install -y ripgrep
+  if apt_ok; then
+    info "Installing ripgrep..."
+    pkg install -y ripgrep || warn "ripgrep ইনস্টল হলো না — কোড খোঁজা ধীর হবে, পরে 'pkg install ripgrep' চালাও।"
+  else
+    warn "ripgrep স্কিপ (apt ভাঙা) — পরে 'pkg install ripgrep' চালালেই হবে।"
+  fi
 else
   info "ripgrep already installed"
 fi
 
-# The wrapper's live model-list updater needs python — without it the
-# active-model refresh silently skips and users see stale/dead models.
-if ! command -v python >/dev/null 2>&1; then
-  info "Installing python (needed for live model list)..."
-  pkg install -y python
-else
-  info "python already installed"
-fi
+# NOTE: python is NOT required — the wrapper fetches the live model list
+# with curl alone. (An earlier installer version installed python for an
+# old wrapper design; that requirement no longer exists.)
 
 if [ ! -d "$HOME/storage/shared" ] && command -v termux-setup-storage >/dev/null 2>&1; then
   info "Requesting storage permission — press ALLOW (sessions will appear in /storage/emulated/0/ZYVO)"
