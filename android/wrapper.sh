@@ -107,7 +107,9 @@ for candidate in \
     "${PREFIX:-/data/data/com.termux/files/usr}/lib" \
     "$dir"
 do
-    if [ -f "$candidate/libtagfix.so" ]; then
+    # aarch64 packages carry libtagfix.so; x86_64 packages carry only
+    # libc++_shared.so + libopentui.so — any of them marks the lib dir.
+    if [ -f "$candidate/libtagfix.so" ] || [ -f "$candidate/libc++_shared.so" ] || [ -f "$candidate/libopentui.so" ]; then
         NATIVE_LIB_DIR="$candidate"
         break
     fi
