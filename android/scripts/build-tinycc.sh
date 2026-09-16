@@ -91,7 +91,7 @@ env | grep -i "TCC_TARGET" || echo "  (none)"
 for src in "${SOURCES[@]}"; do
     echo "  Compiling $src..."
     $ANDROID_CC \
-        -O2 -fPIC -Wall -fno-strict-aliasing \
+        -O2 -fPIC -Wall -fno-strict-aliasing $ANDROID_ARCH_CFLAGS \
         -DONE_SOURCE=0 \
         '-DTCC_LIBTCC1="\0"' \
         '-DTCC_VERSION="0.9.27"' \

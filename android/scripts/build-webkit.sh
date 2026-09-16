@@ -16,8 +16,8 @@ source "$SCRIPT_DIR/env.sh"
 TOOLCHAIN="$REPO_ROOT/cmake/webkit-android-toolchain.cmake"
 
 # Compiler flags matching oven-sh/WebKit's Dockerfile
-DEFAULT_CFLAGS="-fno-omit-frame-pointer -ffunction-sections -fdata-sections -faddrsig -DU_STATIC_IMPLEMENTATION=1"
-RELEASE_FLAGS="-O3 -DNDEBUG=1"
+DEFAULT_CFLAGS="-fno-omit-frame-pointer -ffunction-sections -fdata-sections -faddrsig -DU_STATIC_IMPLEMENTATION=1 ${ANDROID_ARCH_CFLAGS}"
+RELEASE_FLAGS="-O3 -DNDEBUG=1 ${ANDROID_ARCH_CFLAGS}"
 
 echo "=== Building WebKit/JSC for Android aarch64 ==="
 echo "WebKit source: $WEBKIT_SRC"

@@ -64,6 +64,16 @@ fi
 export ANDROID_TRIPLE
 export ANDROID_TRIPLE_API="${ANDROID_TRIPLE}${ANDROID_API}"
 
+# Force baseline x86-64 (SSE2) on x86_64 — some emulator CPUs lack AVX/SSE4.2
+# and a native-flavored build dies with SIGILL. aarch64 needs nothing extra.
+if [ -z "${ANDROID_ARCH_CFLAGS:-}" ]; then
+  case "$ANDROID_ARCH" in
+    x86_64) ANDROID_ARCH_CFLAGS="-march=x86-64 -mtune=generic" ;;
+    *)      ANDROID_ARCH_CFLAGS="" ;;
+  esac
+fi
+export ANDROID_ARCH_CFLAGS
+
 # NDK toolchain paths
 export NDK_TOOLCHAIN="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64"
 export NDK_SYSROOT="${NDK_TOOLCHAIN}/sysroot"
