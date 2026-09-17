@@ -76,13 +76,19 @@ jobs:
         working-directory: packages/opencode/dist
         run: |
           set -e
-          DIR=$(ls -d */bin 2>/dev/null | head -1 | xargs dirname)
-          mv "$DIR/bin/opencode" "$DIR/bin/zyvo" 2>/dev/null || true
           VERSION="${OPENCODE_VERSION}"
-          if [ "${{ matrix.package }}" = "tar" ]; then
-            tar -czf "zyvo-${VERSION}-${{ matrix.name }}.tar.gz" -C "$DIR/bin" zyvo
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            DIR=$(ls -d */bin 2>/dev/null | head -1 | xargs dirname)
+            mv "$DIR/bin/opencode.exe" "$DIR/bin/zyvo.exe"
+            powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force"
           else
-            zip -q "zyvo-${VERSION}-${{ matrix.name }}.zip" "$DIR/bin/zyvo"
+            DIR=$(ls -d */bin 2>/dev/null | head -1 | xargs dirname)
+            mv "$DIR/bin/opencode" "$DIR/bin/zyvo" 2>/dev/null || true
+            if [ "${{ matrix.package }}" = "tar" ]; then
+              tar -czf "zyvo-${VERSION}-${{ matrix.name }}.tar.gz" -C "$DIR/bin" zyvo
+            else
+              zip -q "zyvo-${VERSION}-${{ matrix.name }}.zip" "$DIR/bin/zyvo"
+            fi
           fi
           ls -lh zyvo-*
 

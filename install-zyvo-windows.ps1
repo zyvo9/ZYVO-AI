@@ -25,7 +25,7 @@ Invoke-WebRequest "$scanner/zyvo-config" -OutFile "$cfg\zyvo.json" -UseBasicPars
 Write-Host "==> Adding zyvo to your PATH..." -ForegroundColor Green
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($userPath -notlike "*$dest*") {
-  [Environment]::SetEnvironmentVariable("Path", "$userPath;$dest\bin", "User")
+  [Environment]::SetEnvironmentVariable("Path", "$userPath;$dest", "User")
 }
 
 Write-Host ""
