@@ -117,9 +117,16 @@ jobs:
             ## Zyvo ${{ env.OPENCODE_VERSION }} for desktop
 
             Same Zyvo experience on your computer.
+
+            **Windows — one-line install** (PowerShell):
+            ```
+            Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 | iex
+            ```
+
+            Manual:
+            - Windows: download `zyvo-*-windows-x64.zip`, extract, run `zyvo.exe`
             - Linux: download .tar.gz, extract, run `./zyvo`
             - macOS: download .zip, extract, run `./zyvo` (allow in Gatekeeper if asked)
-            - Windows: download .zip, extract, run `zyvo.exe`
 
             Config lives in `~/.config/zyvo/zyvo.json` (same model list as mobile).
         env:
