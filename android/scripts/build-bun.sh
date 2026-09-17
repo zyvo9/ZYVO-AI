@@ -79,6 +79,12 @@ fi
 
 # The bun android patch hardcodes aarch64 paths (the lolhtml rust linker and
 # the zig sysroot include). For other arches rewrite them to the real triple.
+if [ "$ANDROID_ARCH" = "x86_64" ]; then
+    # Bun's cmake bakes haswell (AVX2) into the zig-compiled core by default —
+    # emulator CPUs (qemu64 etc.) die with SIGILL. Force zig baseline (SSE2).
+    sed -i 's/set(ZIG_CPU "haswell")/set(ZIG_CPU "baseline")/; s/set(ZIG_CPU "nehalem")/set(ZIG_CPU "baseline")/'         "$BUN_SRC/cmake/targets/BuildBun.cmake"
+    grep -n 'ZIG_CPU' "$BUN_SRC/cmake/targets/BuildBun.cmake" | head -2
+fi
 if [ "$ANDROID_ARCH" != "aarch64" ]; then
     for f in "$BUN_SRC/cmake/targets/BuildLolHtml.cmake" "$BUN_SRC/build.zig"; do
         if [ -f "$f" ] && grep -q "aarch64-linux-android" "$f"; then
