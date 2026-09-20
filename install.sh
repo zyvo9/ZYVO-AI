@@ -103,15 +103,23 @@ if curl -fsSL "$WRAPPER_URL" -o "$PREFIX/bin/${BINARY_NAME}.new" 2>/dev/null && 
 fi
 
 # ---------------------------------------------------------------
-# 3. Latest release info
+# 3. Latest ANDROID release info
 # ---------------------------------------------------------------
+# GitHub's /releases/latest returns the most recently published release of
+# ANY kind — once the PC (pc-v*) release went live it became "latest" and
+# broke this installer. So: list recent releases, pick the newest tag that
+# starts with android-v, then fetch that release's JSON directly.
 info "Checking the latest release in ${GITHUB_REPO}..."
-API_URL="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
+LATEST_TAG="$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/releases?per_page=30" 2>/dev/null \
+  | grep -o '"tag_name": *"android-v[^"]*"' | head -1 | sed 's/.*"tag_name": *"//; s/"$//')"
+[ -n "$LATEST_TAG" ] || die "No android release found in ${GITHUB_REPO}. Run the Android build workflow first, then retry."
+info "Latest android release: $LATEST_TAG"
+API_URL="https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${LATEST_TAG}"
 TMP_JSON="$(mktemp)"
 HTTP_CODE="$(curl -sSL -o "$TMP_JSON" -w '%{http_code}' "$API_URL" || echo 000)"
 if [ "$HTTP_CODE" = "404" ]; then
   rm -f "$TMP_JSON"
-  die "No release published yet in ${GITHUB_REPO}. Run the build workflow first, then retry."
+  die "Release ${LATEST_TAG} not found in ${GITHUB_REPO} (unexpected)."
 elif [ "$HTTP_CODE" != "200" ]; then
   rm -f "$TMP_JSON"
   die "GitHub API returned HTTP $HTTP_CODE. Check your internet connection."
