@@ -185,11 +185,7 @@ deploy_skills() {
 #     (auto-loads in every session; the agent maintains it)
 # ---------------------------------------------------------------
 # Live model list source — the scanner gateway keeps only working models
-MODELS_URL_FILE="$HOME/.config/zyvo/models-url"
-if [ ! -f "$MODELS_URL_FILE" ]; then
-  echo "https://omniroute-render-production-52cf.up.railway.app/active-models" > "$MODELS_URL_FILE"
-  info "Live model list connected (scanner gateway)"
-fi
+rm -f "$HOME/.config/zyvo/models-url" "$HOME/.config/zyvo/models.fetched" 2>/dev/null || true
 
 AGENTS_FILE="$HOME/.config/zyvo/AGENTS.md"
 AGENTS_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/AGENTS.md"
@@ -294,43 +290,20 @@ EOF
 fi
 
 refresh_config() {
-  # Data/wait budget: live config is ~4 KB, but waking a sleeping scanner
-  # can cost 40s — install must stay fast. So: if the wrapper fetched a
-  # live list <6h ago, keep it and skip the network entirely. Otherwise one
-  # short 8s live try; on failure NEVER downgrade — keep the phone's current
-  # list. Repo snapshot is only for fresh installs (no config at all yet).
-  STAMP_FILE="$HOME/.config/zyvo/models.fetched"
-  NOW="$(date +%s)"
-  # set -e: a missing marker file must not abort the installer
-  STAMP="$(cat "$STAMP_FILE" 2>/dev/null || echo 0)"
-  case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
-  if [ "$(( NOW - STAMP ))" -lt 21600 ] && [ -s "$CONFIG_FILE" ]; then
-    info "Model list already fresh ($(( (NOW - STAMP) / 3600 ))h old) — skipping download"
-    return 0
-  fi
-  LIVE_URL="https://omniroute-render-production-52cf.up.railway.app/zyvo-config"
-  if curl -fsSL -m 8 "$LIVE_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null \
+  # Default setup: opencode Zen is the default model provider (`zyvo auth login`
+  # to sign in free with GitHub); Kilo Code works by setting KILO_API_KEY.
+  # The full model catalogs load automatically from the models.dev registry —
+  # nothing to fetch or curate here.
+  CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
+  if curl -fsSL -m 30 "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null \
      && [ -s "$CONFIG_FILE.tmp" ] \
-     && [ "$(head -c1 "$CONFIG_FILE.tmp" 2>/dev/null)" = "{" ] \
-     && ! grep -q '"models":{}' "$CONFIG_FILE.tmp"; then
+     && [ "$(head -c1 "$CONFIG_FILE.tmp" 2>/dev/null)" = "{" ]; then
     [ -f "$CONFIG_FILE" ] && cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
     mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    date +%s > "$STAMP_FILE" 2>/dev/null || true
-    info "Live active-model list fetched from scanner"
+    info "Default config installed (opencode Zen + Kilo Code)"
   else
     rm -f "$CONFIG_FILE.tmp"
-    if [ -s "$CONFIG_FILE" ]; then
-      warn "Scanner unreachable — keeping your current model list"
-    else
-      CONFIG_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/zyvo.json"
-      if curl -fsSL "$CONFIG_URL" -o "$CONFIG_FILE.tmp" 2>/dev/null && [ -s "$CONFIG_FILE.tmp" ]; then
-        mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-        info "Fresh install — repo snapshot used (live list loads on first start)"
-      else
-        rm -f "$CONFIG_FILE.tmp"
-        warn "Could not refresh config — keeping what you have"
-      fi
-    fi
+    warn "Could not fetch the default config — keeping what you have"
   fi
 }
 

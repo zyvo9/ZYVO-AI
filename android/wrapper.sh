@@ -59,43 +59,6 @@ else
   unset ZYVO_SESSION_ROOT
 fi
 
-# UPDATE-FIRST LAUNCH: fetch the latest model list BEFORE zyvo opens.
-# Data/wait budget: the config is only ~4 KB, but waking a sleeping Railway
-# scanner can cost 40s. So: if we fetched a live list <6h ago, open instantly
-# with zero network. Otherwise one 8s fast try; only if that fails, one 40s
-# wake try — at most once per 6h. Success stamps models.fetched for next time.
-ZYVO_MODELS_URL="${ZYVO_MODELS_URL:-}"
-[ -z "$ZYVO_MODELS_URL" ] && [ -f "$HOME/.config/zyvo/models-url" ] && ZYVO_MODELS_URL="$(head -n1 "$HOME/.config/zyvo/models-url" 2>/dev/null)"
-if [ -n "$ZYVO_MODELS_URL" ]; then
-  ZYVO_CONFIG_URL="${ZYVO_MODELS_URL%/active-models}/zyvo-config"
-  ZYVO_STAMP="$HOME/.config/zyvo/models.fetched"
-  NOW="$(date +%s)"
-  # set -e: a missing marker file must not kill the whole launcher
-  STAMP="$(cat "$ZYVO_STAMP" 2>/dev/null || echo 0)"
-  case "$STAMP" in ''|*[!0-9]*) STAMP=0;; esac
-  AGE=$(( NOW - STAMP ))
-  if [ "$AGE" -lt 21600 ]; then
-    echo "zyvo: model list is fresh (fetched $(( AGE / 3600 ))h ago) — opening directly" >&2
-  else
-    echo "zyvo: fetching the latest model list…" >&2
-    NEWCFG="$(curl -fsS -m 8 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
-    if [ -z "$NEWCFG" ]; then
-      echo "zyvo: waking the scanner — one moment…" >&2
-      NEWCFG="$(curl -fsS -m 40 "$ZYVO_CONFIG_URL" 2>/dev/null || true)"
-    fi
-    if [ -n "$NEWCFG" ] && [ "$(printf '%.1s' "$NEWCFG")" = "{" ] && ! echo "$NEWCFG" | grep -q '"models":{}'; then
-      CFG="$HOME/.config/zyvo/zyvo.json"
-      mkdir -p "$(dirname "$CFG")"
-      [ -f "$CFG" ] && cp "$CFG" "$CFG.bak"
-      printf '%s\n' "$NEWCFG" > "$CFG.new" && mv "$CFG.new" "$CFG"
-      date +%s > "$ZYVO_STAMP" 2>/dev/null || true
-      echo "zyvo: ✓ latest model list installed" >&2
-    else
-      echo "zyvo: scanner unreachable — continuing with the current list" >&2
-    fi
-  fi
-fi
-
 export OPENCODE_DISABLE_TUI_AUDIO="${OPENCODE_DISABLE_TUI_AUDIO:-1}"
 
 # Locate the native libraries we ship alongside the wrapper.
