@@ -16,19 +16,27 @@ GITHUB_REPO="${1:-${ZYVO_REPO:-zyvo9/ZYVO-AI}}"
 FORCE=false
 for arg in "$@"; do [ "$arg" = "--force" ] && FORCE=true; done
 
-BINARY_NAME="zyvo"
-BIN="$PREFIX/libexec/zyvo/zyvo.bin"
-META="$PREFIX/libexec/zyvo/update-meta"
-
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 info()  { echo -e "${GREEN}==>${NC} $1"; }
 warn()  { echo -e "${YELLOW}==>${NC} $1"; }
 die()   { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 
 # ---------------------------------------------------------------
-# 1. Environment checks
+# 1. Environment checks — MUST run before anything touches $PREFIX
+#    (set -u would otherwise die with a cryptic "PREFIX: unbound variable"
+#     when someone runs this on a PC)
 # ---------------------------------------------------------------
-[ -d "/data/data/com.termux" ] || die "This installer is for Termux only. Install Termux from F-Droid or GitHub: https://github.com/termux/termux-app/releases"
+if [ ! -d "/data/data/com.termux" ]; then
+  if uname -s | grep -qi "mingw\|msys\|cygwin"; then
+    die "This installer is for Android/Termux. You are on Windows — open PowerShell and run:
+Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 | iex"
+  fi
+  die "This installer is for Android/Termux only. Install Termux from F-Droid or GitHub: https://github.com/termux/termux-app/releases"
+fi
+
+BINARY_NAME="zyvo"
+BIN="$PREFIX/libexec/zyvo/zyvo.bin"
+META="$PREFIX/libexec/zyvo/update-meta"
 
 # zyvo builds are per-arch; aarch64 (all real phones) is the proven path.
 # x86_64 (emulators / x86 Android devices) uses the android-x86_64 package.
