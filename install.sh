@@ -184,7 +184,7 @@ deploy_skills() {
 # 6c. Memory file (AGENTS.md) — deployed ONCE, never overwritten
 #     (auto-loads in every session; the agent maintains it)
 # ---------------------------------------------------------------
-# Live model list source — the scanner gateway keeps only working models
+# Legacy scanner files from the old OmniRoute default — remove if present
 rm -f "$HOME/.config/zyvo/models-url" "$HOME/.config/zyvo/models.fetched" 2>/dev/null || true
 
 AGENTS_FILE="$HOME/.config/zyvo/AGENTS.md"
