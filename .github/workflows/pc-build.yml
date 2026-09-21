@@ -88,6 +88,7 @@ jobs:
               [ -z "$DIR" ] && DIR="$d"
               case "$d" in *baseline*) DIR="$d"; break ;; esac
             done
+            DIR="${DIR%/bin}"
             mv "$DIR/bin/opencode.exe" "$DIR/bin/zyvo.exe"
             powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force"
           else
@@ -97,6 +98,7 @@ jobs:
               [ -z "$DIR" ] && DIR="$d"
               case "$d" in *baseline*) DIR="$d"; break ;; esac
             done
+            DIR="${DIR%/bin}"
             mv "$DIR/bin/opencode" "$DIR/bin/zyvo" 2>/dev/null || true
             if [ "${{ matrix.package }}" = "tar" ]; then
               tar -czf "zyvo-${VERSION}-${{ matrix.name }}.tar.gz" -C "$DIR/bin" zyvo
