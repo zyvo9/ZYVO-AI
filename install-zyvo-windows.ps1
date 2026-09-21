@@ -7,7 +7,6 @@ $ErrorActionPreference = "Stop"
 
 $ver = "1.17.9"
 $base = "https://github.com/zyvo9/ZYVO-AI/releases/download/pc-v$ver"
-$scanner = "https://omniroute-render-production-52cf.up.railway.app"
 $dest = "$env:LOCALAPPDATA\Zyvo"
 
 Write-Host "==> Downloading Zyvo v$ver (Windows x64)..." -ForegroundColor Green
@@ -16,11 +15,10 @@ Invoke-WebRequest "$base/zyvo-$ver-windows-x64.zip" -OutFile "$env:TEMP\zyvo.zip
 Expand-Archive "$env:TEMP\zyvo.zip" -DestinationPath $dest -Force
 Remove-Item "$env:TEMP\zyvo.zip" -Force
 
-Write-Host "==> Fetching the live model list..." -ForegroundColor Green
+Write-Host "==> Installing the default config (opencode Zen + Kilo Code)..." -ForegroundColor Green
 $cfg = "$env:USERPROFILE\.config\zyvo"
 New-Item -ItemType Directory -Force -Path $cfg | Out-Null
-Invoke-WebRequest "$scanner/zyvo-config" -OutFile "$cfg\zyvo.json" -UseBasicParsing
-"$scanner/active-models" | Out-File "$cfg\models-url" -Encoding ascii
+Invoke-WebRequest "https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json" -OutFile "$cfg\zyvo.json" -UseBasicParsing
 
 Write-Host "==> Adding zyvo to your PATH..." -ForegroundColor Green
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")

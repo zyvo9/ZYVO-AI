@@ -133,7 +133,7 @@ GitHub Actions workflow:
 | aarch64 Android 7+ in Termux — every modern phone | ✅ Supported |
 | Android 7+ via proot-distro (Ubuntu in Termux) | ✅ Works |
 | 32-bit ARM phones (pre-2016) | ❌ Bun is 64-bit only — use zyvo remotely over SSH |
-| x86_64 emulators / Chromebooks | 🔜 Planned |
+| x86_64 emulators / x86 devices (native Termux) | ✅ zyvo android-x86_64 builds |
 | Windows / macOS / Linux PC | ✅ zyvo PC builds (`pc-v*` releases) or upstream opencode |
 
 ## 🔨 How the Android build works
@@ -166,8 +166,7 @@ packages/    opencode source (the fork)
 - [x] Six built-in skills (apk, webdev, lets-scroll, motion-animation, web2video, phone-control)
 - [x] Motion-animation masterclass + AI video pipeline
 - [x] Model tester with Smart Retry
-- [ ] OmniRoute on permanent public hosting
-- [ ] x86_64 build (emulators, Chromebooks)
+- [x] Native x86_64 build (emulators, x86 devices)
 
 ---
 
