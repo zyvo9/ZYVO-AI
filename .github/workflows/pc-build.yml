@@ -32,18 +32,22 @@ jobs:
           - name: linux-x64
             os: ubuntu-latest
             package: tar
+            flags: '--baseline' 
           - name: linux-arm64
             os: ubuntu-24.04-arm
             package: tar
           - name: darwin-arm64
             os: macos-latest
             package: zip
+            flags:  
           - name: darwin-x64
             os: macos-latest
             package: zip
+            flags: '--baseline' 
           - name: windows-x64
             os: windows-latest
             package: zip
+            flags: '--baseline' 
 
     steps:
       - name: Checkout repository
@@ -69,7 +73,7 @@ jobs:
         shell: bash
         working-directory: packages/opencode
         run: |
-          bun run script/build.ts --single --skip-embed-web-ui
+          bun run script/build.ts --single ${{ matrix.flags }} --skip-embed-web-ui
 
       - name: Package (rename to zyvo)
         shell: bash
@@ -78,11 +82,15 @@ jobs:
           set -e
           VERSION="${OPENCODE_VERSION}"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            DIR=$(ls -d */bin 2>/dev/null | head -1 | xargs dirname)
+            DIR=$(ls -d */bin 2>/dev/null | grep baseline | head -1)
+            [ -z "$DIR" ] && DIR=$(ls -d */bin 2>/dev/null | head -1)
+            DIR=$(dirname "$DIR")
             mv "$DIR/bin/opencode.exe" "$DIR/bin/zyvo.exe"
             powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force"
           else
-            DIR=$(ls -d */bin 2>/dev/null | head -1 | xargs dirname)
+            DIR=$(ls -d */bin 2>/dev/null | grep baseline | head -1)
+            [ -z "$DIR" ] && DIR=$(ls -d */bin 2>/dev/null | head -1)
+            DIR=$(dirname "$DIR")
             mv "$DIR/bin/opencode" "$DIR/bin/zyvo" 2>/dev/null || true
             if [ "${{ matrix.package }}" = "tar" ]; then
               tar -czf "zyvo-${VERSION}-${{ matrix.name }}.tar.gz" -C "$DIR/bin" zyvo
@@ -119,6 +127,7 @@ jobs:
         with:
           tag_name: pc-v${{ env.OPENCODE_VERSION }}
           files: assets/*
+          overwrite_files: true
           body: |
             ## Zyvo ${{ env.OPENCODE_VERSION }} for desktop
 
