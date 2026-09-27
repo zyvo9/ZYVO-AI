@@ -29,4 +29,4 @@ if ($userPath -notlike "*$dest*") {
 Write-Host ""
 Write-Host "Zyvo v$ver installed!" -ForegroundColor Green
 Write-Host "Open a NEW terminal and run:  zyvo"
-Write-Host "(Re-run this installer any time to refresh the model list.)"
+Write-Host "Models: opencode Zen (free via 'zyvo auth login') + Kilo Code (KILO_API_KEY)."

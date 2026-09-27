@@ -92,9 +92,8 @@ else
   info "ripgrep already installed"
 fi
 
-# NOTE: python is NOT required — the wrapper fetches the live model list
-# with curl alone. (An earlier installer version installed python for an
-# old wrapper design; that requirement no longer exists.)
+# NOTE: python is not required — zyvo's default config needs nothing
+# beyond the binary itself.
 
 if [ ! -d "$HOME/storage/shared" ] && command -v termux-setup-storage >/dev/null 2>&1; then
   info "Requesting storage permission — press ALLOW (sessions will appear in /storage/emulated/0/ZYVO)"
@@ -470,7 +469,7 @@ rm -rf "$TMP_DIR"
 if [ -n "$REMOTE_CORE" ]; then save_meta; fi
 
 # ---------------------------------------------------------------
-# 6. Config (model list) + smoke test
+# 6. Default config + smoke test
 # ---------------------------------------------------------------
 refresh_config
 deploy_skills
