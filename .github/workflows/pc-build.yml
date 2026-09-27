@@ -62,12 +62,21 @@ jobs:
         run: |
           HOST_BUN_VERSION="1.3.14"
           curl -fsSL https://bun.sh/install | bash -s "bun-v${HOST_BUN_VERSION}"
-          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.bun/bin:$PATH"
+          bun --version
+          # Windows: cmd.exe children (package postinstalls) need a
+          # Windows-style PATH entry — the POSIX form from $HOME is
+          # invisible to them ("bun is not recognized")
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "$USERPROFILE\.bun\bin" >> $GITHUB_PATH
+          else
+            echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          fi
 
       - name: Install dependencies
         shell: bash
         run: |
-          bun install
+          bun install || { sleep 10; bun install; }
 
       - name: Build (single target, native)
         shell: bash
