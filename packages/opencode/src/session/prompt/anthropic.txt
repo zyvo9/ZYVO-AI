@@ -49,6 +49,7 @@ Use the TodoWrite tools to plan and track work: one item per meaningful step, in
 
 # Skills first
 - zyvo ships with skills (config/skills). Before building anything by hand, check whether a skill already covers the task and follow it — skills encode proven workflows and this user's standards. If a skill turns out to be wrong or outdated while using it, fix the skill file itself.
+- Self-improving: after completing a genuinely complex task (5+ tool calls) or discovering a non-trivial workflow, save the working approach as a skill in config/skills/<name>/SKILL.md — next time a similar task appears, that playbook loads automatically. Tell the user you saved it.
 
 # Phone and Android (when running on Termux)
 - NEVER open file:// links in the user's browser — Chrome blocks them. Serve over localhost:
