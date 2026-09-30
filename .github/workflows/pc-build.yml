@@ -17,6 +17,7 @@ on:
 
 env:
   OPENCODE_VERSION: "1.17.9"
+  HOST_BUN_VERSION: "1.3.14"
 
 jobs:
   build:
@@ -82,6 +83,24 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: Set-MpPreference -DisableRealtimeMonitoring $true
+
+      - name: Pre-seed bun baseline binary into cache (Windows only)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          # bun's own downloader keeps failing to extract @oven/bun-windows-x64-baseline
+          # on Windows runners ("The download may be incomplete") — the npm tarball
+          # itself is verified intact. Seed the cache directly so the build never
+          # needs the flaky download path.
+          CACHE="$HOME/.bun/install/cache/@oven/bun-windows-x64-baseline@${HOST_BUN_VERSION}@@@1"
+          if [ ! -f "$CACHE/bin/bun.exe" ]; then
+            mkdir -p "$CACHE"
+            curl -fsSL -m 300 "https://registry.npmjs.org/@oven/bun-windows-x64-baseline/-/bun-windows-x64-baseline-${HOST_BUN_VERSION}.tgz" -o /tmp/oven-baseline.tgz
+            mkdir -p /tmp/oven-baseline && tar -xzf /tmp/oven-baseline.tgz -C /tmp/oven-baseline
+            cp -r /tmp/oven-baseline/package/* "$CACHE/"
+            "$CACHE/bin/bun.exe" --version
+            echo ">>> baseline bun seeded into cache"
+          fi
 
       - name: Build (single target, native)
         shell: bash
