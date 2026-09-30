@@ -194,12 +194,11 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         }
       }
 
-      // zyvo: never auto-connect the legacy keyless catalog provider — zyvo's
-      // own default provider (config) is the only one that ships connected.
-      // Users can still add any provider themselves (auth login / config),
-      // which connects through the auth/config paths, not this loader.
+      // Zen works out of the box: without a key the provider still connects
+      // with apiKey "public" and the free models (34, incl. grok-code) run
+      // immediately — `zyvo auth login` only unlocks the paid ones.
       return {
-        autoload: ok,
+        autoload: true,
         options: ok ? {} : { apiKey: "public" },
       }
     }),
