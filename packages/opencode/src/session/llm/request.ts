@@ -15,9 +15,10 @@ import { jsonSchema, tool as aiTool, type ModelMessage, type Tool } from "ai"
 import type { Plugin } from "@/plugin"
 import { mergeDeep } from "remeda"
 
-// Keep the upstream UA: Zen's free tier rejects requests that do not
-// identify as opencode ("free tier can only be used from within OpenCode")
-const USER_AGENT = `opencode/${InstallationVersion}`
+// Zen's free tier requires opencode >= 1.18.0 and rejects requests whose
+// user agent does not identify as opencode. Our fork stays on the 1.17.9
+// base, so advertise 1.18.0 on the wire (installation version is unchanged).
+const USER_AGENT = `opencode/1.18.0`
 
 type PrepareInput = {
   readonly user: SessionV1.User
