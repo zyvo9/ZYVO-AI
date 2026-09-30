@@ -15,7 +15,9 @@ import { jsonSchema, tool as aiTool, type ModelMessage, type Tool } from "ai"
 import type { Plugin } from "@/plugin"
 import { mergeDeep } from "remeda"
 
-const USER_AGENT = `zyvo/${InstallationVersion}`
+// Keep the upstream UA: Zen's free tier rejects requests that do not
+// identify as opencode ("free tier can only be used from within OpenCode")
+const USER_AGENT = `opencode/${InstallationVersion}`
 
 type PrepareInput = {
   readonly user: SessionV1.User
