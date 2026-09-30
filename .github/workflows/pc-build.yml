@@ -78,6 +78,11 @@ jobs:
         run: |
           bun install || { sleep 10; bun install; }
 
+      - name: Disable Defender real-time monitoring (Windows only)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: Set-MpPreference -DisableRealtimeMonitoring $true
+
       - name: Build (single target, native)
         shell: bash
         working-directory: packages/opencode
