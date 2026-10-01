@@ -276,8 +276,14 @@ fi
 # 6d. Obsidian vault (2nd brain) — deep memory the user can open
 #     in the Obsidian app; agent writes session logs & dossiers here
 # ---------------------------------------------------------------
-VAULT="$HOME/storage/shared/Documents/ZyvoVault"
+VAULT="$HOME/storage/shared/DCIM/ZyvoVault"
 [ -d "$HOME/storage/shared" ] || VAULT="$HOME/.config/zyvo/vault"
+# migrate: older installs kept the vault in Documents — move it to DCIM
+OLD_VAULT="$HOME/storage/shared/Documents/ZyvoVault"
+if [ -d "$OLD_VAULT" ] && [ ! -d "$VAULT" ]; then
+  mv "$OLD_VAULT" "$VAULT" 2>/dev/null || true
+  info "Memory vault moved to $VAULT"
+fi
 if [ ! -f "$VAULT/00 Home/Memory Index.md" ]; then
   mkdir -p "$VAULT/00 Home" "$VAULT/01 User" "$VAULT/02 Projects" \
            "$VAULT/03 Credentials" "$VAULT/04 Sessions"

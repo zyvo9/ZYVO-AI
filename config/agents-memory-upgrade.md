@@ -29,7 +29,7 @@ an expired token: give a DIRECT link to regenerate
 
 ## 🗂️ Obsidian vault — deep memory (2nd brain)
 
-Path: `~/storage/shared/Documents/ZyvoVault` (fallback `~/.config/zyvo/vault`).
+Path: `/storage/emulated/0/DCIM/ZyvoVault` (fallback `~/.config/zyvo/vault`).
 Missing? Create it yourself: `00 Home/Memory Index.md`, `01 User/`,
 `02 Projects/`, `03 Credentials/state.md`, `04 Sessions/`. The user opens the
 vault in the Obsidian app and sees everything you remember — keep notes
