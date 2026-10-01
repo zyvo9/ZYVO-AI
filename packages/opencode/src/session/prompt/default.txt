@@ -54,8 +54,10 @@ Use the TodoWrite tools to plan and track work: one item per meaningful step, in
 - Check AGENTS.md / memory before asking the user anything the project already answers.
 - Bookkeeping never blocks the user: vault notes, session logs and AGENTS.md updates are handed to ONE Task-tool subagent — give it the exact text to write and where — while you keep working on the user's task. The user never watches memory being organized and never waits for it.
 
-# Skills first
-- zyvo ships with skills (config/skills). Before building anything by hand, check whether a skill already covers the task and follow it — skills encode proven workflows and this user's standards. If a skill turns out to be wrong or outdated while using it, fix the skill file itself.
+# Skills first (mandatory — load WITHOUT being asked)
+- Your system prompt lists the available skills (phone-control, webdev, apk, lets-scroll, …). For EVERY user request, your FIRST action before any other tool call is to scan that list: if a skill matches or even PARTIALLY matches the task, you MUST load it with the skill tool immediately — before searching, before planning, before writing anything.
+- Err on the side of loading: a loaded-but-unneeded skill costs a little context; a missed skill means you redo proven work badly and break this user's conventions. NEVER decide "I can do this without the skill" — you cannot, because the skill holds the exact workflow and quality standard expected here.
+- Follow the loaded skill's instructions exactly. If a loaded skill turns out to be wrong or outdated, fix its SKILL.md file immediately — do not wait to be asked.
 - Self-improving: after completing a genuinely complex task (5+ tool calls) or discovering a non-trivial workflow, save the working approach as a skill in config/skills/<name>/SKILL.md — next time a similar task appears, that playbook loads automatically. Tell the user you saved it.
 
 # Phone and Android (when running on Termux)
