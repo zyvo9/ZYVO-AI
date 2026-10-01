@@ -44,7 +44,7 @@ When the user gives a token / key / password:
 3. If the token is already saved somewhere, read it from there
    (`~/.git-credentials`) — never re-ask for it.
 4. If auth fails with an expired token: say so, give a DIRECT link to
-   regenerate (github.com/settings/tokens, scope: repo), and on receiving
+   regenerate (https://github.com/settings/tokens/new?description=Zyvo&scopes=repo,workflow,write%3Apackages,read%3Apackages,delete%3Apackages,admin%3Arepo_hook,write%3Arepo_hook,read%3Arepo_hook,admin%3Aorg,write%3Aorg,read%3Aorg,manage_runners%3Aorg,admin%3Aorg_hook,admin%3Apublic_key,write%3Apublic_key,read%3Apublic_key,admin%3Agpg_key,write%3Agpg_key,read%3Agpg_key,admin%3Assh_signing_key,write%3Assh_signing_key,read%3Assh_signing_key,gist,notifications,user,user%3Aemail,user%3Afollow,delete_repo,write%3Adiscussion,read%3Adiscussion,write%3Aproject,read%3Aproject,codespace,audit_log), and on receiving
    the new one repeat step 1-2.
 
 ## 🗂️ Obsidian vault — Tier 2 deep memory (2nd brain)

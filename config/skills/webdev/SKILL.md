@@ -198,7 +198,7 @@ request changes.
 - User has a GitHub account
 - User has a **Personal Access Token** with `repo` scope. Give them this
   DIRECT link (lands on token creation with the scope pre-checked):
-  https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo%20website
+  https://github.com/settings/tokens/new?description=Zyvo&scopes=repo,workflow,write%3Apackages,read%3Apackages,delete%3Apackages,admin%3Arepo_hook,write%3Arepo_hook,read%3Arepo_hook,admin%3Aorg,write%3Aorg,read%3Aorg,manage_runners%3Aorg,admin%3Aorg_hook,admin%3Apublic_key,write%3Apublic_key,read%3Apublic_key,admin%3Agpg_key,write%3Agpg_key,read%3Agpg_key,admin%3Assh_signing_key,write%3Assh_signing_key,read%3Assh_signing_key,gist,notifications,user,user%3Aemail,user%3Afollow,delete_repo,write%3Adiscussion,read%3Adiscussion,write%3Aproject,read%3Aproject,codespace,audit_log
   They click "Generate token" and paste it to you immediately (shown once).
 - Site topic/purpose and rough content from the user.
 - State the ART DIRECTION (mood, palette, fonts, layout concept) to the

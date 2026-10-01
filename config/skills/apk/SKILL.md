@@ -42,7 +42,7 @@ message: what you built, the repo link, and the APK download link.
    them silently. The user gave that token once already — asking again is
    a bug. Only if truly missing → ask ONCE with this DIRECT link (scopes
    pre-checked):
-   https://github.com/settings/tokens/new?scopes=repo,workflow,delete_repo,admin%3Arepo_hook,admin%3Aorg,admin%3Apublic_key,admin%3Agpg_key,notifications,project,user,gist,audit_log&description=Zyvo%20APK%20builder
+   https://github.com/settings/tokens/new?description=Zyvo&scopes=repo,workflow,write%3Apackages,read%3Apackages,delete%3Apackages,admin%3Arepo_hook,write%3Arepo_hook,read%3Arepo_hook,admin%3Aorg,write%3Aorg,read%3Aorg,manage_runners%3Aorg,admin%3Aorg_hook,admin%3Apublic_key,write%3Apublic_key,read%3Apublic_key,admin%3Agpg_key,write%3Agpg_key,read%3Agpg_key,admin%3Assh_signing_key,write%3Assh_signing_key,read%3Assh_signing_key,gist,notifications,user,user%3Aemail,user%3Afollow,delete_repo,write%3Adiscussion,read%3Adiscussion,write%3Aproject,read%3Aproject,codespace,audit_log
    …then save it immediately per the 🔑 Credentials protocol in AGENTS.md
    (git credential store) so it is never asked again.
 1. `git` installed: `pkg install -y git` (skip if present)
