@@ -177,14 +177,14 @@ deploy_skills() {
         done
       fi
   done
-  # remove skill folders that were renamed in the repo (known renames only —
+  # remove skill folders that no longer ship with zyvo (known list only —
   # never touch anything the user may have added themselves)
-  OLDDIR="$HOME/.config/zyvo/skills/remotion"
-  NEWDIR="$HOME/.config/zyvo/skills/motion-animation"
-  if [ -d "$OLDDIR" ] && [ -f "$NEWDIR/SKILL.md" ]; then
-    rm -rf "$OLDDIR"
-    info "old skill removed: remotion (renamed)"
-  fi
+  for DEAD in remotion motion-animation web2video; do
+    if [ -d "$HOME/.config/zyvo/skills/$DEAD" ]; then
+      rm -rf "$HOME/.config/zyvo/skills/$DEAD"
+      info "removed discontinued skill: $DEAD"
+    fi
+  done
 }
 
 # ---------------------------------------------------------------
