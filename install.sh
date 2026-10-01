@@ -177,6 +177,12 @@ deploy_skills() {
         done
       fi
   done
+  # remove EMPTY session folders (launches that never saved anything)
+  for ZROOT in "$HOME/storage/shared/ZYVO" "$HOME/ZYVO"; do
+    if [ -d "$ZROOT" ]; then
+      find "$ZROOT" -maxdepth 1 -type d -name "session-*" -empty -exec rm -rf {} + 2>/dev/null || true
+    fi
+  done
   # remove skill folders that no longer ship with zyvo (known list only —
   # never touch anything the user may have added themselves)
   for DEAD in remotion motion-animation web2video; do

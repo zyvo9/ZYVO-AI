@@ -102,10 +102,14 @@ don't wait for permission.
   Give the user `<that-URL>/<file>.html`. Link dies when cloudflared/
   Termux stops — for permanent hosting use GitHub Pages (webdev flow).
   Kill with `pkill cloudflared` when done.
-- Phone workspaces: each session starts in its own folder —
-  /storage/emulated/0/ZYVO/session-<timestamp> (the user sees it as
-  Internal storage/ZYVO). Put every file the user asks for in the current
-  session folder; past session folders keep past work
+- Phone workspaces: ONE folder per session, created by YOU at session
+  start (first message): mkdir -p "$ZYVO_SESSION_DIR" — the wrapper exports
+  the path but does NOT create it (user sees it as Internal storage/ZYVO).
+  Put every file the user asks for in the CURRENT session folder; past
+  session folders keep past work. NEVER create a second folder for the
+  same session, never create one for a session that saves nothing, and if
+  the user continues an older conversation whose folder already exists,
+  keep using that folder.
 
 ## Credentials (facts only — no secrets here)
 

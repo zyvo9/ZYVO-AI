@@ -48,12 +48,11 @@ if ! mkdir -p "$ZYVO_ROOT" 2>/dev/null || [ ! -w "$ZYVO_ROOT" ]; then
 fi
 if [ -d "$ZYVO_ROOT" ] && [ -w "$ZYVO_ROOT" ]; then
   export ZYVO_SESSION_ROOT="$ZYVO_ROOT"
-  # Per-session FILES folder (agent saves deliverables here — see AGENTS.md),
-  # but zyvo itself launches from a STABLE directory: opencode lists sessions
-  # per working directory, so launching from a new folder each time made all
-  # previous sessions invisible. Fixed cwd = session history always shows.
+  # Per-session FILES folder (agent saves deliverables here — see AGENTS.md).
+  # The AGENT creates this folder once, at session start — a mkdir at every
+  # launch littered the ZYVO folder with empty folders (one per launch, even
+  # with no work). Path is still exported so the agent knows where it goes.
   ZYVO_SESS="$ZYVO_ROOT/session-$(date +%Y%m%d-%H%M%S)"
-  mkdir -p "$ZYVO_SESS" 2>/dev/null || true
   export ZYVO_SESSION_DIR="$ZYVO_SESS"
 else
   unset ZYVO_SESSION_ROOT
