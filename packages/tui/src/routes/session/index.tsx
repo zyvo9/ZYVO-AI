@@ -2051,6 +2051,20 @@ function Shell(props: ToolProps) {
     return collapsed().output
   })
 
+  // compact command display: first line only, expandable — big multiline
+  // commands collapsed to "$ cmd … +N lines" until the user clicks
+  const command = createMemo(() => stringValue(props.input.command) ?? "")
+  const multiLine = createMemo(() => command().includes("\n"))
+  const oneLine = createMemo(() => {
+    const lines = command().split("\n")
+    const max = Math.max(20, ctx.width - 6)
+    let head = lines[0]
+    if (Array.from(head).length > max) head = Array.from(head).slice(0, max - 1).join("") + "…"
+    const extra = lines.length - 1
+    return extra > 0 ? `${head} … +${extra} lines` : head
+  })
+  const hasMore = createMemo(() => collapsed().overflow || multiLine())
+
   const workdirDisplay = createMemo(() => {
     const workdir = stringValue(props.input.workdir)
     if (!workdir || workdir === ".") return undefined
@@ -2072,22 +2086,22 @@ function Shell(props: ToolProps) {
           title={title()}
           part={props.part}
           spinner={isRunning()}
-          onClick={collapsed().overflow ? () => setExpanded((prev) => !prev) : undefined}
+          onClick={hasMore() ? () => setExpanded((prev) => !prev) : undefined}
         >
           <box gap={1}>
-            <text fg={theme.text}>$ {stringValue(props.input.command)}</text>
+            <text fg={theme.text}>$ {expanded() ? command() : oneLine()}</text>
             <Show when={output()}>
               <text fg={theme.text}>{limited()}</text>
             </Show>
-            <Show when={collapsed().overflow}>
+            <Show when={hasMore()}>
               <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
             </Show>
           </box>
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="$" pending="Writing command..." complete={stringValue(props.input.command)} part={props.part}>
-          {stringValue(props.input.command)}
+        <InlineTool icon="$" pending="Writing command..." complete={oneLine()} part={props.part}>
+          {oneLine()}
         </InlineTool>
       </Match>
     </Switch>
