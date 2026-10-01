@@ -2051,10 +2051,10 @@ function Shell(props: ToolProps) {
     return collapsed().output
   })
 
-  // compact command display: first line only, expandable — big multiline
-  // commands collapsed to "$ cmd … +N lines" until the user clicks
+  // minimal display: collapsed shows ONLY the "# description" title —
+  // click anywhere to reveal the full command + output. Failed commands
+  // always show their output so errors are never hidden.
   const command = createMemo(() => stringValue(props.input.command) ?? "")
-  const multiLine = createMemo(() => command().includes("\n"))
   const oneLine = createMemo(() => {
     const lines = command().split("\n")
     const max = Math.max(20, ctx.width - 6)
@@ -2063,7 +2063,7 @@ function Shell(props: ToolProps) {
     const extra = lines.length - 1
     return extra > 0 ? `${head} … +${extra} lines` : head
   })
-  const hasMore = createMemo(() => collapsed().overflow || multiLine())
+  const failed = createMemo(() => props.part.state.status === "error")
 
   const workdirDisplay = createMemo(() => {
     const workdir = stringValue(props.input.workdir)
@@ -2086,15 +2086,17 @@ function Shell(props: ToolProps) {
           title={title()}
           part={props.part}
           spinner={isRunning()}
-          onClick={hasMore() ? () => setExpanded((prev) => !prev) : undefined}
+          onClick={() => setExpanded((prev) => !prev)}
         >
           <box gap={1}>
-            <text fg={theme.text}>$ {expanded() ? command() : oneLine()}</text>
-            <Show when={output()}>
-              <text fg={theme.text}>{limited()}</text>
-            </Show>
-            <Show when={hasMore()}>
-              <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
+            <Show when={expanded() || failed()}>
+              <text fg={theme.text}>$ {command()}</text>
+              <Show when={output()}>
+                <text fg={theme.text}>{limited()}</text>
+              </Show>
+              <Show when={collapsed().overflow}>
+                <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
+              </Show>
             </Show>
           </box>
         </BlockTool>
