@@ -98,25 +98,42 @@ ALWAYS WINS: if the engine suggests Inter as the identity font, a
 tech-blue gradient, or a uniform 3-column card grid — ignore that
 suggestion and follow the Doctrine instead.
 
-## 🧩 21st.dev MCP — curated component patterns (when enabled)
+## 🧩 COMPONENT EVIDENCE — real components, not imagination
 
-zyvo's config ships a `21st` MCP server (21st.dev — a curated library
-of professional React/Tailwind components). If its tools (`search`,
-`get_component`, …) appear in your tool list:
+Before building a hero, pricing section, dashboard, form or feature
+grid, look at 2-3 real components of that type. Two sources, in order:
 
-- Building a hero, pricing section, dashboard, form or feature grid?
-  Call `search` for that section type (e.g. "saas pricing hero") and
-  study 2-3 top components — treat them as PATTERN EVIDENCE, same tier
-  as the Design Intelligence Engine.
-- Port the STRUCTURE (spacing rhythm, hierarchy, layout moves) into the
-  single-file HTML build (Tailwind CDN). NEVER paste React/JSX into a
-  plain HTML site — translate it.
-- The ANTI-AI-LOOK DOCTRINE still wins: a component that screams
-  generic AI (Inter identity, tech-blue gradient, uniform 3-column
-  cards) is rejected no matter how popular it is.
-- Tools not in your list? The server is disabled in config — tell the
-  user it needs a free API key from 21st.dev/dashboard and enable the
-  `21st` server in config once they provide the key.
+### 1. Free & unlimited — shadcn/ui + MagicUI registries (DEFAULT)
+
+Public JSON registries, no key, no limit — just curl them:
+
+```bash
+# discover what exists (list of registry items)
+curl -fsSL "https://ui.shadcn.com/r/index.json" | head -c 2000
+# one component's full source (structure + tailwind classes)
+curl -fsSL "https://ui.shadcn.com/r/styles/new-york-v4/<name>.json"
+# animated components (marquee, particles, animated-beam…)
+curl -fsSL "https://magicui.design/r/<name>.json"
+```
+Study the JSON's layout/spacing/hierarchy as PATTERN EVIDENCE, then
+port the STRUCTURE into the single-file HTML build (Tailwind CDN) —
+in your own style, never verbatim.
+
+### 2. 21st.dev MCP — curated search (optional, key-gated)
+
+zyvo's config ships a `21st` MCP server (21st.dev — curated React/
+Tailwind components). If its tools (`search`, `get_component`, …)
+appear in your tool list:
+
+- Call `search` for the section type (e.g. "saas pricing hero") and
+  study the top 2-3 results the same way.
+- If the tools are NOT in your list, the user has no key yet — offer
+  to set it up: the key goes ONLY in the local file
+  `~/.config/zyvo/21st.key` (chmod 600, never in any repo), then
+  re-run the installer and the MCP activates automatically.
+- The ANTI-AI-LOOK DOCTRINE wins over every component source: a
+  generic component (Inter identity, tech-blue gradient, uniform
+  3-column cards) is rejected no matter how popular it is.
 
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
