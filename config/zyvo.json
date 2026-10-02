@@ -1,14 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/grok-code",
-  "mcp": {
-    "servers": {
-      "21st": {
-        "type": "remote",
-        "url": "https://21st.dev/api/mcp",
-        "headers": { "x-api-key": "PUT_YOUR_21ST_DEV_KEY_HERE" },
-        "disabled": true
-      }
-    }
-  }
+  "model": "opencode/grok-code"
 }

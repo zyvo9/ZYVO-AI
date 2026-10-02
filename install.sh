@@ -314,15 +314,6 @@ refresh_config() {
      && [ -s "$CONFIG_FILE.tmp" ] \
      && [ "$(head -c1 "$CONFIG_FILE.tmp" 2>/dev/null)" = "{" ]; then
     [ -f "$CONFIG_FILE" ] && cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
-    # 21st.dev MCP: the API key NEVER lives in the public repo — the user
-    # keeps it in a local key file; inject it into the config every refresh
-    KEYFILE="$HOME/.config/zyvo/21st.key"
-    if [ -f "$KEYFILE" ] && [ -s "$KEYFILE" ]; then
-      K21="$(tr -d ' \r\n' < "$KEYFILE")"
-      sed -i "s|PUT_YOUR_21ST_DEV_KEY_HERE|$K21|" "$CONFIG_FILE.tmp"
-      sed -i '/"21st": {/,/"disabled": true/ s/"disabled": true/"disabled": false/' "$CONFIG_FILE.tmp"
-      info "21st.dev MCP enabled from local key file (key never leaves this device)"
-    fi
     mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
     info "Default config installed (opencode Zen + Kilo Code)"
   else

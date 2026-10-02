@@ -101,11 +101,8 @@ suggestion and follow the Doctrine instead.
 ## 🧩 COMPONENT EVIDENCE — real components, not imagination
 
 Before building a hero, pricing section, dashboard, form or feature
-grid, look at 2-3 real components of that type. Two sources, in order:
-
-### 1. Free & unlimited — shadcn/ui + MagicUI registries (DEFAULT)
-
-Public JSON registries, no key, no limit — just curl them:
+grid, look at 2-3 real components of that type. Free & unlimited:
+the shadcn/ui + MagicUI public registries — no key, no limit, just curl:
 
 ```bash
 # discover what exists (list of registry items)
@@ -117,23 +114,10 @@ curl -fsSL "https://magicui.design/r/<name>.json"
 ```
 Study the JSON's layout/spacing/hierarchy as PATTERN EVIDENCE, then
 port the STRUCTURE into the single-file HTML build (Tailwind CDN) —
-in your own style, never verbatim.
-
-### 2. 21st.dev MCP — curated search (optional, key-gated)
-
-zyvo's config ships a `21st` MCP server (21st.dev — curated React/
-Tailwind components). If its tools (`search`, `get_component`, …)
-appear in your tool list:
-
-- Call `search` for the section type (e.g. "saas pricing hero") and
-  study the top 2-3 results the same way.
-- If the tools are NOT in your list, the user has no key yet — offer
-  to set it up: the key goes ONLY in the local file
-  `~/.config/zyvo/21st.key` (chmod 600, never in any repo), then
-  re-run the installer and the MCP activates automatically.
-- The ANTI-AI-LOOK DOCTRINE wins over every component source: a
-  generic component (Inter identity, tech-blue gradient, uniform
-  3-column cards) is rejected no matter how popular it is.
+in your own style, never verbatim. The ANTI-AI-LOOK DOCTRINE wins over
+every component source: a generic component (Inter identity, tech-blue
+gradient, uniform 3-column cards) is rejected no matter how popular
+it is.
 
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
