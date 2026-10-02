@@ -2001,6 +2001,7 @@ function BlockTool(props: {
   onClick?: () => void
   part?: ToolPart
   spinner?: boolean
+  compact?: boolean
 }) {
   const { theme } = useTheme()
   const renderer = useRenderer()
@@ -2010,8 +2011,8 @@ function BlockTool(props: {
     <box
       ref={(el: BoxRenderable) => alwaysSeparate.add(el)}
       border={["left"]}
-      paddingTop={1}
-      paddingBottom={1}
+      paddingTop={props.compact ? 0 : 1}
+      paddingBottom={props.compact ? 0 : 1}
       paddingLeft={2}
       marginTop={1}
       gap={1}
@@ -2093,6 +2094,7 @@ function Shell(props: ToolProps) {
           title={title()}
           part={props.part}
           spinner={isRunning()}
+          compact
           onClick={() => setExpanded((prev) => !prev)}
         >
           <box gap={1}>
