@@ -152,30 +152,26 @@ info "Latest: v${LATEST_VERSION} (build ${REMOTE_BUILD_ID})"
 
 CONFIG_FILE="$HOME/.config/zyvo/zyvo.json"
 deploy_skills() {
-  # discover every skill in the repo (config/skills/<name>/SKILL.md)
-  SKILLS_API="https://api.github.com/repos/${GITHUB_REPO}/contents/config/skills"
-  LIST="$(curl -fsSL "$SKILLS_API" 2>/dev/null || true)"
-  [ -n "$LIST" ] || return 0
-  for NAME in $(echo "$LIST" | grep -o '"name": *"[^"]*"' | sed 's/"name": *"//;s/"//'); do
+  # deploy every skill FULLY — nested folders too (references/data/scripts) —
+  # via the git trees API (one call lists every file in the repo)
+  TREE="$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1" 2>/dev/null || true)"
+  [ -n "$TREE" ] || return 0
+  FILES="$(echo "$TREE" | grep -o '"path": *"config/skills/[^"]*"' | sed 's/"path": *"//;s/"$//' | sort -u)"
+  [ -n "$FILES" ] || return 0
+  for F in $FILES; do
+    REL="${F#config/skills/}"
+    NAME="${REL%%/*}"
     SKILL_DIR="$HOME/.config/zyvo/skills/$NAME"
-    SKILL_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/config/skills/$NAME/SKILL.md"
-    mkdir -p "$SKILL_DIR"
-    if curl -fsSL "$SKILL_URL" -o "$SKILL_DIR/SKILL.md.tmp" 2>/dev/null && [ -s "$SKILL_DIR/SKILL.md.tmp" ]; then
-      mv "$SKILL_DIR/SKILL.md.tmp" "$SKILL_DIR/SKILL.md"
-      info "skill deployed: $NAME"
+    mkdir -p "$SKILL_DIR/$(dirname "$REL")"
+    if curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPO}/main/$F" -o "$SKILL_DIR/$REL.tmp" 2>/dev/null \
+       && [ -s "$SKILL_DIR/$REL.tmp" ]; then
+      mv "$SKILL_DIR/$REL.tmp" "$SKILL_DIR/$REL"
     else
-      rm -f "$SKILL_DIR/SKILL.md.tmp"
+      rm -f "$SKILL_DIR/$REL.tmp"
     fi
-    # multi-file skills: fetch references/ folder too (e.g. lets-scroll)
-    REFS_API="https://api.github.com/repos/${GITHUB_REPO}/contents/config/skills/${NAME}/references"
-    REF_LIST="$(curl -fsSL "$REFS_API" 2>/dev/null || true)"
-    if [ -n "$REF_LIST" ]; then
-      mkdir -p "$SKILL_DIR/references"
-      for RURL in $(echo "$REF_LIST" | grep -o '"download_url": *"[^"]*"' | grep -o 'https[^"]*'); do
-        RFILE="${RURL##*/}"
-        curl -fsSL "$RURL" -o "$SKILL_DIR/references/$RFILE" 2>/dev/null || true
-        done
-      fi
+  done
+  for D in "$HOME/.config/zyvo/skills"/*/; do
+    [ -f "$D/SKILL.md" ] && info "skill deployed: $(basename "$D")"
   done
   # remove EMPTY session folders (launches that never saved anything)
   for ZROOT in "$HOME/storage/shared/ZYVO" "$HOME/ZYVO"; do

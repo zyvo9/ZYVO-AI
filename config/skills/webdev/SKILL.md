@@ -34,6 +34,8 @@ Choose, and state to the user, three words for the MOOD (e.g. "warm,
 handcrafted, bold" for a bakery; "precise, technical, calm" for a dev
 tool). Every color/type/layout decision must serve those words. Two
 different projects must never end up with the same palette + layout.
+Then ground the choices in data with the Design Intelligence Engine
+(below) — your 3 mood words still have the final say.
 
 ### 2. Color: derive, don't decorate
 - Derive the palette from the SUBJECT (a coffee site: espresso browns,
@@ -68,6 +70,33 @@ different projects must never end up with the same palette + layout.
 Re-read your page and ask: "Would a senior designer ship this? Can I tell
 which AI made it from a screenshot?" If any section looks templated, redo
 it with a different layout/palette. This loop is mandatory.
+
+## 🧠 DESIGN INTELLIGENCE ENGINE (ui-ux-pro-max — search, don't guess)
+
+A searchable local catalog ships INSIDE this skill at
+`$HOME/.config/zyvo/skills/webdev/references/ui-ux-pro-max/` — 192 industry
+palette + reasoning profiles, 79 UI styles, 74 font pairings, 119 UX
+guidelines, 34 landing-page patterns, 25 chart types, 22 stacks. Pure
+Python 3 (stdlib only, works on Termux).
+
+After choosing the 3 mood words, run 2-3 searches to ground your
+palette/typography/pattern choices in real data (query by product type:
+"a coffee shop landing page", "saas pricing page"):
+
+```bash
+ENGINE="$HOME/.config/zyvo/skills/webdev/references/ui-ux-pro-max/scripts/search.py"
+python "$ENGINE" "<query>" --domain product      # industry palettes + reasoning
+python "$ENGINE" "<query>" --domain style        # UI style match
+python "$ENGINE" "<query>" --domain typography   # font pairings
+```
+Domains: `product`, `style`, `typography`, `ux` (guidelines), `landing`
+(page patterns), `color`, `chart`, `stack`. If `python` is missing, try
+`python3`.
+
+Engine = EVIDENCE, mood words = IDENTITY. THE ANTI-AI-LOOK DOCTRINE
+ALWAYS WINS: if the engine suggests Inter as the identity font, a
+tech-blue gradient, or a uniform 3-column card grid — ignore that
+suggestion and follow the Doctrine instead.
 
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
