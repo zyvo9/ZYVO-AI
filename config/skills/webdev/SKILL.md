@@ -98,6 +98,26 @@ ALWAYS WINS: if the engine suggests Inter as the identity font, a
 tech-blue gradient, or a uniform 3-column card grid — ignore that
 suggestion and follow the Doctrine instead.
 
+## 🧩 21st.dev MCP — curated component patterns (when enabled)
+
+zyvo's config ships a `21st` MCP server (21st.dev — a curated library
+of professional React/Tailwind components). If its tools (`search`,
+`get_component`, …) appear in your tool list:
+
+- Building a hero, pricing section, dashboard, form or feature grid?
+  Call `search` for that section type (e.g. "saas pricing hero") and
+  study 2-3 top components — treat them as PATTERN EVIDENCE, same tier
+  as the Design Intelligence Engine.
+- Port the STRUCTURE (spacing rhythm, hierarchy, layout moves) into the
+  single-file HTML build (Tailwind CDN). NEVER paste React/JSX into a
+  plain HTML site — translate it.
+- The ANTI-AI-LOOK DOCTRINE still wins: a component that screams
+  generic AI (Inter identity, tech-blue gradient, uniform 3-column
+  cards) is rejected no matter how popular it is.
+- Tools not in your list? The server is disabled in config — tell the
+  user it needs a free API key from 21st.dev/dashboard and enable the
+  `21st` server in config once they provide the key.
+
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
 The Doctrine says WHAT; this is the HOW with numbers. Every site you build
