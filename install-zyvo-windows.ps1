@@ -16,17 +16,24 @@ $base = "https://github.com/$repo/releases/download/pc-v$ver"
 $dest = "$env:LOCALAPPDATA\Zyvo"
 $cfg = "$env:USERPROFILE\.config\zyvo"
 
-# --- 1. Binary: download only when the version marker changed ---
+# --- 1. Binary: re-download when the release ASSET changes (version alone
+#     doesn't change on rebuilt releases — track the asset's updated_at) ---
 $marker = "$dest\version.txt"
-if ((Test-Path $marker) -and ((Get-Content $marker -Raw).Trim() -eq $ver)) {
-  Write-Host "==> Binary already at v$ver - skipping download" -ForegroundColor DarkGray
+$stamp = ""
+try {
+  $rel = Invoke-RestMethod "https://api.github.com/repos/$repo/releases/tags/pc-v$ver"
+  $asset = $rel.assets | Where-Object { $_.name -eq "zyvo-$ver-windows-x64.zip" } | Select-Object -First 1
+  if ($asset) { $stamp = $asset.updated_at }
+} catch { }
+if ((Test-Path $marker) -and $stamp -and ((Get-Content $marker -Raw).Trim() -eq $stamp)) {
+  Write-Host "==> Binary already up to date (v$ver, asset $stamp) - skipping download" -ForegroundColor DarkGray
 } else {
   Write-Host "==> Downloading Zyvo v$ver (Windows x64)..." -ForegroundColor Green
   New-Item -ItemType Directory -Force -Path $dest | Out-Null
   Invoke-WebRequest "$base/zyvo-$ver-windows-x64.zip" -OutFile "$env:TEMP\zyvo.zip" -UseBasicParsing
   Expand-Archive "$env:TEMP\zyvo.zip" -DestinationPath $dest -Force
   Remove-Item "$env:TEMP\zyvo.zip" -Force
-  Set-Content -Path $marker -Value $ver
+  Set-Content -Path $marker -Value $stamp
 }
 
 # --- 2. Config: refresh every run ---
