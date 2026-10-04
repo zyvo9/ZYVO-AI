@@ -1,4 +1,64 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/grok-code"
+  "model": "opencode/grok-code",
+  "fallback_models": [
+    "zen-public/grok-code",
+    "zen-public/big-pickle",
+    "zen-public/glm-5-free",
+    "zen-public/kimi-k2.5-free",
+    "zen-public/nemotron-3-ultra-free"
+  ],
+  "provider": {
+    "zen-public": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenCode Zen (public)",
+      "options": {
+        "baseURL": "https://opencode.ai/zen/v1",
+        "apiKey": "public"
+      },
+      "models": {
+        "grok-code": {
+          "name": "Grok Code Fast 1 (public)",
+          "limit": {
+            "context": 256000,
+            "output": 256000
+          },
+          "tool_call": true
+        },
+        "big-pickle": {
+          "name": "Big Pickle (public)",
+          "limit": {
+            "context": 200000,
+            "input": 160000,
+            "output": 32000
+          },
+          "tool_call": true
+        },
+        "glm-5-free": {
+          "name": "GLM-5 Free (public)",
+          "limit": {
+            "context": 204800,
+            "output": 131072
+          },
+          "tool_call": true
+        },
+        "kimi-k2.5-free": {
+          "name": "Kimi K2.5 Free (public)",
+          "limit": {
+            "context": 262144,
+            "output": 262144
+          },
+          "tool_call": true
+        },
+        "nemotron-3-ultra-free": {
+          "name": "Nemotron 3 Ultra Free (public)",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        }
+      }
+    }
+  }
 }
