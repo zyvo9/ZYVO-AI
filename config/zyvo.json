@@ -11,6 +11,11 @@
     "zyvo-free/free/qwen-3.8-max",
     "zyvo-free/free/minimax-m3.1",
     "zyvo-free/free/gemini-3.1-pro",
+    "zyvo-free-kilo/nvidia/nemotron-3.5-lightning:free",
+    "zyvo-free-kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
+    "zyvo-free-kilo/dots-studio/dots-3-note-preview:free",
+    "zyvo-free-kilo/poolside/laguna-s-2.1:free",
+    "zyvo-free-kilo/cohere/north-mini-code:free",
     "zen-public/ling-3.1-flash-free",
     "zen-public/deepseek-v4-flash-free",
     "zen-public/fledge-alpha-free"
@@ -186,6 +191,102 @@
             "context": 1000000
           },
           "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-kilo": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free Kilo",
+      "options": {
+        "baseURL": "https://api.kilo.ai/api/gateway/v1",
+        "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTExNDYwNjQsImV4cCI6MTk0ODgyNjA2NH0.QnqNzSWdRAIInoaIP0dYtMlhPW8vhSn6OCFm1pPwdUA"
+      },
+      "models": {
+        "nvidia/nemotron-3.5-lightning:free": {
+          "name": "Nemotron 3.5 Lightning",
+          "limit": {
+            "context": 1000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3-ultra-550b-a55b:free": {
+          "name": "Nemotron 3 Ultra 550B",
+          "limit": {
+            "context": 1000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "dots-studio/dots-3-note-preview:free": {
+          "name": "Dots3 Note Preview",
+          "limit": {
+            "context": 512000
+          },
+          "tool_call": true
+        },
+        "poolside/laguna-s-2.1:free": {
+          "name": "Poolside Laguna S 2.1",
+          "limit": {
+            "context": 262000
+          },
+          "tool_call": true
+        },
+        "poolside/laguna-xs-2.1:free": {
+          "name": "Poolside Laguna XS 2.1",
+          "limit": {
+            "context": 262000
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3-super-120b-a12b:free": {
+          "name": "Nemotron 3 Super 120B",
+          "limit": {
+            "context": 262000
+          },
+          "tool_call": true
+        },
+        "cohere/north-mini-code:free": {
+          "name": "North Mini Code",
+          "limit": {
+            "context": 256000
+          },
+          "tool_call": true
+        },
+        "kilo-auto/free": {
+          "name": "Free Router",
+          "limit": {
+            "context": 200000
+          },
+          "tool_call": true
+        },
+        "kilo-auto/balanced": {
+          "name": "Kilo Auto",
+          "limit": {
+            "context": 256000
+          },
+          "tool_call": true
+        },
+        "liquid/lfm-2.5-2.6b:free": {
+          "name": "LFM2.5 2.6B",
+          "limit": {
+            "context": 33000
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+          "name": "Nemotron 3 Nano Omni Reasoning",
+          "limit": {
+            "context": 256000
+          },
+          "tool_call": false
+        },
+        "nvidia/nemotron-3.5-content-safety:free": {
+          "name": "Nemotron 3.5 Content Safety",
+          "limit": {
+            "context": 128000
+          },
+          "tool_call": false
         }
       }
     }
