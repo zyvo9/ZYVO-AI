@@ -83,6 +83,10 @@ export class Info extends Schema.Class<Info>("Config.Info")({
   mcp: ConfigMCP.Info.pipe(Schema.optional).annotate({
     description: "MCP server configuration",
   }),
+  fallback_models: Schema.String.pipe(Schema.Array, Schema.optional).annotate({
+    description:
+      'Models to switch to automatically when the current one hits a usage limit ("provider/model")',
+  }),
   compaction: ConfigCompaction.Info.pipe(Schema.optional).annotate({
     description: "Conversation compaction behavior",
   }),

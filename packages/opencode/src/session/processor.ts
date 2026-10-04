@@ -18,7 +18,7 @@ import type { SessionID } from "./schema"
 import { SessionRetry } from "./retry"
 import { SessionStatus } from "./status"
 import { SessionSummary } from "./summary"
-import type { Provider } from "@/provider/provider"
+import { Provider } from "@/provider/provider"
 import { Question } from "@/question"
 import { errorMessage } from "@/util/error"
 import { isRecord } from "@/util/record"
@@ -97,6 +97,7 @@ export const layer = Layer.effect(
     const snapshot = yield* Snapshot.Service
     const agents = yield* Agent.Service
     const llm = yield* LLM.Service
+    const provider = yield* Provider.Service
     const permission = yield* Permission.Service
     const plugin = yield* Plugin.Service
     const summary = yield* SessionSummary.Service
@@ -964,6 +965,10 @@ export const layer = Layer.effect(
         })
         ctx.needsCompaction = false
         ctx.shouldBreak = (yield* config.get()).experimental?.continue_loop_on_deny !== true
+        // models to rotate onto when the current one hits a usage limit
+        const fallbacks = (yield* config.get()).fallback_models ?? []
+        let activeModel = streamInput.model
+        let fallbackCursor = 0
 
         return yield* Effect.gen(function* () {
           yield* Effect.gen(function* () {
@@ -971,7 +976,7 @@ export const layer = Layer.effect(
             ctx.currentTextID = undefined
             ctx.reasoningMap = {}
             yield* status.set(ctx.sessionID, { type: "busy" })
-            const stream = llm.stream(streamInput)
+            const stream = llm.stream({ ...streamInput, model: activeModel })
 
             yield* stream.pipe(
               Stream.tap((event) => handleEvent(event)),
@@ -995,32 +1000,54 @@ export const layer = Layer.effect(
               SessionRetry.policy({
                 provider: input.model.providerID,
                 parse,
-                set: (info) => {
-                  // TODO(v2): Temporary dual-write while migrating session messages to v2 events.
-                  const event = mirrorAssistant
-                    ? events.publish(SessionEvent.Retried, {
-                        sessionID: ctx.sessionID,
-                        attempt: info.attempt,
-                        error: {
-                          message: info.message,
-                          isRetryable: true,
-                        },
-                        timestamp: DateTime.makeUnsafe(Date.now()),
-                      })
-                    : Effect.void
-                  return flushV2Fragments().pipe(
-                    Effect.andThen(event),
-                    Effect.andThen(
-                      status.set(ctx.sessionID, {
-                        type: "retry",
-                        attempt: info.attempt,
-                        message: info.message,
-                        action: info.action,
-                        next: info.next,
-                      }),
-                    ),
-                  )
-                },
+                set: (info) =>
+                  Effect.gen(function* () {
+                    let message = info.message
+                    // usage-limit errors are not fixable by waiting — rotate
+                    // onto the next configured fallback model instead
+                    if (
+                      info.action &&
+                      (info.action.reason === "free_tier_limit" || info.action.reason === "account_rate_limit") &&
+                      fallbacks.length > 0
+                    ) {
+                      const next = fallbacks[fallbackCursor % fallbacks.length]
+                      fallbackCursor += 1
+                      const slash = next.indexOf("/")
+                      const providerID = next.slice(0, slash)
+                      const modelID = next.slice(slash + 1)
+                      const resolved = yield* provider
+                        .getModel(ProviderV2.ID.make(providerID), ModelV2.ID.make(modelID))
+                        .pipe(Effect.either)
+                      if (resolved._tag === "Right") {
+                        activeModel = resolved.right
+                        message = `${message} - switching to ${next}`
+                      }
+                    }
+                    // TODO(v2): Temporary dual-write while migrating session messages to v2 events.
+                    const event = mirrorAssistant
+                      ? events.publish(SessionEvent.Retried, {
+                          sessionID: ctx.sessionID,
+                          attempt: info.attempt,
+                          error: {
+                            message,
+                            isRetryable: true,
+                          },
+                          timestamp: DateTime.makeUnsafe(Date.now()),
+                        })
+                      : Effect.void
+                    return yield* flushV2Fragments().pipe(
+                      Effect.andThen(event),
+                      Effect.andThen(
+                        status.set(ctx.sessionID, {
+                          type: "retry",
+                          attempt: info.attempt,
+                          message,
+                          action: info.action,
+                          next: info.next,
+                        }),
+                      ),
+                    )
+                  }),
               }),
             ),
             Effect.catch(halt),
@@ -1071,6 +1098,7 @@ export const node = LayerNode.make(layer, [
   Snapshot.node,
   Agent.node,
   LLM.node,
+  Provider.node,
   Permission.node,
   Plugin.node,
   SessionSummary.node,
