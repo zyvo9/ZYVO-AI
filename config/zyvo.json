@@ -8,6 +8,8 @@
     "zyvo-free/free/deepseek-v4.1-flash",
     "zyvo-free/free/mimo-v2.6-pro",
     "zyvo-free/free/deepseek-v4-pro-0813",
+    "zyvo-free-2/deepseek-v4.1-flash:free",
+    "zyvo-free-2/mimo-v2.6-flash:free",
     "zen-public/ling-3.1-flash-free",
     "zen-public/deepseek-v4-flash-free",
     "zen-public/fledge-alpha-free"
@@ -179,6 +181,30 @@
         },
         "free/qwen-3.8-max": {
           "name": "Qwen 3.8 Max",
+          "limit": {
+            "context": 1000000
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free 2",
+      "options": {
+        "baseURL": "https://tokenharbor.ai/v1",
+        "apiKey": "thk_live_2YxIRZq8BgWMzlktcKozSage7yMic6NIdWgVl23Q2zIbUv2tq480Q3bWkApVg_I_"
+      },
+      "models": {
+        "deepseek-v4.1-flash:free": {
+          "name": "DeepSeek V4.1 Flash (free)",
+          "limit": {
+            "context": 1000000
+          },
+          "tool_call": true
+        },
+        "mimo-v2.6-flash:free": {
+          "name": "MiMo V2.6 Flash (free)",
           "limit": {
             "context": 1000000
           },
