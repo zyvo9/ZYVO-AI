@@ -36,6 +36,30 @@ zyvo
 termux-wake-lock    # optional: keeps long sessions alive
 ```
 
+## 💻 PC — Windows / macOS / Linux
+
+**Windows** — one line in PowerShell:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 -UseBasicParsing | iex
+```
+
+Installs to `%LOCALAPPDATA%\Zyvo`, adds `zyvo` to your PATH, and deploys the
+default config, all skills and agent memory. Re-run the same command anytime
+to update — only what changed is fetched.
+
+**macOS / Linux** — grab a build from the
+[PC release](https://github.com/zyvo9/ZYVO-AI/releases/tag/pc-v1.17.9) and put
+it on your PATH:
+
+```bash
+curl -fsSL https://github.com/zyvo9/ZYVO-AI/releases/download/pc-v1.17.9/zyvo-1.17.9-linux-x64.tar.gz | tar -xz
+sudo mv zyvo /usr/local/bin/
+```
+
+(macOS: use `zyvo-1.17.9-darwin-arm64.zip` or `zyvo-1.17.9-darwin-x64.zip`
+instead; allow in Gatekeeper if asked.)
+
 ## 🤖 50 AI models, zero setup
 
 zyvo ships with its own provider (**Zyvo**) pre-configured in
