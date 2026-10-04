@@ -10,6 +10,9 @@
     "zyvo-free/free/deepseek-v4-pro-0813",
     "zyvo-free-2/deepseek-v4.1-flash:free",
     "zyvo-free-2/mimo-v2.6-flash:free",
+    "zyvo-free-3/gemini-3.5-flash",
+    "zyvo-free-3/gemini-3.1-pro-preview",
+    "zyvo-free-3/gemini-2.5-flash",
     "zen-public/ling-3.1-flash-free",
     "zen-public/deepseek-v4-flash-free",
     "zen-public/fledge-alpha-free"
@@ -207,6 +210,63 @@
           "name": "MiMo V2.6 Flash (free)",
           "limit": {
             "context": 1000000
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-3": {
+      "npm": "@ai-sdk/google",
+      "name": "Zyvo Free 3",
+      "options": {
+        "apiKey": "{env:GOOGLE_AI_API_KEY}"
+      },
+      "models": {
+        "gemini-3.5-flash": {
+          "name": "Gemini 3.5 Flash (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "gemini-3.5-flash-lite": {
+          "name": "Gemini 3.5 Flash Lite (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "gemini-3-flash-preview": {
+          "name": "Gemini 3 Flash Preview (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "gemini-3.1-pro-preview": {
+          "name": "Gemini 3.1 Pro Preview (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "gemini-2.5-flash": {
+          "name": "Gemini 2.5 Flash (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "gemini-2.5-pro": {
+          "name": "Gemini 2.5 Pro (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
           },
           "tool_call": true
         }
