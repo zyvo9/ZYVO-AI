@@ -200,14 +200,14 @@
       },
       "models": {
         "deepseek-v4.1-flash:free": {
-          "name": "DeepSeek V4.1 Flash (free)",
+          "name": "DeepSeek V4.1 Flash",
           "limit": {
             "context": 1000000
           },
           "tool_call": true
         },
         "mimo-v2.6-flash:free": {
-          "name": "MiMo V2.6 Flash (free)",
+          "name": "MiMo V2.6 Flash",
           "limit": {
             "context": 1000000
           },
@@ -223,7 +223,7 @@
       },
       "models": {
         "gemini-3.5-flash": {
-          "name": "Gemini 3.5 Flash (free)",
+          "name": "Gemini 3.5 Flash",
           "limit": {
             "context": 1048576,
             "output": 65536
@@ -231,7 +231,7 @@
           "tool_call": true
         },
         "gemini-3.5-flash-lite": {
-          "name": "Gemini 3.5 Flash Lite (free)",
+          "name": "Gemini 3.5 Flash Lite",
           "limit": {
             "context": 1048576,
             "output": 65536
@@ -239,7 +239,7 @@
           "tool_call": true
         },
         "gemini-3-flash-preview": {
-          "name": "Gemini 3 Flash Preview (free)",
+          "name": "Gemini 3 Flash Preview",
           "limit": {
             "context": 1048576,
             "output": 65536
@@ -247,7 +247,7 @@
           "tool_call": true
         },
         "gemini-3.1-pro-preview": {
-          "name": "Gemini 3.1 Pro Preview (free)",
+          "name": "Gemini 3.1 Pro Preview",
           "limit": {
             "context": 1048576,
             "output": 65536
@@ -255,7 +255,7 @@
           "tool_call": true
         },
         "gemini-2.5-flash": {
-          "name": "Gemini 2.5 Flash (free)",
+          "name": "Gemini 2.5 Flash",
           "limit": {
             "context": 1048576,
             "output": 65536
@@ -263,7 +263,7 @@
           "tool_call": true
         },
         "gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro (free)",
+          "name": "Gemini 2.5 Pro",
           "limit": {
             "context": 1048576,
             "output": 65536
