@@ -88,18 +88,22 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          # bun's own downloader keeps failing to extract @oven/bun-windows-x64-baseline
-          # on Windows runners ("The download may be incomplete") — the npm tarball
-          # itself is verified intact. Seed the cache directly so the build never
-          # needs the flaky download path.
-          CACHE="$HOME/.bun/install/cache/@oven/bun-windows-x64-baseline@${HOST_BUN_VERSION}@@@1"
-          if [ ! -f "$CACHE/bin/bun.exe" ]; then
-            mkdir -p "$CACHE"
-            curl -fsSL -m 300 "https://registry.npmjs.org/@oven/bun-windows-x64-baseline/-/bun-windows-x64-baseline-${HOST_BUN_VERSION}.tgz" -o /tmp/oven-baseline.tgz
-            mkdir -p /tmp/oven-baseline && tar -xzf /tmp/oven-baseline.tgz -C /tmp/oven-baseline
-            cp -r /tmp/oven-baseline/package/* "$CACHE/"
-            "$CACHE/bin/bun.exe" --version
-            echo ">>> baseline bun seeded into cache"
+          # bun's own downloader keeps failing to extract the baseline compile
+          # base on Windows runners ("The download may be incomplete").
+          # GROUND TRUTH (verified with a real local compile): bun expects a
+          # RAW EXECUTABLE FILE — not a folder — at
+          #   ~/.bun/install/cache/bun-windows-x64-baseline-v<version>
+          # Seed that exact file from the official GitHub release zip so the
+          # build never touches bun's flaky download path.
+          CACHE="$HOME/.bun/install/cache/bun-windows-x64-baseline-v${HOST_BUN_VERSION}"
+          if [ ! -s "$CACHE" ]; then
+            mkdir -p "$HOME/.bun/install/cache" /tmp/baseline
+            curl -fsSL -m 600 "https://github.com/oven-sh/bun/releases/download/bun-v${HOST_BUN_VERSION}/bun-windows-x64-baseline.zip" -o /tmp/baseline/baseline.zip
+            unzip -oq /tmp/baseline/baseline.zip -d /tmp/baseline
+            find /tmp/baseline -name bun.exe -exec cp {} "$CACHE" \;
+            chmod +x "$CACHE"
+            "$CACHE" --version
+            echo ">>> baseline bun seeded: $CACHE"
           fi
 
       - name: Build (single target, native)
