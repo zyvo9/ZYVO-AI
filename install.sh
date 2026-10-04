@@ -29,7 +29,7 @@ die()   { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 if [ ! -d "/data/data/com.termux" ]; then
   if uname -s | grep -qi "mingw\|msys\|cygwin"; then
     die "This installer is for Android/Termux. You are on Windows — open PowerShell and run:
-Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 | iex"
+Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 -UseBasicParsing | iex"
   fi
   die "This installer is for Android/Termux only. Install Termux from F-Droid or GitHub: https://github.com/termux/termux-app/releases"
 fi

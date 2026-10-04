@@ -180,7 +180,7 @@ jobs:
 
             **Windows — one-line install** (PowerShell):
             ```
-            Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 | iex
+            Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 -UseBasicParsing | iex
             ```
 
             Manual:

@@ -1,6 +1,6 @@
 # Zyvo installer/updater for Windows
 # Run in PowerShell:
-#   Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 | iex
+#   Set-ExecutionPolicy Bypass -Scope Process -Force; iwr https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install-zyvo-windows.ps1 -UseBasicParsing | iex
 #
 # Re-running the SAME command updates in place: binary only when the
 # version changed, config + skills refreshed every time (delta-style,
