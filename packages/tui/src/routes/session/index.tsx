@@ -227,7 +227,15 @@ export function Session() {
     if (session()?.parentID) return []
     return children().flatMap((x) => sync.data.question[x.id] ?? [])
   })
-  const visible = createMemo(() => !session()?.parentID && permissions().length === 0 && questions().length === 0)
+  // side-question tabs ("Q: ..." child sessions) keep the prompt editable —
+  // only background subagent sessions are read-only
+  const isSideQuestion = createMemo(
+    () => Boolean(session()?.parentID) && Boolean(session()?.title?.startsWith("Q: ")),
+  )
+  const visible = createMemo(
+    () =>
+      (isSideQuestion() || !session()?.parentID) && permissions().length === 0 && questions().length === 0,
+  )
   const disabled = createMemo(() => permissions().length > 0 || questions().length > 0)
 
   const pending = createMemo(() => {
@@ -1159,6 +1167,7 @@ export function Session() {
       >
         <box flexDirection="row" flexGrow={1} minHeight={0}>
           <box flexGrow={1} minHeight={0} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
+            <SideTabs sessionID={route.sessionID} />
             <Show when={session()}>
               <scrollbox
                 ref={(r) => (scroll = r)}
@@ -1287,7 +1296,7 @@ export function Session() {
                     directory={sync.session.get(questions()[0].sessionID)?.directory}
                   />
                 </Show>
-                <Show when={session()?.parentID}>
+                <Show when={session()?.parentID && !isSideQuestion()}>
                   <SubagentFooter />
                 </Show>
                 <Show when={visible()}>
@@ -1308,6 +1317,12 @@ export function Session() {
                         toBottom()
                       }}
                       sessionID={route.sessionID}
+                      sideQuestions
+                      onSideQuestion={(childID) => navigate({ type: "session", sessionID: childID })}
+                      onSideBack={() => {
+                        const parent = session()?.parentID
+                        if (parent) navigate({ type: "session", sessionID: parent })
+                      }}
                       right={<pluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
                     />
                   </pluginRuntime.Slot>
@@ -1705,6 +1720,56 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
 }
 
 // Pending messages moved to individual tool pending functions
+
+// Side-question tab bar: [main] [Q: ...] — child sessions tagged "Q: " only.
+// Click a tab to jump; ESC inside a side tab returns to main (work keeps
+// running in both).
+function SideTabs(props: { sessionID: string }) {
+  const { theme } = useTheme()
+  const sync = useSync()
+  const route = useRoute()
+  const session = createMemo(() => sync.session.get(props.sessionID))
+  const mainSessionID = createMemo(() => session()?.parentID ?? session()?.id)
+  const tabs = createMemo(() => {
+    const parentId = mainSessionID()
+    if (!parentId) return []
+    return sync.data.session
+      .filter((x) => x.parentID === parentId && x.title?.startsWith("Q: "))
+      .sort((a, b) => (a.id < b.id ? -1 : 1))
+  })
+
+  return (
+    <Show when={tabs().length > 0}>
+      <box flexDirection="row" gap={1} flexShrink={0}>
+        <box
+          onMouseUp={() => {
+            const main = mainSessionID()
+            if (main && main !== props.sessionID) route.navigate({ type: "session", sessionID: main })
+          }}
+        >
+          <text
+            fg={session()?.parentID ? theme.textMuted : theme.text}
+            attributes={session()?.parentID ? undefined : TextAttributes.BOLD}
+          >
+            [main]
+          </text>
+        </box>
+        <For each={tabs()}>
+          {(tab) => (
+            <box onMouseUp={() => route.navigate({ type: "session", sessionID: tab.id })}>
+              <text
+                fg={tab.id === props.sessionID ? theme.text : theme.textMuted}
+                attributes={tab.id === props.sessionID ? TextAttributes.BOLD : undefined}
+              >
+                [{tab.title.slice(3, 27)}]
+              </text>
+            </box>
+          )}
+        </For>
+      </box>
+    </Show>
+  )
+}
 
 function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMessage }) {
   const ctx = use()

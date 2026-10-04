@@ -66,6 +66,9 @@ export type PromptProps = {
   hint?: JSX.Element
   right?: JSX.Element
   showPlaceholder?: boolean
+  sideQuestions?: boolean
+  onSideQuestion?: (sessionID: string) => void
+  onSideBack?: () => void
   placeholders?: {
     normal?: string[]
     shell?: string[]
@@ -399,6 +402,15 @@ export function Prompt(props: PromptProps) {
             return
           }
           if (!props.sessionID) return
+
+          // side-question tab: ESC returns to the parent tab — the main work
+          // and the side answer both keep running
+          const currentSession = sync.session.get(props.sessionID)
+          if (currentSession?.parentID && currentSession.title?.startsWith("Q: ")) {
+            props.onSideBack?.()
+            dialog.clear()
+            return
+          }
 
           setStore("interrupt", store.interrupt + 1)
 
@@ -1017,6 +1029,40 @@ export function Prompt(props: PromptProps) {
       sessionID = res.data.id
     }
 
+    // SIDE QUESTION: while the main session is busy, redirect the prompt into
+    // a child session ("Q: ..." tab) so the running work is never interrupted
+    let sideQuestion = false
+    let sidePreamble = ""
+    const parentSessionID = sessionID
+    const currentSession = sessionID ? sync.session.get(sessionID) : undefined
+    if (props.sideQuestions && sessionID != null && !currentSession?.parentID && status().type !== "idle") {
+      const firstLine = trimmed.split("\n")[0].slice(0, 40)
+      const parentMessages = sync.data.message[parentSessionID!] ?? []
+      const lastAssistant = [...parentMessages].reverse().find((x) => x.role === "assistant")
+      const lastText = lastAssistant
+        ? (sync.data.part[lastAssistant.id] ?? [])
+            .filter((x) => x.type === "text")
+            .map((x) => ("text" in x ? x.text : ""))
+            .join(" ")
+            .slice(-400)
+        : ""
+      sidePreamble =
+        `[side question] The user asks this while another task is running in the parent session` +
+        (currentSession?.title ? ` ("${currentSession.title}")` : "") +
+        (lastText ? `. Recent context from that work: "${lastText}"` : "") +
+        `. Answer the question briefly (1-3 lines, more only if asked), in Latin letters, then stop — you are not doing the parent task.\n\n`
+      const res = await sdk.client.session.create({
+        parentID: sessionID,
+        title: `Q: ${firstLine}`,
+        metadata: { sideQuestion: true },
+      })
+      if (!res.error && res.data?.id) {
+        sessionID = res.data.id
+        sideQuestion = true
+        props.onSideQuestion?.(sessionID)
+      }
+    }
+
     const inputText = expandTrackedPastedText(
       store.prompt.input,
       input.extmarks.getAllForTypeId(promptPartTypeId).flatMap((extmark) => {
@@ -1094,6 +1140,14 @@ export function Prompt(props: PromptProps) {
             model: selectedModel,
             variant,
             parts: [
+              ...(sideQuestion
+                ? [
+                    {
+                      type: "text" as const,
+                      text: sidePreamble,
+                    },
+                  ]
+                : []),
               ...editorParts,
               {
                 type: "text",
