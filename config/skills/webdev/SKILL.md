@@ -247,6 +247,100 @@ card background = EXACTLY the page background, borders NONE.
 - Radius 14-20px; contrast is naturally low — keep text dark, one accent
   color for the primary action; use on ONE panel/section, never the whole page.
 
+## 🖼️ COLOR GRADING & UI IDEA LIBRARY (studied reference kits)
+
+Real UI kits studied in detail (Morad's reference collection, 2026-10). When
+building in a style, grade the colors/shadows EXACTLY like these studied
+variants — hex values are sampled from the references. Combine with the
+SIGNATURE STYLE SYSTEMS above.
+
+### NEUMORPHISM — 5 studied variants
+1. **DARK SLATE** — bg `#565D6E`; cards same color, embossed
+   (highlight `#6B7385` top-left, shade `#3E4552` bottom-right); white text;
+   green ON / red X status; pill buttons, day+month pickers, product cards.
+2. **DARK CHARCOAL + MINT** — bg `#2A2E37`; mint accent `#7EE8C7` on primary
+   buttons, switch, slider fill, checkbox; pressed = inset; search + message
+   wells inset.
+3. **LIGHT WHITE + VIOLET** — bg `#F0F0F5`; white cards
+   `shadow:8px 8px 20px rgba(0,0,0,.08)`; violet gradient accent
+   (`#8B5CF6→#6D4AE0`) on buttons/calendar-days/waveform; circular icon
+   buttons; music player with play/stop/next/pause pills.
+4. **LIGHT + CORAL FITNESS** — bg `#F5F5F5`; coral accent `#FF8674`
+   (heart, bars, LOREM pill buttons, slider thumbs); round bpm ring (77bpm);
+   white stat cards; orange-white gradient pills.
+5. **LIGHT + TEAL** — bg `#EEF0F4`; teal gradient buttons
+   (`#7FDBCA→#4ECDC4`); 69% progress ring; search pill, label pills,
+   dropdown, toggles.
+
+Bonus variant — **BLUE DASHBOARD** (5726865): bg `#D6DDE8`; white cards;
+royal blue `#3B5BFE` (login card, sign-up pill, ON toggle, 75% ring, area
+chart, 71% slider, 2019-2022 timeline); squircle Home/Calendar/Notification/
+Setting buttons. Perfect for SaaS dashboards and fintech.
+
+### LIQUID GLASS — 4 studied variants (visionOS style)
+Common: translucent panels, 1px specular rim (bright top-left edge), heavy
+blur behind, content shows through blurred.
+1. **DARK GRAY** — bg `#6A6E78`; glass `rgba(255,255,255,.08-.15)`; rim
+   `rgba(255,255,255,.35)`; circular icon buttons with rim glow; glass
+   sliders with glowing thumbs.
+2. **LIGHT LAVENDER** — bg `#A9AABC`; stronger white rims
+   `rgba(255,255,255,.6)`; squircle panels; visionOS feel.
+3. **SAGE GREEN** — bg `#8A9195`; weather glass card (09:41 · 24°C),
+   Light/Dark Mode pill toggles, "Daily Growth 135%" mini chart card.
+4. **DARK BLUE-GRAY** — bg `#4A5560`; the WHOLE screen as one glass sheet
+   (phone-shaped panel), component kit on top.
+
+### 3D CLAY ABSTRACT BACKGROUNDS (mint pastel)
+- bg gradient `#C8E6D8→#E8F5EE` with white center glow; floating matte clay
+  shapes (spheres, torus, cylinder, open box, spring, coil) in
+  `#B8DCC8 / #A8D5BE / #D5EDE0`; soft ambient occlusion.
+- Use as hero background art: layered CSS radial-gradients or a rendered PNG.
+- Works beautifully with white glass cards on top.
+
+### 3D ABSTRACT LANDING PAGES — 2 studied layouts
+- **RED THEME**: page in a dark maroon frame `#6B1020`; canvas gradient
+  `#E8A0A0→#D4646E`; 6-10 floating 3D shapes around the edges (spheres,
+  donuts, striped discs, triangles in red/pink/cream); title block
+  center-left; ghost pill buttons (NOTIFY ME / READ MORE); nav + socials
+  top/bottom.
+- **TEAL THEME**: bg emerald `#1A8A6E`; red spheres, cream striped discs,
+  teal rings/tubes/cylinders floating; white headline centered low; white
+  "JOIN US NOW" pill top-right.
+- Technique: CSS 3D spheres via radial-gradient(circle at 30% 30%, light,
+  mid, dark), or rendered PNGs; keep shapes at the EDGES, content clear
+  center.
+
+### GLASSMORPHISM BANNER (glossy spheres)
+- Page border purple `#8B5CF6`; canvas light blue `#7EC8E3`; floating glossy
+  spheres (purple `#9B59D0`, teal `#4ECDC4`, orange `#E8945A` — each =
+  radial-gradient(circle at 30% 30%, light, mid, dark)) + spring spirals;
+  central frosted card `rgba(255,255,255,.35)` + blur(20px), bold dark title.
+
+### SKEUOMORPHISM CONTROL PANEL (remote-control style)
+- White/light plastic panel `#F4F4F4`; consistent top-left light; red accent
+  `#F44336`; ROUND power dial with tick marks + power icon; CH+/CH- VOL+/VOL-
+  square buttons shown in BOTH raised and pressed states; vertical sliders
+  with red thumb dots; round GPS/FAVORITE/LOCK/CLOUD/ERROR icon buttons
+  (red outline style); media transport grid.
+- Feel: a real remote-control panel — raised buttons, inset wells.
+
+### CLAYMORPHISM LANDING (peach 3D)
+- bg gradient `#FBE3CD→#FDF6EE`; big soft peach circle behind hero art; 3D
+  clay phone mockup with floating clay icons (search, chart, play, home)
+  connected by dotted lines; bold dark headline; peach pill CTA; blurred
+  cream spheres floating.
+- Palette: `#F6C39A, #F0A868, #FDF0E1`, text `#221E18`.
+
+### BLUE NEUMORPHISM DASHBOARD
+- bg `#D6DDE8`; white cards; royal blue `#3B5BFE` accent; login card,
+  sign-up pill, ON toggle, 75% progress ring, area chart, 71% slider,
+  2019-2022 timeline, Add Friend/Share/Select Category/Download pill rows.
+- Perfect for: SaaS dashboard, fintech, analytics.
+
+**HOW TO USE THIS LIBRARY:** pick the studied variant closest to the ask,
+grade the whole site with its exact palette + shadows, then add the site's
+own brand accent on top. Never mix two studied variants in one page.
+
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
 The Doctrine says WHAT; this is the HOW with numbers. Every site you build
