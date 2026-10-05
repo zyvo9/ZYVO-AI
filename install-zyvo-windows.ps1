@@ -63,6 +63,10 @@ if (-not (Test-Path $agents)) {
   Write-Host "==> Memory (AGENTS.md) deployed" -ForegroundColor Green
 }
 
+# --- 4b. zyvo-update command: PC update = type `zyvo-update` ---
+$updateCmd = Join-Path $dest "zyvo-update.cmd"
+Set-Content -Path $updateCmd -Value "@echo off`r`npowershell -NoProfile -ExecutionPolicy Bypass -Command \"iwr https://raw.githubusercontent.com/$repo/main/install-zyvo-windows.ps1 -UseBasicParsing | iex\""
+
 # --- 5. PATH ---
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($userPath -notlike "*$dest*") {
