@@ -23,6 +23,80 @@ The phone only writes text files.
 6. Sources live in `$HOME/<sitename>` — never in shared storage.
 7. NEVER put the user's GitHub token inside any committed file.
 
+## 🏗️ THE BUILD PIPELINE (professional 22-stage process — follow IN ORDER)
+
+EVERY full website project runs this pipeline. Professional sites are not
+"write code" — they are idea → PRD → design → build → test → deploy → monitor.
+Weak moments (compaction, long session)? Re-read PROJECT_PLAN.md + PRD.md and
+continue from the next unticked stage.
+
+**BOOT (the very first message of any website project):**
+1. ASK the user (ONE message, numbered, max 6 questions): website ta ki kore ·
+   target user ke · main features · kon kon pages · login/payment/database
+   lagbe kina · style system + color mood (clay/glass/skeuo/neu/default —
+   sob dharone nibe).
+2. Save the project to MEMORY by name: "Project <name> — <one-line what>".
+3. Create TWO files in the project folder:
+   - **PROJECT_PLAN.md** — the master TODO: every stage below, one line each,
+     unticked checkbox. Tick each stage the moment it is done.
+   - **PRD.md** — the product requirements document (stage 4 output).
+
+**THE STAGES (tick off in PROJECT_PLAN.md, one at a time):**
+1. Idea Discovery — problem? whose problem? why will people use it? existing
+   solutions? why is ours better?
+2. User Research — target user, what they want, pain points, user journey,
+   which features are truly needed
+3. Requirements — must-have / should-have / nice-to-have / future / constraints
+4. **PRD.md** — vision, goals, target users, user stories, features,
+   functional + non-functional requirements, user flows, edge cases, success
+   metrics, out of scope
+5. PRD Review — missing anything? contradictions? actually feasible? solves
+   the real problem? Then validate WITH the user (one short message: summary
+   + open questions)
+6. User Flow — landing → signup → dashboard → core action → save/share —
+   define what the user does at every step
+7. UX — wireframe, information architecture, navigation, empty/loading/error
+   states, mobile UX
+8. UI Design System — colors, fonts, spacing, radius, shadows, buttons,
+   inputs, cards, icons, components (use the style system the user chose)
+9. Technical Spec — stack, architecture, DB schema, API design, auth, file
+   structure, third-party services, security requirements
+10. Build Plan — milestones: PRD → architecture → design system → page
+    structure → components → features → backend → integration
+11. Implementation — frontend → backend → database → APIs → integrations
+    (run the UI PREVIEW GATE right after the first homepage)
+12. Testing — unit/integration/E2E where the project has tests, forms, auth,
+    edge cases
+13. Responsive — mobile, tablet, laptop, desktop, large screen
+14. Security — auth, authorization, input validation, API security, secrets
+    in env vars, DB permissions, rate limiting
+15. Performance — load speed, images, bundle size, API response, DB queries,
+    caching, lazy loading
+16. Accessibility — keyboard, screen reader, contrast, labels, focus states,
+    semantic HTML
+17. SEO — metadata, titles, descriptions, sitemap, robots, Open Graph
+18. User Acceptance — give the user a REAL task ("make an account and create
+    a project"); watch where they get stuck, what they miss
+19. Iterate — build → user test → feedback → fix → repeat (many cycles OK)
+20. Pre-Launch checklist — features ✓ no critical bugs ✓ responsive ✓
+    security ✓ performance ✓ accessibility ✓ SEO ✓ error handling ✓
+    analytics ✓ legal pages ✓ backup ✓
+21. Deploy — push → CI/CD → hosting → env vars → domain → SSL → production
+22. Post-Launch — analytics, error monitoring, user feedback → measure →
+    learn → improve → release
+
+**RULES:**
+- ONE stage at a time. Tick it in PROJECT_PLAN.md before starting the next.
+- User touchpoints: boot questions, PRD validation, UI preview gate, UAT.
+  Everything in between = fully autonomous, no interruptions.
+- After compaction: re-read PROJECT_PLAN.md + PRD.md → continue the next
+  unticked stage. NEVER ask what the project was.
+- Small sites (single landing page) may compress stages 1-9 into a mini-PRD
+  in PROJECT_PLAN.md — but stages 10-22 ALWAYS run.
+- Also keep TRD (tech spec), design spec, API spec, DB schema, test plan and
+  Definition of Done as small files when the project is big enough to need
+  them — controlled, professional vibe-coding.
+
 ## THE ANTI-AI-LOOK DOCTRINE
 
 The generic AI site is instantly recognizable: blue-purple gradient,
