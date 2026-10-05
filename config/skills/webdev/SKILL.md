@@ -204,6 +204,17 @@ follow it. These OVERRIDE the WEB DESIGN SYSTEM tokens for the chosen style.
 The ANTI-AI-LOOK DOCTRINE still applies (readability first, no neon soup).
 Proven live in the Zyvo Admin Panel (clay, milk + orange).
 
+**BUTTON INTERACTIONS (zyvo DEFAULT — every button, every site, always):**
+Every button lifts smoothly when the cursor hovers over it:
+`transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s cubic-bezier(.22,1,.36,1)` —
+hover: `translateY(-4px)` + bigger shadow · click/active: presses back down
+(`translateY(-1px) scale(.98)` + pressed inset shadow). Applies to ALL button
+types: primary, ghost, icon, pill, small.
+The user can ask to CHANGE the animation — then build on request: bounce
+(spring keyframes), glow (accent shadow pulse), slide (gradient sweep),
+magnetic (button leans toward the cursor), shine (light sweeps across).
+The smooth hover-lift is always the default — swap only when the user asks.
+
 ### 1. CLAYMORPHISM — soft inflated clay (milk + light tones)
 Feel: puffy tactile 3D clay. Best for: dashboards, tools, admin panels,
 family/kid products. **Palette: MILK + LIGHT YELLOW** — bg milk `#FDFBF3`,
