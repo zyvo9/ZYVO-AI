@@ -130,10 +130,12 @@ Proven live in the Zyvo Admin Panel (clay, milk + orange).
 
 ### 1. CLAYMORPHISM — soft inflated clay (milk + light tones)
 Feel: puffy tactile 3D clay. Best for: dashboards, tools, admin panels,
-family/kid products. Bg: warm cream `#F1E9DC` · Cards: `#FBF7F0`, radius 20-28px.
-- Card shadow (the signature): `10px 10px 22px rgba(180,145,105,.26), 6px 6px 12px rgba(34,30,24,.05), inset 6px 6px 14px rgba(255,255,255,.92), inset -6px -6px 14px rgba(196,160,120,.16)`
-- Inputs (pressed-in clay): `inset 4px 4px 9px rgba(190,155,115,.24), inset -4px -4px 9px rgba(255,255,255,.85)` — border none
-- Buttons: soft 145deg gradient (light→dark of the color) + `inset 3px 3px 8px rgba(255,255,255,.5)` highlight + colored outer shadow; **hover: lift -5px, cubic-bezier(.22,1,.36,1)**; active: pressed-in
+family/kid products. **Palette: MILK + LIGHT YELLOW** — bg milk `#FDFBF3`,
+cards `#FFFDF5`, accent butter-yellow `#E5B93C` (light `#F7DC6F`), shadows
+warm amber-tinted. Radius 20-28px.
+- Card shadow (the signature): `10px 10px 22px rgba(200,170,90,.26), 6px 6px 12px rgba(120,100,50,.05), inset 6px 6px 14px rgba(255,255,255,.92), inset -6px -6px 14px rgba(215,180,90,.18)`
+- Inputs (pressed-in clay): `inset 4px 4px 9px rgba(200,170,90,.26), inset -4px -4px 9px rgba(255,255,255,.9)` — border none
+- Buttons: soft 145deg gradient (light→dark of the color) + `inset 3px 3px 8px rgba(255,255,255,.5)` highlight + colored outer shadow; **hover: lift -5px, cubic-bezier(.22,1,.36,1)**; active: pressed-in. Button text on yellow = DARK (#221E18), never white.
 - Motion: slow smooth float/spring. Everything puffy, nothing sharp.
 
 ### 2. GLASSMORPHISM — frosted glass
@@ -314,6 +316,13 @@ request changes.
    (https://m3.material.io, design showcases).
 
 ## Step 1.5 — UI PREVIEW GATE (always — the user picks the design)
+
+At the gate, ALSO ask 2-3 quick style questions (one message, numbered):
+style system (default / clay / glass / skeuomorphism / neumorphism), color
+mood (milk + light yellow, warm cream, dark, brand colors), light or dark.
+Whatever the user answers — follow it. Whatever they DON'T answer — the AI
+decides automatically with taste and builds. Never leave style decisions
+hanging, never ask more than one message.
 
 NEVER build the site on the first design you imagine. The gate:
 
