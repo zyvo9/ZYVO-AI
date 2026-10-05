@@ -205,24 +205,34 @@ The ANTI-AI-LOOK DOCTRINE still applies (readability first, no neon soup).
 Proven live in the Zyvo Admin Panel (clay, milk + orange).
 
 **BUTTON INTERACTIONS (zyvo DEFAULT — every button, every site, always):**
-Every button lifts smoothly when the cursor hovers over it:
-`transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s cubic-bezier(.22,1,.36,1)` —
-hover: `translateY(-4px)` + bigger shadow · click/active: presses back down
-(`translateY(-1px) scale(.98)` + pressed inset shadow).
+The exact recipe, studied live from the Zyvo Admin Panel (Check connection /
+Fetch models buttons):
 
-**VARY the motion per button role — NEVER copy-paste one identical animation
-on every button:**
-- primary CTA → lift -4px + shadow bloom
-- ghost/secondary → softer lift -2px, lighter shadow
-- icon buttons → scale pop 1.08 + tint shift
-- small utility (delete ✕) → color shift + tiny 2px hop
-- toggles/switches → spring slide with travel
-Same easing family everywhere (cubic-bezier(.22,1,.36,1)) for cohesion —
-but distance, scale and shadow vary per role. Reference feel: the Check
-connection button on the zyvo admin panel — clean, smooth, confident.
-The user can ask to CHANGE any animation — build on request: bounce
-(spring keyframes), glow (accent shadow pulse), slide (gradient sweep),
-magnetic (leans toward the cursor), shine (light sweeps across).
+```css
+button {
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1),
+              box-shadow .3s cubic-bezier(.22, 1, .36, 1),
+              filter .25s ease;
+}
+button:hover {   /* cursor nile - button halka, smooth vabe 5px upore uthe */
+  transform: translateY(-5px);
+  filter: brightness(1.04);
+  box-shadow: 10px 14px 26px rgba(180,145,105,.32),
+    inset 4px 4px 10px rgba(255,255,255,.9),
+    inset -4px -4px 10px rgba(196,160,120,.18);
+}
+button:active {  /* click-e clay-e halka chapa kheay */
+  transform: translateY(-1px) scale(.98);
+  transition-duration: .1s;
+  box-shadow: inset 5px 5px 12px rgba(150,110,70,.35);
+}
+```
+- **cubic-bezier(.22, 1, .36, 1) is the SOUL** - fast start, soft glide to a
+  stop. Never plain `ease` for lifts.
+- Ghost buttons: hover deepens the warm shadow. Primary buttons: the colored
+  glow grows instead.
+- Applies to ALL buttons: primary, ghost, icon, pill, small, nav pills.
+The smooth hover-lift is always the default - swap only when the user asks.
 
 ### 1. CLAYMORPHISM — soft inflated clay (milk + light tones)
 Feel: puffy tactile 3D clay. Best for: dashboards, tools, admin panels,
