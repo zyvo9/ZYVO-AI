@@ -136,6 +136,9 @@ warm amber-tinted. Radius 20-28px.
 - Card shadow (the signature): `10px 10px 22px rgba(200,170,90,.26), 6px 6px 12px rgba(120,100,50,.05), inset 6px 6px 14px rgba(255,255,255,.92), inset -6px -6px 14px rgba(215,180,90,.18)`
 - Inputs (pressed-in clay): `inset 4px 4px 9px rgba(200,170,90,.26), inset -4px -4px 9px rgba(255,255,255,.9)` — border none
 - Buttons: soft 145deg gradient (light→dark of the color) + `inset 3px 3px 8px rgba(255,255,255,.5)` highlight + colored outer shadow; **hover: lift -5px, cubic-bezier(.22,1,.36,1)**; active: pressed-in. Button text on yellow = DARK (#221E18), never white.
+- The milk + light-yellow palette above is the REFERENCE EXAMPLE. For each
+  real site, DERIVE the clay tones from that site's brand and mood — the AI
+  decides with taste, or asks the user. Never hardcode yellow everywhere.
 - Motion: slow smooth float/spring. Everything puffy, nothing sharp.
 
 ### 2. GLASSMORPHISM — frosted glass
