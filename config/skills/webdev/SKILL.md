@@ -119,6 +119,53 @@ every component source: a generic component (Inter identity, tech-blue
 gradient, uniform 3-column cards) is rejected no matter how popular
 it is.
 
+## 🌟 SIGNATURE STYLE SYSTEMS (clay · glass · skeuomorphism · neumorphism)
+
+Four full-page style systems with proven recipes. When the user names one
+("clay ui banao", "glassmorphism style", "3d soft look", "real object ui")
+— build the ENTIRE site in that system: tokens, cards, buttons, inputs all
+follow it. These OVERRIDE the WEB DESIGN SYSTEM tokens for the chosen style.
+The ANTI-AI-LOOK DOCTRINE still applies (readability first, no neon soup).
+Proven live in the Zyvo Admin Panel (clay, milk + orange).
+
+### 1. CLAYMORPHISM — soft inflated clay (milk + light tones)
+Feel: puffy tactile 3D clay. Best for: dashboards, tools, admin panels,
+family/kid products. Bg: warm cream `#F1E9DC` · Cards: `#FBF7F0`, radius 20-28px.
+- Card shadow (the signature): `10px 10px 22px rgba(180,145,105,.26), 6px 6px 12px rgba(34,30,24,.05), inset 6px 6px 14px rgba(255,255,255,.92), inset -6px -6px 14px rgba(196,160,120,.16)`
+- Inputs (pressed-in clay): `inset 4px 4px 9px rgba(190,155,115,.24), inset -4px -4px 9px rgba(255,255,255,.85)` — border none
+- Buttons: soft 145deg gradient (light→dark of the color) + `inset 3px 3px 8px rgba(255,255,255,.5)` highlight + colored outer shadow; **hover: lift -5px, cubic-bezier(.22,1,.36,1)**; active: pressed-in
+- Motion: slow smooth float/spring. Everything puffy, nothing sharp.
+
+### 2. GLASSMORPHISM — frosted glass
+Feel: translucent glass layers floating over color. Best for: hero overlays,
+media/music apps, modern dashboards. NEEDS color behind it (gradient bg or
+blurred colored orbs) or glass is invisible.
+- Card: `background:rgba(255,255,255,.12); backdrop-filter:blur(18px) saturate(160%); border:1px solid rgba(255,255,255,.25); border-radius:20px; box-shadow:inset 0 1px 0 rgba(255,255,255,.4)`
+- Text on glass: white, high contrast — add a dark overlay when readability drops
+- Floating blurred color orbs behind the glass sell the whole effect
+- CAUTION: backdrop-filter is expensive — max 3-4 glass layers per page; test on a real phone.
+
+### 3. SKEUOMORPHISM — real-object UI
+Feel: digital things that look REAL — leather, wood, metal, paper, physical
+switches. Best for: note apps (paper), music tools (real knobs), retro stuff.
+- ONE metaphor per page (a leather notebook stays leather — mixing mahogany +
+  metal + fabric looks kitsch)
+- Real materials: layered CSS gradients + SVG noise texture (feTurbulence
+  data-URI), stitched borders (dashed inset), ONE consistent light source
+  (top-left) casting all shadows
+- Controls behave physically: toggle = switch with travel, knob rotates,
+  button depresses on click (`active:translateY(2px)` + shadow shrink)
+- Text engraved/embossed: `text-shadow:0 1px 0 rgba(255,255,255,.6)`
+
+### 4. NEUMORPHISM — soft surface emboss
+Feel: UI extruded/pressed out of the SAME surface. Best for: settings,
+calculators, players, minimal tools. Needs mid-tone bg (`#E0E5EC` classic) —
+card background = EXACTLY the page background, borders NONE.
+- Raised: `box-shadow:8px 8px 16px rgba(163,177,178,.6), -8px -8px 16px rgba(255,255,255,.85)`
+- Pressed (inputs/active): `box-shadow:inset 6px 6px 12px rgba(163,177,178,.55), inset -6px -6px 12px rgba(255,255,255,.9)`
+- Radius 14-20px; contrast is naturally low — keep text dark, one accent
+  color for the primary action; use on ONE panel/section, never the whole page.
+
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
 The Doctrine says WHAT; this is the HOW with numbers. Every site you build
