@@ -212,7 +212,7 @@
     },
     "zyvo-free-kilo": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free Kilo",
+      "name": "Zyvo Free",
       "options": {
         "baseURL": "https://api.kilo.ai/api/gateway/v1",
         "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTExNDYwNjQsImV4cCI6MTk0ODgyNjA2NH0.QnqNzSWdRAIInoaIP0dYtMlhPW8vhSn6OCFm1pPwdUA"
