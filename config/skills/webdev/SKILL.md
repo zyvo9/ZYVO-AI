@@ -80,6 +80,15 @@ continue from the next unticked stage.
 18. User Acceptance — give the user a REAL task ("make an account and create
     a project"); watch where they get stuck, what they miss
 19. Iterate — build → user test → feedback → fix → repeat (many cycles OK)
+19b. CUSTOMIZATION ROUND (MANDATORY — never deploy without it): site tested
+    and working? STOP. Ask the user (one message): "Site ready — ki ki
+    customize korte chao?" with numbered options: color/text change ·
+    section tweak · add/remove feature · layout · animations · content edit ·
+    anything else. Iterate FULLY — user khusi na howa porjonto kono tarahora
+    na. THEN find a free deploy server that fits and walk the user through
+    it: static site → GitHub Pages / Netlify (free) · full-stack → Vercel /
+    Render (free tier) — account, repo connect, env vars, sob step-e help.
+    Deploy ONLY when the user explicitly says yes.
 20. Pre-Launch checklist — features ✓ no critical bugs ✓ responsive ✓
     security ✓ performance ✓ accessibility ✓ SEO ✓ error handling ✓
     analytics ✓ legal pages ✓ backup ✓
@@ -89,8 +98,9 @@ continue from the next unticked stage.
 
 **RULES:**
 - ONE stage at a time. Tick it in PROJECT_PLAN.md before starting the next.
-- User touchpoints: boot questions, PRD validation, UI preview gate, UAT.
-  Everything in between = fully autonomous, no interruptions.
+- User touchpoints: boot questions, PRD validation, UI preview gate, UAT,
+  CUSTOMIZATION ROUND (before any deploy). Everything in between = fully
+  autonomous, no interruptions.
 - After compaction: re-read PROJECT_PLAN.md + PRD.md → continue the next
   unticked stage. NEVER ask what the project was.
 - Small sites (single landing page) may compress stages 1-9 into a mini-PRD
@@ -370,6 +380,44 @@ blur behind, content shows through blurred.
 **HOW TO USE THIS LIBRARY:** pick the studied variant closest to the ask,
 grade the whole site with its exact palette + shadows, then add the site's
 own brand accent on top. Never mix two studied variants in one page.
+
+## 🔤 ICONS & TEXT DESIGN (the two things that make or break a UI)
+
+### ICONS — pick ONE library per site, never mix, never emoji-as-icons
+
+| Library | Style | License | Best for |
+|---|---|---|---|
+| **Lucide** (lucide.dev) | clean 2px line, 1500+ icons | ISC | default zyvo choice — modern, neutral |
+| **Phosphor** (phosphoricons.com) | 6 weights (thin→fill), 9000+ | MIT | when you need bold/fill variants |
+| **Heroicons** (heroicons.com) | Tailwind-made, 24/20px | MIT | Tailwind projects |
+| **Tabler** (tabler.io/icons) | 1.5px stroke, 5800+ | MIT | widest coverage |
+
+Usage rules: ONE stroke weight everywhere (2px line = modern) · UI icons
+20-24px, inline text icons 16px · important actions = icon + LABEL (icon-only
+needs a tooltip) · never mix filled + outline in the same set · download
+inline SVG (no icon-font CDN dependency — offline-safe) · favicon = the
+brand mark on the brand color · emoji as icons is FORBIDDEN.
+Reference: the Zyvo Admin Panel vendors Lucide inline — copy that pattern.
+
+### TEXT / TYPOGRAPHY — pairings that look designed (Google Fonts, free)
+
+| Mood | Display/Headings | Body | Why it works |
+|---|---|---|---|
+| Modern SaaS | Space Grotesk | Inter | techy but very readable |
+| Editorial premium | Fraunces | Source Sans 3 | serif character + clean body |
+| Developer / CLI | JetBrains Mono (head) | IBM Plex Sans | terminal DNA — zyvo default |
+| Elegant luxury | Playfair Display | Montserrat | high-contrast serif + neutral |
+| Friendly warm | Nunito | Nunito Sans | rounded, soft, approachable |
+| Bold brutal | Archivo Black | Work Sans | heavy display + quiet body |
+| Bangla site | Hind Siliguri | + Hind Siliguri | Bangla fallback in the stack |
+
+Hierarchy scale (fluid): display `clamp(2.2rem,5vw,4rem)` · h2 `1.6rem` ·
+h3 `1.15rem` · body `1rem/1.65` · small `.85rem`.
+Rules: MAX 2 families per site (display + body) · line-height 1.6-1.7 body,
+1.05-1.15 display · letter-spacing -0.02em on big display · NEVER the bare
+system font as the identity font · always `<link rel="preconnect">` +
+Google Fonts link + fallback stack (`font-family:'X',system-ui,sans-serif`)
+· Bangla content site? add "Hind Siliguri" to the stack.
 
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
