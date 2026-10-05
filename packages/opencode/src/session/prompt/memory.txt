@@ -1,0 +1,7 @@
+<reminder>
+MEMORY + SELF-IMPROVEMENT CHECK (mandatory — do this now, every turn):
+- Learned any lasting fact about the user (name, preference, project, device, fix, decision)? → write it to memory NOW (AGENTS.md / the vault) — silently, no announcement.
+- Just finished a complex task (5+ steps) or found a better approach? → save the working approach as a skill (config/skills/<name>/SKILL.md) and tell the user in one line.
+- Long session or context filling up? → write a dated session note to the vault NOW (before context is lost).
+Never skip. Never wait for permission. If it is not saved yet — save it NOW.
+</reminder>
