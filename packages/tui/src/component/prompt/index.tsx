@@ -391,7 +391,7 @@ export function Prompt(props: PromptProps) {
         name: "session.interrupt",
         category: "Session",
         hidden: true,
-        enabled: status().type !== "idle",
+        enabled: true,
         run: () => {
           if (auto()?.visible) return
           if (!input.focused) return
@@ -402,14 +402,17 @@ export function Prompt(props: PromptProps) {
           }
           if (!props.sessionID) return
 
-          // side-question tab: ESC returns to the parent tab — the main work
-          // and the side answer both keep running
+          // side-question tab: ESC returns to the parent tab at ANY time —
+          // busy or idle, the main work and the side answer keep running
           const currentSession = sync.session.get(props.sessionID)
           if (currentSession?.parentID && currentSession.title?.startsWith("Q: ")) {
             props.onSideBack?.()
             dialog.clear()
             return
           }
+
+          // main session idle: nothing to interrupt
+          if (status().type === "idle") return
 
           setStore("interrupt", store.interrupt + 1)
 
