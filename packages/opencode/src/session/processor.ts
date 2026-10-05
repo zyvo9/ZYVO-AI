@@ -976,7 +976,12 @@ export const layer = Layer.effect(
             ctx.currentTextID = undefined
             ctx.reasoningMap = {}
             yield* status.set(ctx.sessionID, { type: "busy" })
-            const stream = llm.stream({ ...streamInput, model: activeModel })
+            const stream = llm.stream({ ...streamInput, model: activeModel }).pipe(
+              // hung-connection guard: free-model streams can stall forever
+              // with no events and no error — end them so the session never
+              // sticks on "busy" (5 minutes without a single event)
+              Stream.timeout("5 minutes"),
+            )
 
             yield* stream.pipe(
               Stream.tap((event) => handleEvent(event)),
