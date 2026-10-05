@@ -394,6 +394,14 @@ export function Prompt(props: PromptProps) {
         enabled: true,
         run: () => {
           if (auto()?.visible) return
+          // side-question tab: ESC returns to the parent tab at ANY time —
+          // busy, idle, or stopped; works with or without input focus
+          const sideSession = props.sessionID ? sync.session.get(props.sessionID) : undefined
+          if (sideSession?.parentID && sideSession.title?.startsWith("Q: ")) {
+            props.onSideBack?.()
+            dialog.clear()
+            return
+          }
           if (!input.focused) return
           // TODO: this should be its own command
           if (store.mode === "shell") {
@@ -401,15 +409,6 @@ export function Prompt(props: PromptProps) {
             return
           }
           if (!props.sessionID) return
-
-          // side-question tab: ESC returns to the parent tab at ANY time —
-          // busy or idle, the main work and the side answer keep running
-          const currentSession = sync.session.get(props.sessionID)
-          if (currentSession?.parentID && currentSession.title?.startsWith("Q: ")) {
-            props.onSideBack?.()
-            dialog.clear()
-            return
-          }
 
           // main session idle: nothing to interrupt
           if (status().type === "idle") return

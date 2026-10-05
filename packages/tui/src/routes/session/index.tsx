@@ -1728,6 +1728,7 @@ function SideTabs(props: { sessionID: string }) {
   const { theme } = useTheme()
   const sync = useSync()
   const route = useRoute()
+  const dims = useTerminalDimensions()
   const session = createMemo(() => sync.session.get(props.sessionID))
   const mainSessionID = createMemo(() => session()?.parentID ?? session()?.id)
   const tabs = createMemo(() => {
@@ -1737,6 +1738,23 @@ function SideTabs(props: { sessionID: string }) {
       .filter((x) => x.parentID === parentId && x.title?.startsWith("Q: "))
       .sort((a, b) => (a.id < b.id ? -1 : 1))
   })
+  const narrow = createMemo(() => dims().width < 64)
+  const others = createMemo(() => tabs().filter((t) => t.id !== props.sessionID))
+  const activeSide = createMemo(() => tabs().find((t) => t.id === props.sessionID))
+  const shown = createMemo(() => (narrow() ? (activeSide() ? [activeSide()!] : []) : tabs()))
+
+  function cycleSide() {
+    const list = tabs()
+    if (!list.length) return
+    const cur = list.findIndex((t) => t.id === props.sessionID)
+    const next = list[(cur + 1) % list.length]
+    route.navigate({ type: "session", sessionID: next.id })
+  }
+  function label(t: { title: string }) {
+    const n = t.title.slice(3)
+    const max = narrow() ? 10 : 18
+    return n.length > max ? n.slice(0, max) + "…" : n
+  }
 
   return (
     <Show when={tabs().length > 0}>
@@ -1754,18 +1772,23 @@ function SideTabs(props: { sessionID: string }) {
             [main]
           </text>
         </box>
-        <For each={tabs()}>
+        <For each={shown()}>
           {(tab) => (
             <box onMouseUp={() => route.navigate({ type: "session", sessionID: tab.id })}>
               <text
                 fg={tab.id === props.sessionID ? theme.text : theme.textMuted}
                 attributes={tab.id === props.sessionID ? TextAttributes.BOLD : undefined}
               >
-                [{tab.title.slice(3, 27)}]
+                [Q:{label(tab)}]
               </text>
             </box>
           )}
         </For>
+        <Show when={narrow() && others().length > 0}>
+          <box onMouseUp={cycleSide}>
+            <text fg={theme.textMuted}>+{others().length}Q</text>
+          </box>
+        </Show>
       </box>
     </Show>
   )
