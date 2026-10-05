@@ -208,12 +208,21 @@ Proven live in the Zyvo Admin Panel (clay, milk + orange).
 Every button lifts smoothly when the cursor hovers over it:
 `transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s cubic-bezier(.22,1,.36,1)` —
 hover: `translateY(-4px)` + bigger shadow · click/active: presses back down
-(`translateY(-1px) scale(.98)` + pressed inset shadow). Applies to ALL button
-types: primary, ghost, icon, pill, small.
-The user can ask to CHANGE the animation — then build on request: bounce
+(`translateY(-1px) scale(.98)` + pressed inset shadow).
+
+**VARY the motion per button role — NEVER copy-paste one identical animation
+on every button:**
+- primary CTA → lift -4px + shadow bloom
+- ghost/secondary → softer lift -2px, lighter shadow
+- icon buttons → scale pop 1.08 + tint shift
+- small utility (delete ✕) → color shift + tiny 2px hop
+- toggles/switches → spring slide with travel
+Same easing family everywhere (cubic-bezier(.22,1,.36,1)) for cohesion —
+but distance, scale and shadow vary per role. Reference feel: the Check
+connection button on the zyvo admin panel — clean, smooth, confident.
+The user can ask to CHANGE any animation — build on request: bounce
 (spring keyframes), glow (accent shadow pulse), slide (gradient sweep),
-magnetic (button leans toward the cursor), shine (light sweeps across).
-The smooth hover-lift is always the default — swap only when the user asks.
+magnetic (leans toward the cursor), shine (light sweeps across).
 
 ### 1. CLAYMORPHISM — soft inflated clay (milk + light tones)
 Feel: puffy tactile 3D clay. Best for: dashboards, tools, admin panels,
