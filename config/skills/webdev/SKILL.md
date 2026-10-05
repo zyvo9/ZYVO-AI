@@ -47,12 +47,14 @@ continue from the next unticked stage.
 2. User Research — target user, what they want, pain points, user journey,
    which features are truly needed
 3. Requirements — must-have / should-have / nice-to-have / future / constraints
-4. **PRD.md** — vision, goals, target users, user stories, features,
-   functional + non-functional requirements, user flows, edge cases, success
-   metrics, out of scope
-5. PRD Review — missing anything? contradictions? actually feasible? solves
-   the real problem? Then validate WITH the user (one short message: summary
-   + open questions)
+4. **PRD.md** — the full product blueprint, write ALL sections:
+   product vision · goals · target users · user stories · features ·
+   functional requirements · non-functional requirements · user flows ·
+   edge cases · success metrics · out of scope
+5. PRD Review — check yourself: anything missing? any contradictions? is
+   each feature actually feasible? does it solve the user's REAL problem?
+   Then validate WITH the user: one short message — PRD summary + the open
+   questions — and only build after their OK
 6. User Flow — landing → signup → dashboard → core action → save/share —
    define what the user does at every step
 7. UX — wireframe, information architecture, navigation, empty/loading/error
