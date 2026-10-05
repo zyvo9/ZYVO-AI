@@ -1806,6 +1806,7 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
       const p = String(props.part.state.input?.filePath ?? "")
       const base = p.split(/[\\/]/).pop() ?? ""
       if (base === "AGENTS.md" || p.includes("ZyvoVault") || p.includes(".config/zyvo/vault")) return true
+      if (base === "SKILL.md" || p.includes("/skills/")) return true
     }
     if (ctx.showDetails()) return false
     if (props.part.state.status !== "completed") return false
