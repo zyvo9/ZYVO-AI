@@ -1,0 +1,128 @@
+/*
+ * Zyvo webdev skill — OFFLINE FONT PACK (vendored from fontsource/font-files, OFL licensed)
+ * Usage: copy this folder next to your site (or reference the path), then:
+ *   <link rel="stylesheet" href="assets/fonts/fonts.css">
+ * All families are local woff2 — works with NO internet (file:// too).
+ * Weights included: 400/500/600/700 (varies per family).
+ */
+
+/* JetBrains Mono latin 400 */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('jetbrains-mono/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+}
+/* JetBrains Mono latin 500 */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('jetbrains-mono/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+}
+/* JetBrains Mono latin 700 */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('jetbrains-mono/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+}
+/* Inter latin 400 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('inter/inter-latin-400-normal.woff2') format('woff2');
+}
+/* Inter latin 600 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('inter/inter-latin-600-normal.woff2') format('woff2');
+}
+/* Inter latin 700 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('inter/inter-latin-700-normal.woff2') format('woff2');
+}
+/* Space Grotesk latin 400 */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('space-grotesk/space-grotesk-latin-400-normal.woff2') format('woff2');
+}
+/* Space Grotesk latin 500 */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('space-grotesk/space-grotesk-latin-500-normal.woff2') format('woff2');
+}
+/* Space Grotesk latin 700 */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('space-grotesk/space-grotesk-latin-700-normal.woff2') format('woff2');
+}
+/* Playfair Display latin 400 */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('playfair-display/playfair-display-latin-400-normal.woff2') format('woff2');
+}
+/* Playfair Display latin 700 */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('playfair-display/playfair-display-latin-700-normal.woff2') format('woff2');
+}
+/* Bebas Neue latin 400 */
+@font-face {
+  font-family: 'Bebas Neue';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('bebas-neue/bebas-neue-latin-400-normal.woff2') format('woff2');
+}
+/* Noto Sans Bengali bengali 400 */
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('noto-sans-bengali/noto-sans-bengali-bengali-400-normal.woff2') format('woff2');
+}
+/* Noto Sans Bengali bengali 700 */
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('noto-sans-bengali/noto-sans-bengali-bengali-700-normal.woff2') format('woff2');
+}
+/* Noto Sans Bengali latin 400 */
+@font-face {
+  font-family: 'Noto Sans Bengali';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('noto-sans-bengali/noto-sans-bengali-latin-400-normal.woff2') format('woff2');
+}

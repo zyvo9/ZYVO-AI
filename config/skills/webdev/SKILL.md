@@ -31,6 +31,12 @@ Weak moments (compaction, long session)? Re-read PROJECT_PLAN.md + PRD.md and
 continue from the next unticked stage.
 
 **BOOT (the very first message of any website project):**
+0. **SPEED vs CRAFT — জিজ্ঞেস BINDING (একটা লাইন কোড লেখার আগেই, এক বার্তায়):**
+   "আপনি কোনটা চান? ① জলদি ভার্সন — ২-৫ মিনিটে সহজ-সৎ, বেসিক পলিশ ·
+   ② ADVANCE সুন্দর ভার্সন — ৫০-৬০ মিনিট, পুরো ডিজাইন প্রসেস + নিজে
+   ব্রাউজারে A-Z টেস্ট + পলিশ রাউন্ড।" এই প্রশ্ন ছাড়া কোনো বিল্ড শুরু নয়।
+   User "tumi bolo" বললে নিজে ঠিক করে জানাও: real/multi-page site = ADVANCE,
+   ছোট demo/দ্রুত এডিট = জলদি। উত্তরটা প্রজেক্টের MEMORY নোটে সাথে রাখো।
 1. ASK the user (ONE message, numbered, max 6 questions): website ta ki kore ·
    target user ke · main features · kon kon pages · login/payment/database
    lagbe kina · style system + color mood (clay/glass/skeuo/neu/default —
@@ -40,6 +46,14 @@ continue from the next unticked stage.
    - **PROJECT_PLAN.md** — the master TODO: every stage below, one line each,
      unticked checkbox. Tick each stage the moment it is done.
    - **PRD.md** — the product requirements document (stage 4 output).
+
+**TWO TRACKS (BOOT-এর উত্তর ঠিক করে কোন track — একবার ঠিক হলে মাঝে বদলাবে না):**
+- **জলদি track (২-৫ মিনিট):** mini-PRD বাদ → একটা design direction নিজে বাছাই
+  → build → দুই রকম quick self-test (মোবাইল view + সব বাটন একবার) → জমা।
+  ছোট কাজ/দ্রুত দেখার জন্য — বড় real site-এ এই track নয়।
+- **ADVANCE track (৫০-৬০ মিনিট):** নিচের পুরো ২২-স্টেজ pipeline + **SELF-VERIFY
+  GATE (A-Z)** + **POLISH PASS** + CUSTOMIZATION ROUND। User যা-ই বলুক,
+  মাঝপথে রাশ করে "শেষ" করা **কখনো নয়** — রাশ করা মানে আধা-ভাঙা জিনিস জমা দেওয়া।
 
 **THE STAGES (tick off in PROJECT_PLAN.md, one at a time):**
 1. Idea Discovery — problem? whose problem? why will people use it? existing
@@ -68,7 +82,8 @@ continue from the next unticked stage.
 11. Implementation — frontend → backend → database → APIs → integrations
     (run the UI PREVIEW GATE right after the first homepage)
 12. Testing — unit/integration/E2E where the project has tests, forms, auth,
-    edge cases
+    edge cases. **Web UI হলে SELF-VERIFY GATE (A-Z) এখানেই — নিজে
+    ব্রাউজারে পুরো site টেস্ট + POLISH PASS, ব্যতিক্রম নেই**
 13. Responsive — mobile, tablet, laptop, desktop, large screen
 14. Security — auth, authorization, input validation, API security, secrets
     in env vars, DB permissions, rate limiting
@@ -214,6 +229,16 @@ follow it. These OVERRIDE the WEB DESIGN SYSTEM tokens for the chosen style.
 The ANTI-AI-LOOK DOCTRINE still applies (readability first, no neon soup).
 Proven live in the Zyvo Admin Panel (clay, milk + orange).
 
+**THE 3-SHADOW LAW (morphism ভুল বানানো নিষিদ্ধ):** morphism-এর 3D feel আসে
+**শ্যাডোর স্তর** থেকে — একটা box-shadow দিয়ে করা morphism = flat, ভাঙা, FAKE।
+এটাই আগের বার ভুল হচ্ছিল। প্রতিটা card/button/box-এ ন্যূনতম এই ৩টা স্তর একসাথে:
+1. **OUTER drop** — নিচ-ডান দিকে ছায়া (জিনিসটা পৃষ্ঠ থেকে উঠে আছে)
+2. **INNER light** — উপর-বাম কিনারে আলো (আলো উপর-বাম থেকে আসছে)
+3. **INNER dark** — নিচ-ডান কিনারে গভীরতা
+কোড লেখার আগে নিজেকে জিজ্ঞাসা: "৩টা স্তরই আছে? রঙগুলো এই সাইটের palette থেকে
+এসেছে (ধূসর-কালো ডিফল্ট ছায়া নয়)?" — না হলে এখনো লিখবে না। নিচের প্রতিটা
+সিস্টেমের রেসিপিতে ৩ স্তরই দেওয়া আছে — হুবহু কপি করো, তারপর সাইটের রঙে grade করো।
+
 **BUTTON INTERACTIONS (zyvo DEFAULT — every button, every site, always):**
 The exact recipe, studied live from the Zyvo Admin Panel (Check connection /
 Fetch models buttons):
@@ -266,6 +291,32 @@ blurred colored orbs) or glass is invisible.
 - Floating blurred color orbs behind the glass sell the whole effect
 - CAUTION: backdrop-filter is expensive — max 3-4 glass layers per page; test on a real phone.
 
+**GLASS / TRANSPARENT BUTTONS (proven live — Zyvo Admin Panel model-box buttons;
+"transparent button ta jemon model box e ase" — এটাই সেই রেসিপি):**
+```css
+/* ghost glass button — surface-এর উপর ভাসমান স্বচ্ছ কাচ */
+button.ghost {
+  background: rgba(255,253,249,.55);          /* আধা-স্বচ্ছ, পুরো স্বচ্ছ নয় */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--t1);
+  border: 1.5px solid var(--line);            /* কাচের কিনার */
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(34,30,24,.04),
+              0 12px 34px rgba(34,30,24,.07); /* ভাসমানতা */
+}
+/* primary glass — রঙিন গ্রেডিয়েন্ট + কাচের ভেতরের আলো */
+button.primary {
+  background: linear-gradient(145deg, rgba(247,220,111,.94), rgba(229,185,60,.94));
+  color: #221E18;
+  box-shadow: 0 8px 20px rgba(201,162,39,.32),
+    inset 3px 3px 8px rgba(255,255,255,.6),    /* ভেতরের আলো */
+    inset -3px -3px 9px rgba(170,130,20,.32);  /* ভেতরের গভীরতা */
+}
+```
+রঙগুলো তোমার সাইটের palette-এ grade করো — কাঠামো (translucent bg + border +
+বাইরের ছায়া + ২টা inset) অপরিবর্তিত। Hover-lift BUTTON INTERACTIONS থেকে।
+
 ### 3. SKEUOMORPHISM — real-object UI
 Feel: digital things that look REAL — leather, wood, metal, paper, physical
 switches. Best for: note apps (paper), music tools (real knobs), retro stuff.
@@ -288,6 +339,18 @@ card background = EXACTLY the page background, borders NONE.
   color for the primary action; use on ONE panel/section, never the whole page.
 
 ## 🖼️ COLOR GRADING & UI IDEA LIBRARY (studied reference kits)
+
+**COLOR GRADE PASS — প্রতিটা পেজে চালাও (POLISH PASS-এর রঙ-অংশ, deep-thinking):**
+1. **RAMP:** brand hue থেকে ৩ ধাপের neutral — bg → surface → element; তিনটাই
+   একই hue-ভিত্তি, শুধু lightness আলাদা (এলোমেলো একাধিক hue-র ধূসর নয়)
+2. **SATURATION:** neutral-গুলোর saturation ≤ 8-10% — রঙিন হবে শুধু accent
+3. **60/30/10 অডিট:** ৬০% neutral bg · ৩০% surface/ink · ১০% accent — বেশি
+   রঙ ঢুকে গেলে কেটে ফেলো
+4. **CONTRAST:** body text ≥ 4.5:1, light+dark দুই মোডেই
+5. **TEMPERATURE:** warm সাইটে ছায়া-ও warm (`rgba(120,100,50,…)` বাদামি-ঘেঁষা),
+   cool সাইটে ঠান্ডা — ডিফল্ট কালো ছায়া প্রায়ই কদর্য
+6. **SQUINT TEST:** চোখ আধা-বন্ধ করে দেখো — accent-গুলো কি ভেসে ওঠে? না উঠলে
+   accent আরও কমাও বা আরও আলাদা করো
 
 Real UI kits studied in detail (Morad's reference collection, 2026-10). When
 building in a style, grade the colors/shadows EXACTLY like these studied
@@ -387,7 +450,7 @@ own brand accent on top. Never mix two studied variants in one page.
 
 | Library | Style | License | Best for |
 |---|---|---|---|
-| **Lucide** (lucide.dev) | clean 2px line, 1500+ icons | ISC | default zyvo choice — modern, neutral |
+| **Lucide** — **২,১৩০টা SVG LOCAL: `assets/icons/lucide/`** | clean 2px line | ISC | default zyvo choice — নামানো আছে, net লাগে না |
 | **Phosphor** (phosphoricons.com) | 6 weights (thin→fill), 9000+ | MIT | when you need bold/fill variants |
 | **Heroicons** (heroicons.com) | Tailwind-made, 24/20px | MIT | Tailwind projects |
 | **Tabler** (tabler.io/icons) | 1.5px stroke, 5800+ | MIT | widest coverage |
@@ -418,6 +481,33 @@ Rules: MAX 2 families per site (display + body) · line-height 1.6-1.7 body,
 system font as the identity font · always `<link rel="preconnect">` +
 Google Fonts link + fallback stack (`font-family:'X',system-ui,sans-serif`)
 · Bangla content site? add "Hind Siliguri" to the stack.
+
+## 🧰 VENDORED ASSETS — OFFLINE FONTS + ICONS (এই skill-এর সাথেই আছে)
+
+Installer পুরো skill-tree সাথে করে দেয় — internet ছাড়াই, file:// preview-তেও
+কাজ করে। GitHub থেকে নামানো (fontsource/font-files, OFL + lucide-static, ISC)।
+
+**FONT PACK — `assets/fonts/`** (woff2 + তৈরি `fonts.css`):
+| family | কখন ব্যবহার |
+|---|---|
+| Space Grotesk (400/500/700) | আধুনিক tech/startup display — identity font |
+| Inter (400/600/700) | neutral body — শুধু body, identity নয় |
+| JetBrains Mono (400/500/700) | কোড, সংখ্যা, terminal মেজাজ |
+| Playfair Display (400/700) | luxury/editorial serif display |
+| Bebas Neue (400) | poster/sports hero, uppercase display |
+| Noto Sans Bengali (400/700 + latin) | বাংলা লেখার body — বাংলা সাইটে এটাই |
+
+ব্যবহার: `assets/fonts/` ফোল্ডারটা site-এ কপি করো, তারপর
+`<link rel="stylesheet" href="assets/fonts/fonts.css">` — Google Fonts
+link-এর বদলে। ফলে site offline-এও নিজের ফন্ট পায়। weights-এর বাইরে
+কিছু লাগলে Google Fonts <link> যোগ করা যায় (online fallback)।
+
+**ICON PACK — `assets/icons/lucide/`** (২,১৩০টা Lucide SVG, ISC):
+- খোঁজো: `ls assets/icons/lucide | grep -i <word>` (zap, rocket, heart,
+  shopping-cart, calendar, shield, cpu, terminal…) — নাম **অনুমান না করে খোঁজো**
+- ব্যবহার: svg ফাইলটা পড়ে **inline** বসাও (`fill:none; stroke:currentColor;
+  stroke-width:2; viewBox 0 0 24 24`) — CDN link বা icon-font নয়, emoji কখনো নয়
+- সাইজ: UI icons 20-24px, inline text icons 16px; বাটনে টেক্সটের সাথে gap 8px
 
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 
@@ -691,6 +781,42 @@ tab icon with zero image files.
 
 ---
 
+# 🔬 SELF-VERIFY GATE — A-Z (ADVANCE track-এ BINDING; ব্যতিক্রম নেই)
+
+বানানোর পর নিজের বানানো site নিজে **পুরোটা ব্যবহার করবে** — ঠিক যেভাবে user
+করত। রাশ করে ২-৩ মিনিটে "হয়ে গেছে" বলা = আধা-ভাঙা কাজ জমা দেওয়া = **নিষিদ্ধ**।
+শেষ পর্যন্ত টেস্ট + পলিশ না হলে কাজ শেষ হয়নি।
+
+**ধাপ ১ — চালু ও প্রথম চোখ:** Step 1.5-এর localhost server-এ site খোলো।
+প্রতিটা পেজ খুলে দেখো: layout ভাঙা? ছবি লোড হচ্ছে? console-এ লাল error?
+
+**ধাপ ২ — A-Z ফিচার টেস্ট (তালিকা করে, কোনোটা বাদ নেই):**
+- **প্রতিটা বাটন** ক্লিক — কাজ করে? কোথাও নিশ্চুপ? hover/active/focus state?
+- **প্রতিটা ফর্ম:** খালি submit (error দেখায়?) · ভুল ইনপুট · সঠিক ইনপুট
+- **প্রতিটা** লিংক, ট্যাব, dropdown, মোডাল, accordion, toggle — খোল-বন্ধ
+- **মোবাইল 375px + desktop 1440px** — nav, grid, কোনো horizontal overflow নেই
+- **console** একটাও red error/warning ছাড়া clean
+- প্রতিটা সমস্যা **এখনই ফিক্স** → আবার টেস্ট — zero issue না হলে জমা নয়
+
+**ধাপ ৩ — POLISH PASS (deep thinking — এটাই pro আর AI-এর পার্থক্য):**
+টেস্ট শেষে দৌড়ে জমা দিও না — **থামো, পুরোটা আবার দেখো**: কোথায় আরও ভালো
+হতে পারে? অন্তত **৩টা concrete improvement** বের করো এবং করো — spacing-এর
+ভুল, রঙের ভারসাম্য (নিচের COLOR GRADE PASS), নিষ্প্রাণ section, দুর্বল
+font-hierarchy, মৃত hover, কদর্য transition, ছোট হাতের icon ভুল সাইজ… → করো
+→ আবার দেখো → সন্তুষ্ট না হলে আরেক পাস।
+
+**ধাপ ৪ — স্বচ্ছ জমা:** user-কে এক বার্তায়: কী কী টেস্ট করলে (সব বাটন ✓,
+ফর্ম ✓, মোবাইল ✓, console clean ✓) + POLISH-এ কী কী বদলালে + "কী পাল্টাতে
+চাইলে বলো"।
+
+**ব্রাউজার-টেস্ট কীভাবে (agent হিসেবে):** ZCode-এর browser automation থাকলে
+তা-ই ব্যবহার করো (navigate → domSnapshot → প্রতিটা button/form-এ click/fill →
+screenshot → console দেখা)। না থাকলে user-কে URL দিয়ে বলো খুলতে — কিন্তু
+নিজে যাচাই করার দায়িত্ব থাকবেই (curl দিয়ে অন্তত সব রুটে 200 + HTML-এ script
+error নেই কিনা node --check দিয়ে)।
+
+---
+
 # ✅ WEB QA CHECKLIST — run BEFORE pushing (every site, no exceptions)
 
 1. ⬜ One page recipe followed (or a deliberate mix the user chose in the
@@ -712,3 +838,10 @@ tab icon with zero image files.
 13. ⬜ Page weight under ~500KB; no frameworks; vanilla only
 14. ⬜ Lighthouse-style sanity: semantic tags (header/main/section/footer),
     one h1, buttons are <button>, links are <a>
+15. ⬜ SELF-VERIFY GATE (A-Z) পাস — প্রতিটা বাটন/ফর্ম/লিংক ব্রাউজারে ক্লিক
+    করা হয়েছে, console zero-error, মোবাইল+desktop দুটোই দেখা
+16. ⬜ POLISH PASS — অন্তত ৩টা concrete UI/color improvement করা হয়েছে
+17. ⬜ বিল্ডের আগে SPEED vs CRAFT প্রশ্ন করা হয়েছিল, উত্তরের track মেনে
+    চলা হয়েছে; morphism ব্যবহার হলে 3-SHADOW LAW-এর ৩টা স্তরই আছে
+18. ⬜ ফন্ট/আইকন লাগলে প্রথমে VENDORED ASSETS দেখা হয়েছে (offline pack) —
+    CDN পরে
