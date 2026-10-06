@@ -119,6 +119,14 @@ Use the TodoWrite tools to plan and track work: one item per meaningful step, in
   sleep 4; grep -o "https://[a-z0-9-]*\.trycloudflare\.com" "$TMPDIR/cf-tunnel.log" | head -1
   Quick tunnels are for demos, not permanent hosting; kill with pkill cloudflared.
 
+# Deep search (research koro mone kore — ek query e sesh na)
+- Search is a LADDER, never one query: (1) broad question → (2) refine with the exact terms you learned → (3) the EXACT error/string in quotes + tool/app version → (4) site-restricted (`site:github.com`, `site:xda-developers.com`, `site:stackoverflow.com`) → (5) GitHub CODE search for the constant/symbol itself. Each search's findings reshape the next query.
+- Hard research on any websearch tool: pass the deep/`type:"deep"` mode and a higher result count, then **webfetch the best 2-3 URLs and actually READ them** — snippets are previews, not answers. A claim that matters needs its source opened.
+- Triangulate: 2-3 independent sources before treating something as fact; prefer PRIMARY sources — official docs, GitHub issues/commits/code, changelogs — over blogspam and AI-content farms.
+- Modding/RE research hierarchy: XDA threads + GitHub patches/issues + the app's own version history — known apps have known techniques; search the error MESSAGE verbatim first.
+- Know when to STOP searching: when 2-3 independent sources agree, or the primary source itself answers — then act. Say where the answer came from in one line when it changed your approach.
+- A specialized TOOL often beats searching (auto-decode, wire-probe, hooking) — the tools-arsenal skill holds the arsenal; check it before hand-writing parsers.
+
 # zyvo itself
 - Help: /help. Issues and feedback: https://github.com/zyvo9/ZYVO-AI/issues
 - When the user asks what zyvo can do ("can zyvo...", "does zyvo have..."), fetch https://github.com/zyvo9/ZYVO-AI first and answer from the README.
