@@ -1,6 +1,6 @@
 ---
 name: webdev
-description: Build professional, distinctive websites/web apps and deploy them LIVE on GitHub Pages — art direction first, real motion craft, no generic AI look. Zero load on the user's phone. Use when the user asks to create/build a website, landing page, portfolio, web app, or says "website banao".
+description: Build professional, distinctive websites/web apps and deploy them LIVE on GitHub Pages — PLAN/PRD first, then art direction, A-Z self-verify, no generic AI look. Zero load on the user's phone. Use when the user asks to create/build/make a website, landing page, portfolio, web app, web page, "website banao", "site banao", "web banau", "ei topic e ekta site", HTML/CSS/JS page, online store/menu/business page — ANY web-building request triggers this skill.
 ---
 
 # Website Builder Pro (GitHub Pages)
@@ -8,6 +8,26 @@ description: Build professional, distinctive websites/web apps and deploy them L
 Build websites that look like a HUMAN DESIGNER made them — not AI. You
 write the files, push to GitHub, enable Pages, and hand over a LIVE URL.
 The phone only writes text files.
+
+## ⛔ PLAN-FIRST ENFORCEMENT (সবচেয়ে আগে পড়ো — এটা ভাঙা মানে skill ভাঙা)
+
+User প্রথম message-এ সব বলে দিক, তবু **তুমি প্রথম reply-তে কোড/ফাইল লিখবে না।**
+এটা যান্ত্রিক নিয়ম, মুড নয়:
+
+1. **প্রথম reply = শুধু প্রশ্ন।** ZERO code, ZERO file — শুধু (a) SPEED vs
+   CRAFT প্রশ্ন + (b) BOOT-এর ৬টা প্রশ্ন। User "এসব লাগবে না, বানাও" বললে
+   হালকা করে চাইলেও অন্তত speed/craft + ১টা প্রশ্ন (site কী করবে) — প্রশ্ন
+   zero হয় না।
+2. **PRD/PLAN ফাইল ছাড়া কোড নেই।** `index.html`/`.css`/`.js` লেখার আগে
+   ডিস্কে **PROJECT_PLAN.md + PRD.md** থাকতেই হবে। লেখার ঠিক আগে নিজেকে
+   যাচাই: `ls PROJECT_PLAN.md PRD.md` — না থাকলে থামো, ফাইল বানাও, তারপর কোড।
+   ADVANCE track-এ PRD-র সারাংশ user-কে দেখিয়ে OK নিয়ে তবেই build।
+   **জলদি track-ও বাধ্য:** mini PROJECT_PLAN.md (৫-১০ লাইন) — শুধু দৈর্ঘ্য কমে,
+   ফাইল কখনো বাদ নয়। কোনো track-এই "plan skip" নেই।
+3. **পাইপলাইন উল্টানো যায় না:** BOOT প্রশ্ন → PLAN/PRD → design → build →
+   SELF-VERIFY GATE → জমা। User তাড়াহুড়া করলে জলদি track ধরো — কিন্তু
+   ধাপের ক্রম কখনো নয়। নিজের উত্তরে যদি দেখো প্রশ্নের আগে code-block এসে
+   গেছে — ওটা মুছে ফেলো, BOOT দিয়ে শুরু করো।
 
 ## Golden rules
 
@@ -22,6 +42,9 @@ The phone only writes text files.
    Split files only when the site truly needs it.
 6. Sources live in `$HOME/<sitename>` — never in shared storage.
 7. NEVER put the user's GitHub token inside any committed file.
+8. **PLAN-FIRST ENFORCEMENT (উপরের অধ্যায়) সব নিয়মের আগে** — প্রথম reply-তে
+   কোড নেই; PROJECT_PLAN.md + PRD.md ফাইল ছাড়া একটা সাইট-ফাইলও নেই।
+   "rules onujayi" মানে এটাই: প্রশ্ন → পরিকল্পনা → PRD → তারপর কোড।
 
 ## 🏗️ THE BUILD PIPELINE (professional 22-stage process — follow IN ORDER)
 
@@ -48,9 +71,10 @@ continue from the next unticked stage.
    - **PRD.md** — the product requirements document (stage 4 output).
 
 **TWO TRACKS (BOOT-এর উত্তর ঠিক করে কোন track — একবার ঠিক হলে মাঝে বদলাবে না):**
-- **জলদি track (২-৫ মিনিট):** mini-PRD বাদ → একটা design direction নিজে বাছাই
-  → build → দুই রকম quick self-test (মোবাইল view + সব বাটন একবার) → জমা।
-  ছোট কাজ/দ্রুত দেখার জন্য — বড় real site-এ এই track নয়।
+- **জলদি track (২-৫ মিনিট):** ছোট **mini PROJECT_PLAN.md + mini PRD (৫-১০
+  লাইন)** আগে লেখো — ফাইল কখনো বাদ নয়, শুধু দৈর্ঘ্য ছোট → একটা design
+  direction নিজে বাছাই → build → দুই রকম quick self-test (মোবাইল view + সব
+  বাটন একবার) → জমা। ছোট কাজ/দ্রুত দেখার জন্য — বড় real site-এ এই track নয়।
 - **ADVANCE track (৫০-৬০ মিনিট):** নিচের পুরো ২২-স্টেজ pipeline + **SELF-VERIFY
   GATE (A-Z)** + **POLISH PASS** + CUSTOMIZATION ROUND। User যা-ই বলুক,
   মাঝপথে রাশ করে "শেষ" করা **কখনো নয়** — রাশ করা মানে আধা-ভাঙা জিনিস জমা দেওয়া।
