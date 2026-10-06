@@ -38,7 +38,10 @@ tag-byte = `(field<<3)|wiretype`।
 | **hbctool** | `pip install hbctool` | React Native Hermes bytecode disassemble/reassemble (`assets/index.android.bundle`) |
 | **reflutter** | `pip install reflutter` | Flutter অ্যাপের snapshot patch + traffic log |
 | **Il2CppDumper** (PC) | https://github.com/Il2Cpp-Paradise/Il2CppDumper | Unity IL2CPP — global-metadata.dat + libil2cpp.so → C# কাঠামো (dump.cs) |
-| **dnSpy/ILSpy** (PC) | https://github.com/dnSpy/dnSpy | Unity Mono `Assembly-CSharp.dll` সোজা C# এডিট |
+| **dnSpy/ILSpy** (PC) | https://github.com/dnSpy/dnSpy | Unity Mono + .NET panel exe সোজা C# এডিট |
+| **de4dot** (PC) | https://github.com/de4dot/de4dot | obfuscated .NET (ConfuserEx ইত্যাদি) unpack |
+| **x64dbg** (PC) | https://x64dbg.com | native exe live debug — string-ref → breakpoint → JZ→JMP |
+| **Wireshark** (PC) | https://www.wireshark.org | নিজের device-এর সব network traffic (TLS ছাড়া সব) |
 | **apktool/jadx** | PC-তে (Windows build-এ আছে) | decompile java/kotlin — ফোনে APKTool M (user) |
 | **libimobiledevice/adb** | `pkg install android-tools` | adb logcat/pull — apk-mod নোট দেখো |
 
