@@ -189,3 +189,49 @@ nmap --script dns-service-discovery 192.168.0.0/24   # hostname নাম
 - নিজের device, নিজের account, ব্যক্তিগত ব্যবহার — অন্যের ট্রাফিক/নেটওয়ার্ক কখনো নয়
 - প্রতিটা সেশনের capture ফাইল session ফোল্ডারে রাখো; শেখা নতুন pattern এই skill-এ যোগ করো (self-improvement)
 - User "koto powerful" শুনতে ভালোবাসে, কিন্তু সীমা সৎভাবেই বলো — মিথ্যা আশা দেওয়া মানে পরে ভাঙা ভরসা
+
+## STAGE 11 — DEFAULT-KEY ALGORITHMS (ফোনেই হয়, ESP32/monitor লাগে না)
+
+Router-দের **ডিফল্ট WiFi password অনেকটাই SSID/MAC থেকেই গাণিতিকভাবে
+তৈরি হয়** — SSID দেখেই candidate key বের করা যায়। Monitor mode লাগে না,
+তাই ফোনেই চলে (পুরনো Router Keygen অ্যাপ এটাই করত, open-source):
+
+**Algorithm পরিবার (SSID/BSSID pattern → key):**
+| পরিবার | চেনার উপায় | ধরন |
+|---|---|---|
+| **Arcadyan** | নির্দিষ্ট SSID format (ISP routers) | hash-chain থেকে key — open-source impl আছে |
+| **Belkin** | Belkin-নাম + MAC সম্পর্ক | MAC/serial-ভিত্তিক 8-char |
+| **Thomson/SpeedTouch** | `XXXXYYYYYY` hex SSID | বছর+serial wordlist থেকে candidate |
+| **multiSSID** | এক router-এ `SSID` + `SSID-5G` জোড়া | এক algorithm দুটো SSID-ই cover করে |
+| **Discus/Eircom** | `Discus--`/`eircom` ধাঁচ | MAC থেকে key |
+| **Netfaster/Wlan_XXXX** | `Wlan_` + MAC শেষ | ছোট keyspace |
+| **Ono/Teletu/Pirelli/VodafoneXX** | ISP SSID pattern | MAC/serial ভিত্তিক |
+| **TP-Link (পুরনো)** | MAC-ভিত্তিক default | প্যাটার্ন সেট |
+
+**ফোনে ফ্লো (Termux):**
+1. SSID+MAC সংগ্রহ: `termux-wifi-scaninfo` / `su -c "iw dev wlan0 scan"`
+2. Pattern match → algorithm বাছাই → candidate key generate (python impl —
+   **Router Keygen Android** open-source: github.com/routerkeygen/routerkeygenAndroid
+   — এইখানেই সব algorithm-এর বাস্তবায়ন আছে; তুলে নিয়ে port করো)
+3. Online **DB lookup** বিকল্প: **3WiFi** (3wifi.stascorp.com, API key) —
+   BSSID দিলে জানা default key ফেরত; **wpa-sec** (handshake submit পথ —
+   monitor লাগে, ফোনে নয়)
+4. Candidate টেস্ট (নিজের/অনুমোদিত router): root → `cmd wifi connect <ssid>
+   <pass>` বা `wpa_cli` — সফল connect-ই প্রমাণ (PROOF DISCIPLINE)
+5. **রুট বোনাস — নিজের ফোনের সেভ করা password ফেরত:**
+   `su -c "cat /data/misc/wifi/WifiConfigStore.xml" | grep -i PreSharedKey`
+   (পুরনো Android-এ সোজা; নতুন Android-এ encrypted store — root helper
+   দরকার) → একই password QR বানিয়ে শেয়ারও করা যায়
+
+**সত্যি সীমা:**
+- কাজ করে শুধু **ডিফল্ট-password router**-এ (পুরনো/ISP-দেওয়া hardware) —
+  user নিজে random password বসালে algorithm ব্যর্থ
+- Random password ভাঙা = handshake crack = **monitor mode লাগবেই** (ফোনে নয়)
+- WPA3/SAE-যুক্ত নতুন router-এ পুরনো algorithm প্রযোজ্য নয়
+- **নীতি:** নিজের router বা লিখিত অনুমতি — অস্পষ্ট হলে একবার জিজ্ঞেস; onner
+  হলে refuse (এক লাইন + বিকল্প)
+
+**Router admin default-credential অডিট (একই পরিবার):** gateway IP-তে
+admin/admin, admin/password, vendor-default তালিকা ট্রায়াল (নিজের router) —
+দেখে নাও তোমার router কতটা নিরাপদ; সাথে LAN device-দের web-interface
+default-cred চেক (printer/camera সবচেয়ে দুর্বল)
