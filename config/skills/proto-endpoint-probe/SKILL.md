@@ -235,3 +235,29 @@ Router-দের **ডিফল্ট WiFi password অনেকটাই SSID/M
 admin/admin, admin/password, vendor-default তালিকা ট্রায়াল (নিজের router) —
 দেখে নাও তোমার router কতটা নিরাপদ; সাথে LAN device-দের web-interface
 default-cred চেক (printer/camera সবচেয়ে দুর্বল)
+
+## STAGE 12 — ROUTER ADMIN AUDIT (ফোন থেকেই — নিজের router)
+
+Router-এর admin page-এ ঢুকে default/weak password টেস্ট — নিজের router
+কতটা নিরাপদ মাপা + ভুলে যাওয়া নিজের pass ফেরত:
+
+1. **Gateway খোঁজো:** `ip route | grep default` (root) বা
+   `termux-wifi-connectioninfo` → gateway (সাধারণত 192.168.0.1/1.1)
+2. **Vendor চেনো:** `curl -s http://<gw>/ | grep -ioE "<title>[^<]*|tp-link|tenda|mercusys|totolink|netis|linksys|d-link|xiaomi|huawei"` —
+   title/JS-এ ব্র্যান্ড ফাঁস করে
+3. **Default credential তালিকা (vendor-ভিত্তিক, সাধারণ):**
+   admin:admin · admin:password · admin:admin123 · admin:blank ·
+   user:user · root:admin · TP-Link admin:admin · Tenda admin:tendawifi ·
+   Mercusys/Totolink admin:admin · Netgear admin:password ·
+   D-Link admin:blank · Xiaomi root:admin · Huawei admin:ADM4ever ধাঁচ
+4. **টেস্ট দুই ধরনের login:**
+   - Basic auth: `curl -s -o /dev/null -w "%{http_code}" -u admin:admin http://<gw>/`
+   - Form POST: প্রথমে login form-এর field নাম দেখো (curl করে HTML) →
+     `curl -s -d "username=admin&password=admin123" http://<gw>/login.cgi`
+     — **success marker:** response-এ logout/index/config পেজ বা 302 → না
+     মিললে fail
+5. **পেলে কী করবে:** নিজের router = এটা নিরাপত্তা-সমস্যা — জানাও + fix:
+   শক্তিশালী admin pass, WPS off, remote management off, firmware update
+6. **সীমা:** নতুন router-এ login lockout/captcha থাকতে পারে (কয়েকবারেই
+   আটকে দেয় — জোর করবে না); HTTPS admin + cert warning হলে `curl -k`
+- **নীতি:** নিজের router বা লিখিত অনুমতি — অন্যের gateway-তে একবারও নয়
