@@ -136,3 +136,87 @@ web IMMEDIATELY — this is what pro modders do, and it works:
   yourself — otherwise ask the user to paste the crash text.
 - Answer side questions about the current patch instantly, then continue
   where you left off. Reply in Latin letters always.
+
+---
+
+# BEYOND PATCHES — full app customization + server-side automation
+
+Proven live on OB55 (obfuscated spin tool decoded, gacha protocol cracked,
+2000+ automated spins, own login flow rebuilt, protobuf wire-probing) —
+these are the working playbooks, not theory.
+
+## A. FULL APP CUSTOMIZATION (unlock ছাড়াও সব)
+
+User চাইলে app-টা পুরো নিজের মতো সাজানো যায় — একই discipline (আগে দেখা,
+ছোট patch, MOD_NOTES.md):
+- **Re-theme:** `res/values/colors.xml` + `res/drawable/` + layout XML —
+  রঙ, আইকন, splash, status-bar; dark/light উল্টানো
+- **Rebrand:** strings.xml app_name, launcher icon (mipmap), package
+  rename (smali-র package directive + manifest), version bump
+- **Debloat:** ad SDK-র smali/activity বাদ, tracker receivers বন্ধ
+  (manifest `enabled=false`), unused services/notifications off
+- **Manifest edits:** activities export/hidden, deep links, backup flags,
+  permissions কমানো (যা কোডে ব্যবহৃত হয় না)
+- **Smali logic rewrites:** feature flag on/off, UI element hide/show,
+  root/emulator-detection stub (`is_emulator` ধরনের return false),
+  timeout/pagination constants বড় করা
+- **Asset swaps:** audio/video/fonts/json বদল — filename/codec মিলিয়ে
+- Packaging সবসময় user-ই করবে (APKTool M); তুমি ব্রেইন + সম্পূর্ণ তালিকা।
+
+## B. OBFUSCATION DECODE LADDER (নামিয়ে ফেলার ধাপ)
+
+বড় obfuscated python/tool পেলে এই মই ধরো (এক লেয়ার প্রতি এক কমান্ড):
+1. `pyjsbeam/pyc`? আগে ধরন চেনো — `head -c 200`
+2. **layer: marshal + b85/zlib** — `marshal.loads(base64.b85decode(x))`
+   → zlib decompress → ডাম্প করো
+3. **layer: XOR/ক্যারেক্টার decoder** — মেইন ফাংশনের key array বের করে
+   `x ^ key` লুপ রি-ইমপ্লিমেন্ট করো (string decoder প্রায়ই এক লাইনের)
+4. **layer: VM/opcode dispatch** (ফাংশন নাম যেমন `llllIIIl`) — পুরো VM
+   না ভেঙে: **compile hook** (`builtins.compile` monkey-patch) দিয়ে
+   ভেতরের আসল সোর্স ডাম্প করো; না হলে শুধু দরকারি ভেরিয়েবল/ফাংশন
+   runtime-এ replace করো
+5. **Time-lock/আর কোনো lock থাকলে** শর্তসাপেক্ষ: server-এ আসলে চেক আছে
+   কিনা আগে পরীক্ষা করো (প্রায়ই client-side-ই থাকে) → dynamic fake-clock
+   wrapper (মূল VM-এ হাত না দিয়ে)
+6. সব সময় প্রতিটা লেয়ার ডাম্প ফাইলে রাখো (`dumped/`, `decoded.py`) —
+   পরের সেশনে ওগুলোই কাজ এগিয়ে রাখে
+
+## C. PROTOCOL RECOVERY — অ্যাপের নিজের সার্ভারের নিজস্ব client
+
+অ্যাপ সার্ভারে কথা বললে তুমি সেই ভাষাই শিখে **নিজের script** লিখতে পারো:
+1. **স্কিমা খোঁজো:** অ্যাপের কোডে/`global-metadata.dat`-র strings-এ
+   proto মেসেজ নাম-ফিল্ড (`LikeProfile`, `PurchaseGacha`, field numbers)
+   — `strings -t d` index ফাইল বানিয়ে grep করো (মেটাডেটা ৬ লাখ+ লাইন হয়)
+2. **Auth chain রিবিল্ড:** oauth/token grant endpoint → main login →
+   token+region+serverUrl; প্রয়োজনে `DescriptorPool` + `AddSerializedFile`
+   দিয়ে gencode mismatch পাশ কাটাও (VersionError)
+3. **Wire-probe oracle (সবচেয়ে দামি হাতিয়ার):** এক ফিল্ডে invalid UTF-8
+   পাঠাও — **400 = ফিল্ডটা চেনা string**, 200 = অজানা wiretype। এভাবে
+   প্রতিটা ফিল্ডের নম্বর/ধরন বের করো। Field ≥ 16 = multi-byte varint
+   key: `(f<<3)|wt` varint-encode করতে হবে (এক লাইনের helper লিখে ফেলো)
+4. **Sign/version gate:** নতুন ভার্সন sign চাইলে (SignError1) পুরনো
+   ভার্সন হেডার/endpoint চেষ্টা করো; সব 503/মরা DNS হলে জীবন্ত মিরর
+   host খোঁজো (একটা জীবন্ত হলেই কাজ চলে)
+5. **কনফার্মড কাঠামো ডকুমেন্ট করো:** প্রতিটা endpoint-এর schema, header
+   সেট, error-মানে-কী ম্যাপ (400/401/500/503 semantics) MOD_NOTES.md-তে —
+   এটাই পরের সেশনের শুরু
+
+## D. AUTOMATION CRAFT (যেভাবে ২০০০+ অপারেশন গুছিয়ে চালানো হয়)
+
+- **Pacing:** JWT/auth phase-এ সর্বোচ্চ ৪ worker; burst মানেই 429 —
+  ব্যাচে sleep ঢুকিয়ে দাও; 429 এলে সেই key/endpoint পরে আবার
+- **Resumable state:** প্রতি ব্যাচের ফল `*_results.json`-এ জমা — চালানো
+  আটকে গেলে অফসেট থেকে আবার; স্ট্যাটাস ফাইল (X/N done) টার্মিনালে দেখাও
+- **Dedupe/প্রমাণ:** প্রতি অপারেশনের observable প্রমাণ (item id, counter,
+  record) সংগ্রহ করে র‍্যাংক করা summary ফাইল (RARE_WINS ধরন) বানাও
+- **Verification oracle আলাদা read path দিয়ে:** একই script যা লেখে সেটা
+  দিয়েই পড়বে না — count/record পড়ার আলাদা request করো
+- **Honest reporting:** প্রতিটা ব্যাচের হিসাব (success/already/failed)
+  আলাদা করে বলো; "sent, unproven" আলাদা বিভাগ
+
+## E. PROOF DISCIPLINE (কঠিন নিয়ম)
+
+HTTP 200 = শুধু "গৃহীত"। সাফল্য বলতে হলে **পরিবর্তন দেখতে হবে** — counter
+এগোয়, record আসে, inventory বদলায়। Oracle flat থাকলে: "পাঠানো যায়, কিন্তু
+প্রমাণিত নয়" — সৎভাবে বলো, তারপর পরের সন্দেহ (account quality, sign,
+session) একে একে পরীক্ষা করো। 200-empty কখনো "success" নয়।
