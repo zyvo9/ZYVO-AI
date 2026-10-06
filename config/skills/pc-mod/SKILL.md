@@ -120,3 +120,44 @@ The exe phones home to check the license — the server response can be faked:
 
 On the phone build, this skill guides; the actual x64dbg/dnSpy work runs on
 the PC (zyvo PC build). phone-control skill pairs the phone to drive the PC.
+
+## N. TRAFFIC & TLS INTERCEPTION PACK (PC — Android pinning-এর PC ভাই)
+
+Windows-এ সুখবর: বেশিরভাগ প্রোগ্রাম (WinHTTP/WinINET/schannel/.NET) **system
+proxy আর Windows trust store মানে** — তাই Android-এর মতো প্রতি-অ্যাপ ভাঙা
+লাগে না। নিচের স্তরগুলো ক্রমে চেষ্টা করো (শুধু নিজের device/নিজের account):
+
+1. **System proxy + mitmproxy/Fiddler:** ফোনের মতোই — proxy চালু করো,
+   mitmproxy-র CA cert Windows trust-এ দাও:
+   `certutil -addstore -f Root mitmproxy-ca-cert.cer`
+   → .NET/WinHTTP/সাধারণ প্রোগ্রামের TLS **প্যাচ ছাড়াই** প্লেইন দেখা যায়
+2. **SSLKEYLOGFILE জাদু (প্যাচ-ছাড়া সবচেয়ে সস্তা):** Chrome, Electron,
+   curl, .NET 5+ ইত্যাদি env var মানে — সেট করে Wireshark-এ TLS খোলো:
+   `set SSLKEYLOGFILE=C:\temp\keys.log` → Wireshark → Preferences → TLS →
+   (Pre)-Master-Secret log filename → সব HTTPS plaintext
+3. **Proxy-blind প্রোগ্রাম (নিজস্ব network stack):**
+   - **Proxifier** — যেকোনো exe-কে জোর করে proxy-র ভেতর দিয়ে চালায়
+   - **netsh portproxy** (Windows built-in, admin):
+     `netsh interface portproxy add v4tov4 listenport=443 listenaddress=<app-server-ip> connectport=8080 connectaddress=127.0.0.1`
+     + hosts-এ ওই domain → যেকোনো port তোমার mitmproxy-তে
+4. **Frida Windows-এও চলে:** `frida-trace -p <pid> -i "*ssl*"` — schannel/
+   winhttp/cert-verify ফাংশন hook (`CertGetCertificateChain`,
+   `CertVerifyCertificateChainPolicy` → return true) — pin করা নেটিভ
+   প্রোগ্রামের cert চেক জীবন্ত ভাঙে
+5. **URL/cert প্যাচ (স্থায়ী):** x64dbg-তে `http://` string খুঁজে https→http,
+   বা cert-compare NOP (section Phase 2) — license-server emulation-এর
+   রাস্তা পরিষ্কার
+6. **Body এখনো encrypted?** TLS-এর উপরে অ্যাপের নিজের crypto — APK-র মতোই
+   crypto ফাংশন hook (Python/C# হলে সহজ — decompiled কোডেই key দেখা যায়)
+
+**আরও PC-বিশেষ ট্রিক (ছোট কিন্তু দামি):**
+- **Electron অ্যাপ/প্যানেল** (setup.exe-এর ভেতর `resources/app.asar`):
+  `npx asar extract app.asar app/` → **পুরো JS/HTML পাঠ্য-সম্পাদনাযোগ্য** →
+  লাইসেন্স চেক সাধারণ JS — `npx asar pack` ফেরত
+- **Installer ভেতর থেকে বের করা:** Inno Setup → `innoextract`, NSIS → 7-zip,
+  MSIX → rename zip — install-ই না করে ভেতরের ফাইল mod
+- **AutoIt/AHK-compiled exe:** `Exe2Aut` দিয়ে আসল script বের হয়ে যায়
+- **Registry license storage:** `regedit`/ProcMon দেখো কোন key-তে trial
+  date/flag বসে — সেই value এডিট/মুছে ফেলা trial reset-এর সবচেয়ে সস্তা পথ
+- **API Monitor / Process Monitor:** কোনো প্যাচ ছাড়াই দেখো প্রোগ্রাম কোন
+  registry/file/network API কল করছে — gate-এর জায়গা ধরার শর্টকাট
