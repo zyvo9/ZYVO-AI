@@ -1,6 +1,6 @@
 ---
 name: apk-mod
-description: Mod/patch Android apps like a professional cracker — premium unlock, license bypass, signature-check stub, anti-tamper (PAIRIP/Play Integrity) neutralize, trial reset, ad removal. Fast smali-level playbook: grep discovery patterns, per-check patch recipes, crash-diagnosis loop, online research fallback. Use when the user asks to mod/patch/crack an app, unlock premium/pro features, remove a license check, bypass signature verification, fix a modded app that crashes, or says "app mod koro".
+description: Mod/patch Android apps like a professional cracker — premium unlock, license bypass, signature-check stub, anti-tamper (PAIRIP/Play Integrity) neutralize, trial reset, ad removal, full app customization, framework-aware modding (Unity IL2CPP / Flutter / React Native Hermes / WebView), game trainers and memory hacking (Frida), IAP/billing emulation, SSL pinning bypass, runtime hooks and traffic capture, protocol recovery, server-side automation, dead game revival. Fast smali-level playbook: grep discovery patterns, per-check patch recipes, crash-diagnosis loop, online research fallback. Use when the user asks to mod/patch/crack an app, unlock premium/pro features, remove a license check, bypass signature verification, hack a game, make a trainer, bypass SSL pinning, capture an app's traffic, revive a dead game, fix a modded app that crashes, or says "app mod koro".
 ---
 
 # APK Mod Playbook
@@ -281,3 +281,126 @@ APK-mod নিয়ম।
    কী — MOD_NOTES.md-র মতোই compaction-proof; **প্রমাণ = ফোনে game lobby/
    gameplay-এ পৌঁছানো** (একটা "response ফেরত দেওয়া" মানে সফল না — এটাই
    PROOF DISCIPLINE)
+
+## H. FRAMEWORK RECOGNITION — অ্যাপ খুললেই সঠিক অস্ত্র বাছাই
+
+decompiled ফোল্ডারে **marker** খুঁজে framework চেনো — প্রতিটার ভাঙার পথ
+আলাদা, ভুল পথে ঘণ্টা নষ্ট:
+
+| Marker | Framework | সঠিক অস্ত্র |
+|---|---|---|
+| `lib/arm64/libil2cpp.so` + `assets/bin/Data/Managed/Metadata/global-metadata.dat` | **Unity IL2CPP** | Il2CppDumper (PC) → dump.cs + script.json; game logic native `.so`-তে — **global-metadata.dat string patch** (নাম/টেক্সট সোজা বদলায়), Frida hook il2cpp export |
+| `lib/arm64/libunity.so` + `assets/bin/Data/Managed/Assembly-CSharp.dll` | **Unity Mono** | সোজা সোনা: `Assembly-CSharp.dll` PC-তে **dnSpy/ILSpy**-তে খুলে C# edit → repack — game logic পুরো পাঠ্য |
+| `lib/arm64/libflutter.so` + `assets/flutter_assets/` (+ `libapp.so`) | **Flutter** | Dart AOT কঠিন — smali দিয়ে কিছু হয় না; **reflutter** (snapshot patch/traffic log), runtime Frida hook, বা server-side path |
+| `assets/index.android.bundle` (Hermes magic `1F 19 03 C1...` বা "HBC" header) | **React Native (Hermes)** | **hbctool** disassemble → bytecode/string এডিট → reassemble; RN dev-mode অ্যাপে metro সোজা |
+| `assets/www/` (index.html, js/) | **Cordova/WebView** | **সবচেয়ে সহজ** — সাধারণ HTML/JS/CSS সোজা এডিট; অ্যাপের logic পুরো পাঠ্য |
+| শুধু `classes*.dex` (উপরের কিছুই নেই) | **Native Java/Kotlin** | ডিফল্ট smali path (উপরের Phase 1-3) |
+| `lib/arm64/libapp.so` ছাড়া `lib/x86_64/*.so` + heavy native | **Native C++ game/engine** | rizin/Ghidra + strings + Frida |
+
+আগে এই টেবিল, পরে কাজ — "সব অ্যাপে smali খোঁজা" সবচেয়ে বড় সময়-নষ্ট।
+
+## I. MOD SURVIVAL KIT — mod যেন টিকে থাকে
+
+অ্যাপ নিজেকে পাহারা দেয় আর আপডেটে mod মুছে যায় — দুটোরই সমাধান:
+
+**আত্মরক্ষা (integrity self-check stub):**
+- অ্যাপ নিজের signature যাচাই করলে (GET_SIGNATURES/PackageInfo) — hook
+  বা smali-তে signature byte array **আসল অ্যাপেরটা** ফেরত দাও (play-store
+  signature ক্যাশ থেকে), tampered নয়
+- root/frida/xposed detection: ফাইল-existence চেক (su, magisk), process
+  scan, mount চেক — সব "not found / clean" ফেরত দিয়ে দাও (এক একটা
+  চেক-মেথডে return false/true)
+- Play Integrity/PAIRIP জাতীয়: আগেই আছে Phase 2 recipe; নতুন ধরন পেলে
+  google-এ সার্চ (STUCK rule)
+- সতর্কতা: একসাথে সব detection বন্ধ না করে আগে শুধু যেটা crash করাচ্ছে
+
+**Update-blocker:** অ্যাপ নিজে update prompt দেখালে (in-app updater) সেই
+activity/dialog disable করো, বা version-code খুব বড় করে দাও যেন store
+নিজেই "already latest" বলে।
+
+**PATCH_REGISTRY.json — mod একবার, বারবার re-apply:**
+```json
+{
+  "app": "com.example.app", "version": "1.2.3",
+  "patches": [
+    {"file": "smali/com/example/Premium.smali",
+     "find": "const/4 v0, 0x0", "replace": "const/4 v0, 0x1",
+     "note": "premium flag"},
+    {"file": "res/values/strings.xml", "regex": "app_name\">[^<]*<",
+     "replace": "app_name\">MyMod<"}
+  ]
+}
+```
+- প্রতিটা সফল patch এখানে লেখো (MOD_NOTES.md ছাড়াও machine-readable
+  রূপ) — অ্যাপ আপডেট এলে নতুন decompile-এ registry re-apply, যেটা মিলবে
+  না সেটার জন্য নতুন করে খোঁজা (find string বদলায়, লজিক বদলায় না প্রায়ই)
+- registry থাকলে PC pipeline (section M) এক কমান্ডে পুরো mod বসায়
+
+## J. GAME TRAINER — memory hacking (Frida, নিজের device, offline game)
+
+সবচেয়ে ভালো পথ **মেমরি-স্ক্যান নয় — game-এর নিজের ফাংশন hook**:
+1. **ফাংশন খোঁজো:** Unity-তে metadata dump থেকে (`AddGold`, `setCoins`,
+   `TakeDamage`), RN/অন্যত্র hooking framework অনুযায়ী (section H)
+2. **hook + নিয়ন্ত্রণ:** ফাংশনের arg বাড়িয়ে দাও বা call force করো —
+   ```js
+   Interceptor.attach(addr, { onEnter(args) { args[1] = ptr(999999) } })
+   ```
+3. **মেমরি-স্ক্যান (ফাংশন না পেলে):** জানা মান (gold=1250) লিখে
+   `Memory.scanSync(range, {pattern: u32/float})` → game-এ মান বদলাও →
+   re-scan-এ list ছোট করো → ৩-৪ রাউন্ডে ঠিকানা একক → সেটাতে
+   `Memory.write*` বা freeze (per-frame write-back)
+4. **Speed hack:** Unity-তে `Time.get_deltaTime` hook → return মান ×
+   factor; অন্য engine-এ frame-delta ফাংশন
+5. **God-mode/one-hit:** damage function-এ damage arg → 0, বা HP setter
+   → max
+6. সবসময় trainer script ফাইল হিসেবে রাখো (`trainer_<game>.js`) —
+   registry-তে নোট; online game-এ এটা server-এ ধরা পড়ে — **offline/
+   single-player game-এর জন্যই এটা**
+
+## K. IAP / BILLING EMULATION (local fake billing)
+
+premium unlock-এর গভীর রূপ — **সততার সাথে সীমা জেনে রাখো:**
+- **কী হয়:** অ্যাপ Play Billing-কে জিজ্ঞেস করে "কেনা আছে?" — local stub
+  সেই উত্তর জোর করে "হ্যাঁ" করে দেয়:
+  `BillingClient`-এর `onPurchasesUpdated` → responseCode force 0 (OK) +
+  নিজের বানানো Purchase JSON (orderId, productId, token); অথবা billing
+  flow শুরুর smali-তেই সরাসরি success callback invoke
+- **অ্যাপ-ভিত্তিক ভিন্নতা:** কোনোটা শুধু responseCode দেখে (সহজ), কোনোটা
+  receipt JSON parse করে (মাঝারি), কোনোটা **server-এ receipt verify**
+  করে — সেখানে local stub **কাজ করবেই না**; একমাত্র পথ protocol recovery
+  (section C) বা server-উত্তরের হুবহু নকল
+- **নিয়ম:** এটা শুধু user-এর নিজের device, নিজের ব্যবহার — আর অন্যকে
+  বিক্রি/বিতরণের কথা কখনো সাজেস্ট নয়
+
+## L. SSL PINNING BYPASS PACK (traffic ধরার ভিত)
+
+অ্যাপ নিজের server-এর cert **নিজের ভেতরেই** গেঁথে রাখে — তাই তোমার
+mitmproxy-র cert অ্যাপ মানে না। তিন স্তরে ভাঙো (আগে ১, দরকারে ২, তারপর ৩):
+1. **Config layer (সবচেয়ে সহজ):** decompiled অ্যাপে
+   `res/xml/network_security_config.xml` বানাও/বদলাও:
+   `<base-config cleartextTrafficPermitted="true"><trust-anchors><certificates src="system"/><certificates src="user"/></trust-anchors></base-config>`
+   + manifest-এ `android:networkSecurityConfig="@xml/network_security_config"`
+   → user CA (mitmproxy cert) গ্রহণ হয়ে যায়; Android 7+ এ user CA দরকার
+2. **Runtime layer:** Frida universal unpinning script (SSLContext/
+   TrustManager/X509TrustManagerExtensions hook — objection-এর
+   `android ssl disable` ready-made) — repack ছাড়াই সাথে সাথে
+3. **Smali layer (স্থায়ী):** OkHttp `CertificatePinner.check(...)` →
+   শুরুতেই `return-void`; Conscrypt/`TrustManagerImpl.checkTrusted` →
+   exception throw বাদ; custom pinning class (নামে "pin"/"cert" থাকে)
+   → verify মেথড force true
+**যাচাই:** bypass-এর পর mitmproxy-তে অ্যাপের request প্লেইন দেখা গেলেই
+সফল। যদি traffic দেখা গেলেও **body encrypted** থাকে — অ্যাপ TLS-এর
+উপরে নিজের crypto চালায় → অ্যাপের crypto ফাংশন Frida-তে hook করে key
+বের করো (section C + F)। শুধু নিজের device/নিজের account।
+
+## M. PC ONE-COMMAND MOD PIPELINE (Windows — patch registry চালিত)
+
+ফোনে APKTool M ম্যানুয়াল; PC-তে পুরো পাইপলাইন এক কমান্ডে:
+```
+mod.bat <apk>  →  apktool d → PATCH_REGISTRY.json apply (এক একটা
+find/replace, মিস হলে রিপোর্ট) → zipalign → apksigner sign → install-ready
+```
+- টুল: `pkg`/scoop-এ apktool, apksigner (Android build-tools), zipalign
+- registry না থাকলে প্রথমবার হাতে mod করে registry বানাও — পরেরবার
+  অ্যাপ আপডেটে এক কমান্ড
+- phone-control skill দিয়ে চাইলে ফোন থেকেই PC-র এই pipeline ট্রিগার করা যায়

@@ -35,6 +35,10 @@ tag-byte = `(field<<3)|wiretype`।
 | **upx** | `pkg install upx` | packed exe/unpack (`upx -d`) |
 | **binwalk** | `pip install binwalk` | firmware/asset-ভরা binary-তে embedded ফাইল খোঁজা + extract |
 | **exiftool** | `pkg install exiftool` | ছবি/ফাইলের metadata (GPS, সফটওয়্যার, তারিখ) |
+| **hbctool** | `pip install hbctool` | React Native Hermes bytecode disassemble/reassemble (`assets/index.android.bundle`) |
+| **reflutter** | `pip install reflutter` | Flutter অ্যাপের snapshot patch + traffic log |
+| **Il2CppDumper** (PC) | https://github.com/Il2Cpp-Paradise/Il2CppDumper | Unity IL2CPP — global-metadata.dat + libil2cpp.so → C# কাঠামো (dump.cs) |
+| **dnSpy/ILSpy** (PC) | https://github.com/dnSpy/dnSpy | Unity Mono `Assembly-CSharp.dll` সোজা C# এডিট |
 | **apktool/jadx** | PC-তে (Windows build-এ আছে) | decompile java/kotlin — ফোনে APKTool M (user) |
 | **libimobiledevice/adb** | `pkg install android-tools` | adb logcat/pull — apk-mod নোট দেখো |
 
