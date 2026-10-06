@@ -88,8 +88,104 @@ frida -U -f com.target.app --no-pause -s unpin.js
 - Error semantics: 400 body/lookup · 401 host-ভেদে JWT reject · 500 len-1
   `b'\n'` raw body · 404 endpoint নেই · 503 dead cluster
 
+## STAGE 4 — tcpdump → Wireshark (proxy-বাইপাস traffic-ও)
+
+```bash
+pkg install tcpdump
+su -c "tcpdump -i any -w /sdcard/cap.pcap"   # শেষ করতে Ctrl-C
+```
+- PC-তে Wireshark-এ খোলো; non-TLS সব প্লেইন (DNS, HTTP, গেমের socket
+  handshake); TLS শুধু আকার/টাইমিং দেয় (SNI-তে ডোমেইন নাম দেখা যায়!)
+- নির্দিষ্ট অ্যাপের port জানা থাকলে ফিল্টার: `tcp port 443 and host <ip>`
+- SNI বের করা: `tshark -r cap.pcap -T fields -e tls.handshake.extensions_server_name | sort -u`
+
+## STAGE 5 — DNS capture (এনক্রিপ্টেড অ্যাপেরও গন্তব্য ফাঁস)
+
+```bash
+su -c "tcpdump -i any port 53 -w /sdcard/dns.pcap"
+tshark -r dns.pcap -T fields -e dns.qry.name | sort -u
+```
+- অ্যাপ কোন ডোমেইনে কথা বলে (API, টেলিমেট্রি, ad, CDN) — body এনক্রিপ্টেড
+  হলেও DNS ফাঁস করে দেয়; মৃত server যাচাইতেও কাজে লাগে
+
+## STAGE 6 — Frida crypto hook (TLS-উপরের encryption খোলা)
+
+Java অ্যাপে সবচেয়ে সস্তা — **universal crypto logger**:
+```js
+Java.perform(function(){
+  var Cipher = Java.use('javax.crypto.Cipher');
+  Cipher.doFinal.overload('[B').implementation = function(b){
+    var out = this.doFinal(b);
+    console.log('[CIPHER] op=' + (this.opmode===1?'ENCRYPT':'DECRYPT') +
+      ' alg=' + this.getAlgorithm() + ' len=' + b.length);
+    return out;
+  };
+});
+```
+- একইভাবে `Mac.doFinal`, `MessageDigest.digest`; native অ্যাপে
+  `mbedtls_*`/OpenSSL `EVP_*` hook — plaintext আর key দুটোই ধরা পড়ে
+- অ্যাপের নিজস্ব crypto (মেটাডেটা strings-এ নাম) — সেটাও hook (apk-mod F)
+
+## STAGE 7 — logcat deep
+
+```bash
+su -c "logcat -c"   # পুরনো মুছে
+adb logcat -v time | grep -iE "http|url|api|endpoint|token|error"
+```
+- বহু অ্যাপ নিজের endpoint/retry/error log করে; `-f /sdcard/log.txt` দিয়ে
+  ফাইলে জমাও
+
+## STAGE 8 — Replay / fuzz (নিজের account, paced)
+
+1. mitm log থেকে একটা request নাও (endpoint, headers, body)
+2. python-এ replay → response তুলনা (baseline)
+3. **একবারে একটা ফিল্ড বদলাও** → response বদল দেখে validation map বানাও
+   (wire-probe oracle)
+4. Pacing: একই server-এ ব্যার্স্ট মানেই 429 — 1.5s+ gap, সর্বোচ্চ ৪ worker
+5. প্রতিটা ফল `*_results.json`-এ — PROOF DISCIPLINE (200 ≠ success)
+
+## STAGE 9 — Game socket sniff (গেমের নিজস্ব TCP/UDP প্রোটোকল)
+
+1. **Port খোঁজো:** `su -c "ss -tunp" | grep <game-pkg>` — চলন্ত socket-এর
+   remote ip:port ধরা পড়ে
+2. **tcpdump ওই pair-এ:** `tcpdump -i any host <ip> -w game.pcap` — handshake
+   ও packet rhythm দেখো
+3. **Content দরকার হলে:** Frida-তে অ্যাপের send/recv hook — Java:
+   `SocketOutputStream.write`/`SocketInputStream.read`; native:
+   `libcurl`/`send`/`recv`/`WSASend` — buffer hexdump করে ফাইলে
+4. Structure বোঝা গেলে নিজের client (apk-mod C) বা local server (G)
+
+## STAGE 10 — OWN-NETWORK WIFI AUDIT (শুধু নিজের router/network)
+
+**Device discovery — ফোনেই হয় (এটাই "১০-১৫টা name দেখা"):**
+```bash
+pkg install nmap termux-api        # Termux:API app + অনুমতি লাগবে
+termux-wifi-connectioninfo          # নিজের SSID/BSSID/IP
+su -c "iw dev wlan0 scan" | grep -E "SSID|signal"   # কাছের নেটওয়ার্ক
+nmap -sn 192.168.0.0/24             # LAN-এর প্রতিটা ডিভাইস (IP+MAC)
+nmap -sn --unprivileged 192.168.0.0/24
+ip neigh                            # ARP-এ যারা জীবন্ত
+nmap --script dns-service-discovery 192.168.0.0/24   # hostname নাম
+```
+- MAC-এর প্রথম ৩ byte = **vendor** (Samsung/ESP32/Xiaomi…) — কোনটা কী বোঝা যায়
+- Router-এর admin page (gateway IP) → client list-এ hostname-ও দেয়
+- এতেই ১০-১৫টা ডিভাইসের নাম+vendor+IP ম্যাপ হয়ে যায়
+
+**WPS / Pixie Dust — সত্যি সীমা (মিথ্যা আশা নয়):**
+- ফোনের stock WiFi chip-এ **monitor mode / packet injection নেই** —
+  reaver/bully/OneShot ফোনে চলবে **না** (এজন্যই ESP32-র জন্ম)
+- **বাস্তব পথ:** (১) ESP32 + **Marauder** firmware (scan/deauth/beacon/probe —
+  ফোন বা PC থেকে BLE/web UI দিয়ে চালানো), (২) PC + monitor-mode USB adapter
+  → `airodump-ng` → **OneShot** (pixie dust:
+  `python3 oneshot.py -i wlan0mon -b <BSSID>`) বা reaver (online pin brute)
+- **আগে যাচাই:** router কি WPS-ই চালু আছে? Pixie Dust পুরনো/vulnerable
+  chip-এই কাজ করে — নতুন router-এ সময় নষ্ট
+- **নীতি:** শুধু **নিজের router** — অস্পষ্ট হলে এক লাইনে জিজ্ঞেস ("nijer
+  router naki onner?"); onner হলে refuse + বিকল্প (lab/virtual router)
+- deauth/beacon-জাতীয় আক্রমণও শুধু নিজের নেটওয়ার্কে (নিজের device kick/test)
+
 ## নিয়ম
 
-- নিজের device, নিজের account, ব্যক্তিগত ব্যবহার — অন্যের ট্রাফিক কখনো নয়
-- প্রতিটা সেশনের capture ফাইল session ফোল্ডারে রাখো; শেখা নতুন pattern
-  এই skill-এ যোগ করো (self-improvement)
+- নিজের device, নিজের account, ব্যক্তিগত ব্যবহার — অন্যের ট্রাফিক/নেটওয়ার্ক কখনো নয়
+- প্রতিটা সেশনের capture ফাইল session ফোল্ডারে রাখো; শেখা নতুন pattern এই skill-এ যোগ করো (self-improvement)
+- User "koto powerful" শুনতে ভালোবাসে, কিন্তু সীমা সৎভাবেই বলো — মিথ্যা আশা দেওয়া মানে পরে ভাঙা ভরসা
