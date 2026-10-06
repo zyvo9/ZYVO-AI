@@ -198,11 +198,20 @@ export const prepare = Effect.fn("LLMRequestPrep.prepare")(function* (input: Pre
   }
 })
 
-function resolveTools(input: Pick<PrepareInput, "tools" | "agent" | "permission" | "user">) {
+function resolveTools(input: Pick<PrepareInput, "tools" | "agent" | "permission" | "user" | "model">) {
   const disabled = Permission.disabled(
     Object.keys(input.tools),
     Permission.merge(input.agent.permission, input.permission ?? []),
   )
+  // Small-context models: keep web tools out of their hands entirely — a
+  // searched/fetched page would flood a context that can't hold it. The
+  // models stay listed in the picker; only the web tools are gated.
+  const context = input.model.limit?.context ?? 0
+  if (context > 0 && context < 200_000) {
+    disabled.add("websearch")
+    disabled.add("mcp-websearch")
+    disabled.add("webfetch")
+  }
   return Record.filter(input.tools, (_, k) => input.user.tools?.[k] !== false && !disabled.has(k))
 }
 
