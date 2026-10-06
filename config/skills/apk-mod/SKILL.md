@@ -220,3 +220,64 @@ HTTP 200 = শুধু "গৃহীত"। সাফল্য বলতে হ
 এগোয়, record আসে, inventory বদলায়। Oracle flat থাকলে: "পাঠানো যায়, কিন্তু
 প্রমাণিত নয়" — সৎভাবে বলো, তারপর পরের সন্দেহ (account quality, sign,
 session) একে একে পরীক্ষা করো। 200-empty কখনো "success" নয়।
+
+## F. RUNTIME HOOKS & TRAFFIC CAPTURE (অ্যাপ চলতে চলতে সব signal ধরা)
+
+Static analysis আটকে গেলে **runtime-এ যাও** — চলন্ত অ্যাপ নিজেই প্রোটোকল
+হাতে ধরিয়ে দেয়। ফোন rooted হলে (OB55 সেশনে `su` ছিল) সব সম্ভব:
+
+1. **Frida (মূল হাতিয়ার):**
+   - `pip install frida-tools`; rooted ফোনে frida-server (arm64, version
+     মিলিয়ে) push করে root হিসেবে চালাও; `frida-ps -U`-তে অ্যাপ দেখা যায়
+   - **Spawn + hook:** `frida -U -f com.pkg.name --no-pause -s hook.js`
+     — অ্যাপ শুরু হওয়ার প্রথম মুহূর্ত থেকেই সব ধরা পড়ে
+   - **কী hook করবে:** crypto ফাংশন (encrypt/decrypt — metadata strings-এ
+     নাম পাওয়া যায়), network send (UnityWebRequest, OkHttp
+     `RealCall.execute`), proto/JSON encode পয়েন্ট, license/detection check
+     — hook.js-এ return value লগ করে ফাইলে রাখো
+2. **Capture proxy:** mitmproxy (`pip install mitmproxy`) ফোন/PC-তে চালিয়ে
+   ফোনের proxy সেট করো → **প্রতিটা HTTPS request/response** লগ হয়। SSL
+   pinning ঠেকাতে: Frida unpinning script, বা APK-র
+   `network_security_config`-এ user CA trust (user repack করবে)
+3. **Logcat:** `adb logcat | grep -iE "http|url|error|api"` — অনেক অ্যাপ
+   নিজের endpoint log-ই করে; FF capture থেকে যা পাওয়া গিয়েছিল:
+   `/api/v2/oauth/guest`, `/MajorLogin`, `/MajorRegister`
+4. **সংগ্রহ → replay:** ধরা পড়া প্রতিটা request/response session ফোল্ডারে
+   ফাইল করে রাখো → সেগুলো থেকেই replay script (section C) বানাও। Capture
+   মানেই অর্ধেক কাজ শেষ — অ্যাপ নিজেই spec বলে দেয়
+5. শুধু নিজের ডিভাইস/নিজের account-এর ট্রাফিক — অন্যের নয়
+
+## G. DEAD GAME REVIVAL (বন্ধ হয়ে যাওয়া game আবার খেলা যোগ্য)
+
+কোম্পানি **game-টা বন্ধ করে দিয়েছে** (servers dead — Omega Legends type),
+কেউ আর খেলতে পারে না — user নিজের ডিভাইসে খেলতে চায়। এটা game preservation
+— অনুমোদিত। **জীবন্ত game-এর server কখনো টার্গেট নয়** — সেখানে শুধু সাধারণ
+APK-mod নিয়ম।
+
+1. **মৃত্যু নিশ্চিত করো:** পরিচিত সব host-এ DNS + TCP probe
+   (`socket.gethostbyname_ex`, connect timeout) — dead game মানে মরা DNS,
+   মেয়াদোত্তীর্ণ cert, 503, বা login-এই আটকে থাকা। হোস্ট-ম্যাট্রিক্স শিক্ষা
+   কাজে লাগে: একটাও জীবন্ত হলে ভাবনা বদলাও
+2. **প্রোটোকল বের করো (APK-ই সব বহন করে):** Unity/IL2CPP হলে
+   `global-metadata.dat`-র strings থেকে মেসেজ-নাম + field নম্বর; proto
+   descriptor; Unity-Mono হলে Assembly-CSharp.dll dump; endpoint আর version
+   constant-গুলো তালিকা করো
+3. **LOCAL SERVER EMULATOR বানাও:** python (asyncio/raw TCP + HTTP) —
+   - login: এমন token/session ফেরত দাও যা client গ্রহণ করে
+   - heartbeat/config/notice: প্রায়ই খালি-কিন্তু-সঠিক-গঠনের উত্তরই চলে
+   - matchmaking: সবসময় "ম্যাচ পাওয়া গেছে"
+   - gameplay-critical মেসেজগুলো একে একে বাস্তবায়ন
+   **Iterate-ই আসল কৌশল:** game চালাও → client যা request করলো সেটা ধরো
+   (logcat/Frida/proxy) → সেই response implement করো → আবার। Client নিজেই
+   পরের দরকারটা বলে — ওটাই spec
+4. **Client-কে নিজের server-এ ফেরাও:** rooted: hosts ফাইল/Magisk module
+   (game-এর domain → 127.0.0.1); না হলে URL constant patch (smali
+   `const-string`, IL2CPP metadata string); HTTPS হলে self-signed cert +
+   user CA, বা pinning পাশ (F)
+5. **OFFLINE-IZE:** single-player content থাকলে "connect লাগবেই" চেকগুলো
+   0x0→0x1 করে দাও — server-এর অপেক্ষা না করেই content চলুক; asset
+   locally cache/ship
+6. **REVIVAL_NOTES.md:** কোন endpoint implement হলো, পরের missing response
+   কী — MOD_NOTES.md-র মতোই compaction-proof; **প্রমাণ = ফোনে game lobby/
+   gameplay-এ পৌঁছানো** (একটা "response ফেরত দেওয়া" মানে সফল না — এটাই
+   PROOF DISCIPLINE)
