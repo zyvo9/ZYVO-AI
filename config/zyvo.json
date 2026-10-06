@@ -2,8 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
-    "zyvo-free-kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free-kilo/nvidia/nemotron-3.5-lightning:free",
+    "zyvo-free-kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free-kilo/dots-studio/dots-3-note-preview:free",
     "zyvo-free-kilo/poolside/laguna-s-2.1:free",
     "zyvo-free-kilo/cohere/north-mini-code:free",
