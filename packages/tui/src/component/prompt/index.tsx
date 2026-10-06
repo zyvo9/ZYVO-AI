@@ -5,6 +5,7 @@ import {
   MouseEvent,
   PasteEvent,
   decodePasteBytes,
+  TextAttributes,
   type KeyEvent,
   type Renderable,
 } from "@opentui/core"
@@ -41,7 +42,7 @@ import { Locale } from "../../util/locale"
 import { errorMessage } from "../../util/error"
 import { formatDuration } from "../../util/format"
 import { createColors, createFrames } from "../../ui/spinner"
-import { useDialog } from "../../ui/dialog"
+import { useDialog, type DialogContext } from "../../ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
@@ -138,6 +139,68 @@ function formatEditorContext(selection: EditorSelection) {
 }
 
 let stashed: { prompt: PromptInfo; cursor: number } | undefined
+
+// prompts the user chose to QUE while the session was busy — flushed only
+// when the session returns to idle, never mid-task
+const queuedPrompts = new Map<string, { prompt: PromptInfo; mode: "normal" | "shell" }[]>()
+
+function DialogQueOrSide(props: { onQue: () => void; onSide: () => void }) {
+  const dialog = useDialog()
+  const { theme } = useTheme()
+  const pick = (choice: "que" | "side") => {
+    if (choice === "que") props.onQue()
+    else props.onSide()
+    dialog.clear()
+  }
+  useBindings(() => ({
+    bindings: [
+      { key: "return", desc: "Queue the prompt", group: "Dialog", cmd: () => pick("que") },
+      { key: "s", desc: "Ask as side question", group: "Dialog", cmd: () => pick("side") },
+    ],
+  }))
+  return (
+    <box paddingLeft={2} paddingRight={2} gap={1}>
+      <box flexDirection="row" justifyContent="space-between">
+        <text attributes={TextAttributes.BOLD} fg={theme.text}>
+          Session is busy
+        </text>
+        <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
+          esc
+        </text>
+      </box>
+      <box paddingBottom={1}>
+        <text fg={theme.textMuted}>Send this message as:</text>
+      </box>
+      <box flexDirection="row" gap={2} paddingBottom={1} flexWrap="wrap">
+        <box
+          paddingLeft={3}
+          paddingRight={3}
+          backgroundColor={theme.primary}
+          onMouseUp={() => pick("que")}
+        >
+          <text fg={theme.selectedListItemText}>1 · Queued — runs after the current task</text>
+        </box>
+        <box
+          paddingLeft={3}
+          paddingRight={3}
+          backgroundColor={theme.backgroundElement}
+          onMouseUp={() => pick("side")}
+        >
+          <text fg={theme.text}>2 · Side question — answered now, task keeps running</text>
+        </box>
+      </box>
+    </box>
+  )
+}
+
+function showQueOrSide(dialog: DialogContext): Promise<"que" | "side" | "cancel"> {
+  return new Promise((resolve) => {
+    dialog.replace(
+      () => <DialogQueOrSide onQue={() => resolve("que")} onSide={() => resolve("side")} />,
+      () => resolve("cancel"),
+    )
+  })
+}
 
 export function Prompt(props: PromptProps) {
   let input: TextareaRenderable
@@ -651,6 +714,42 @@ export function Prompt(props: PromptProps) {
     if (!input.focused) input.focus()
   })
 
+  // QUEUED PROMPTS: flush exactly when the session returns to idle — never
+  // mid-task. Waits for an empty input so a draft being typed is never lost.
+  createEffect(
+    on(
+      () => [props.sessionID, status().type] as const,
+      ([sessionID, type]) => {
+        if (!sessionID || type !== "idle") return
+        const attempt = () => {
+          const queue = queuedPrompts.get(sessionID)
+          if (!queue?.length) return
+          if (status().type !== "idle") return
+          if (store.prompt.input) {
+            // user is typing a draft — retry shortly instead of overwriting it
+            setTimeout(attempt, 1200)
+            return
+          }
+          const first = queue.shift()!
+          if (!queue.length) queuedPrompts.delete(sessionID)
+          setTimeout(() => {
+            if (status().type !== "idle") {
+              queuedPrompts.set(sessionID, [first, ...(queuedPrompts.get(sessionID) ?? [])])
+              return
+            }
+            ref.set(first.prompt)
+            setStore("mode", first.mode)
+            flushing = true
+            void submit().finally(() => {
+              flushing = false
+            })
+          }, 250)
+        }
+        setTimeout(attempt, 400)
+      },
+    ),
+  )
+
   createEffect(() => {
     if (!input || input.isDestroyed) return
     input.traits = {
@@ -935,6 +1034,9 @@ export function Prompt(props: PromptProps) {
   })
 
   let submitting = false
+  // true while a QUEUED prompt is being flushed — the busy-choice dialog is
+  // skipped so the flush never pops its own dialog
+  let flushing = false
   async function submit() {
     // Prevent overlapping invocations (e.g. a double-pressed Enter, or the
     // input's native onSubmit racing another dispatch). Without this guard,
@@ -1030,28 +1132,78 @@ export function Prompt(props: PromptProps) {
       sessionID = res.data.id
     }
 
-    // SIDE QUESTION: while the main session is busy, redirect the prompt into
-    // a child session ("Q: ..." tab) so the running work is never interrupted
+    // BUSY MAIN SESSION: the user chooses — queue the prompt for after the
+    // current task, or ask it as a side question (child "Q: ..." tab)
     let sideQuestion = false
     let sidePreamble = ""
     const parentSessionID = sessionID
     const currentSession = sessionID ? sync.session.get(sessionID) : undefined
+    if (
+      props.sideQuestions &&
+      sessionID != null &&
+      !currentSession?.parentID &&
+      status().type !== "idle" &&
+      !flushing
+    ) {
+      const choice = await showQueOrSide(dialog)
+      if (choice === "que") {
+        const q = queuedPrompts.get(sessionID) ?? []
+        q.push({ prompt: unwrap(store.prompt), mode: store.mode })
+        queuedPrompts.set(sessionID, q)
+        history.append({ ...store.prompt, mode: store.mode })
+        input.extmarks.clear()
+        input.clear()
+        setStore("prompt", { input: "", parts: [] })
+        setStore("extmarkToPartIndex", new Map())
+        props.onSubmit?.()
+        toast.show({
+          title: "Queued",
+          message: "Runs when the current task finishes",
+          variant: "info",
+        })
+        return true
+      }
+      if (choice === "cancel") return false
+    }
+    // SIDE QUESTION: redirect into a child session so the running task is
+    // never interrupted — with REAL context about what the parent is doing
     if (props.sideQuestions && sessionID != null && !currentSession?.parentID && status().type !== "idle") {
       const firstLine = trimmed.split("\n")[0].slice(0, 40)
       const parentMessages = sync.data.message[parentSessionID!] ?? []
+      const lastUser = [...parentMessages].reverse().find((x) => x.role === "user")
+      const taskText = lastUser
+        ? (sync.data.part[lastUser.id] ?? [])
+            .filter((x) => x.type === "text")
+            .map((x) => ("text" in x ? x.text : ""))
+            .join(" ")
+            .slice(0, 600)
+        : ""
       const lastAssistant = [...parentMessages].reverse().find((x) => x.role === "assistant")
       const lastText = lastAssistant
         ? (sync.data.part[lastAssistant.id] ?? [])
             .filter((x) => x.type === "text")
             .map((x) => ("text" in x ? x.text : ""))
             .join(" ")
-            .slice(-400)
+            .slice(-600)
         : ""
+      // what the parent is doing RIGHT NOW (files touched, commands run…)
+      const recentTools = [...parentMessages]
+        .reverse()
+        .slice(0, 2)
+        .flatMap((m) => sync.data.part[m.id] ?? [])
+        .filter((x) => x.type === "tool")
+        .slice(0, 5)
+        .map((x) => {
+          const t = x as unknown as { tool?: string; state?: { title?: string } }
+          return `${t.tool ?? "tool"}${t.state?.title ? `: ${t.state.title.slice(0, 90)}` : ""}`
+        })
       sidePreamble =
-        `[side question] The user asks this while another task is running in the parent session` +
-        (currentSession?.title ? ` ("${currentSession.title}")` : "") +
-        (lastText ? `. Recent context from that work: "${lastText}"` : "") +
-        `. Answer the question briefly (1-3 lines, more only if asked), in Latin letters, then stop — you are not doing the parent task.\n\n`
+        `[side question] You are the SAME assistant, in a side tab of an ONGOING session that is mid-task — the context below is YOUR OWN context; never say you don't know what the user is referring to.` +
+        (currentSession?.title ? `\nParent session: "${currentSession.title}"` : "") +
+        (taskText ? `\nUser's current task: "${taskText}"` : "") +
+        (recentTools.length ? `\nSteps in progress right now: ${recentTools.join(" | ")}` : "") +
+        (lastText ? `\nLatest assistant progress: "${lastText}"` : "") +
+        `\nAnswer the question briefly (1-3 lines, more only if asked), in Latin letters, grounded in this context — then stop; running the parent task is not this tab's job.\n\n`
       const res = await sdk.client.session.create({
         parentID: sessionID,
         title: `Q: ${firstLine}`,
