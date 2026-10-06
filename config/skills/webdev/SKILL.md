@@ -451,6 +451,7 @@ own brand accent on top. Never mix two studied variants in one page.
 | Library | Style | License | Best for |
 |---|---|---|---|
 | **Lucide** — **২,১৩০টা SVG LOCAL: `assets/icons/lucide/`** | clean 2px line | ISC | default zyvo choice — নামানো আছে, net লাগে না |
+| **Simple Icons (brand)** — **১৫৩টা LOCAL: `assets/icons/brands/`** | brand logos, single-path fill | CC0 | social/payment/tech brand logos — offline |
 | **Phosphor** (phosphoricons.com) | 6 weights (thin→fill), 9000+ | MIT | when you need bold/fill variants |
 | **Heroicons** (heroicons.com) | Tailwind-made, 24/20px | MIT | Tailwind projects |
 | **Tabler** (tabler.io/icons) | 1.5px stroke, 5800+ | MIT | widest coverage |
@@ -487,7 +488,7 @@ Google Fonts link + fallback stack (`font-family:'X',system-ui,sans-serif`)
 Installer পুরো skill-tree সাথে করে দেয় — internet ছাড়াই, file:// preview-তেও
 কাজ করে। GitHub থেকে নামানো (fontsource/font-files, OFL + lucide-static, ISC)।
 
-**FONT PACK — `assets/fonts/`** (woff2 + তৈরি `fonts.css`):
+**FONT PACK — `assets/fonts/`** (woff2 + তৈরি `fonts.css`, ১৪ family, ~৭০০KB):
 | family | কখন ব্যবহার |
 |---|---|
 | Space Grotesk (400/500/700) | আধুনিক tech/startup display — identity font |
@@ -495,7 +496,14 @@ Installer পুরো skill-tree সাথে করে দেয় — intern
 | JetBrains Mono (400/500/700) | কোড, সংখ্যা, terminal মেজাজ |
 | Playfair Display (400/700) | luxury/editorial serif display |
 | Bebas Neue (400) | poster/sports hero, uppercase display |
-| Noto Sans Bengali (400/700 + latin) | বাংলা লেখার body — বাংলা সাইটে এটাই |
+| Fraunces (400/700) | warm editorial serif (pairing টেবিলের "Fraunces" — local!) |
+| Archivo Black (400) | bold brutal display |
+| Nunito + Nunito Sans (400/600/700) | friendly warm rounded |
+| Source Sans 3 (400/600) | editorial serif-এর body |
+| Montserrat (400/700) | luxury serif-এর body, geometric |
+| Work Sans (400/500) | brutal display-এর quiet body |
+| **Noto Sans Bengali (400/700)** | বাংলা body — বাংলা সাইটে এটা |
+| **Hind Siliguri (400/600)** | বাংলা body বিকল্প — pairing টেবিলের সেই ফন্ট |
 
 ব্যবহার: `assets/fonts/` ফোল্ডারটা site-এ কপি করো, তারপর
 `<link rel="stylesheet" href="assets/fonts/fonts.css">` — Google Fonts
@@ -508,6 +516,22 @@ link-এর বদলে। ফলে site offline-এও নিজের ফন
 - ব্যবহার: svg ফাইলটা পড়ে **inline** বসাও (`fill:none; stroke:currentColor;
   stroke-width:2; viewBox 0 0 24 24`) — CDN link বা icon-font নয়, emoji কখনো নয়
 - সাইজ: UI icons 20-24px, inline text icons 16px; বাটনে টেক্সটের সাথে gap 8px
+
+**BRAND LOGOS — `assets/icons/brands/`** (১৫৩টা simple-icons SVG, CC0):
+facebook · instagram · whatsapp · youtube · x · tiktok · google · apple ·
+visa · mastercard · paypal · stripe · github · react · python · docker ·
+nike · adidas · starbucks · playstation… (ধারণা করার আগে `ls | grep` করো —
+যেসব brand simple-icons থেকে trademark-এ বাদ পড়েছে — linkedin/microsoft —
+সেগুলোর নিজস্ব brand kit বা টেক্সট ব্যবহার করো)। ব্যবহার: svg পড়ে inline —
+এগুলো **single-path fill** — `fill:currentColor` দিলে সাইটের রঙে চলে।
+
+**EFFECT LIBRARIES — `assets/effects/`** (শুধু অনুপ্রেরণা/copy-class হিসেবে):
+- `animate.css` (~95KB, MIT) — entrance/attention অ্যানিমেশনের নাম-ধারণা
+  (fadeInUp, bounce, pulse…) — ক্লাস কপি করার চেয়ে অনুরূপ নিজে লেখো (vanilla rule)
+- `hover.css` (~115KB, MIT) — hover ইফেক্টের ধরনের প্যাটার্ন লাইব্রেরি
+- `spinkit.min.css` (~10KB, MIT) — loader/spinner প্যাটার্ন (sk-plane, sk-chase…)
+নিয়ম: পুরো লাইব্রেরি সাইটে ঢুকিয়ে দেওয়া নয় — দেখে **প্রয়োজনীয় অংশটুকু নিজের
+CSS-এ লেখো** (total page weight < 500KB রাখতে হবে)।
 
 ## 🎨 WEB DESIGN SYSTEM (concrete values — not vibes)
 

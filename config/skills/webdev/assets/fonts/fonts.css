@@ -1,9 +1,9 @@
 /*
  * Zyvo webdev skill — OFFLINE FONT PACK (vendored from fontsource/font-files, OFL licensed)
- * Usage: copy this folder next to your site (or reference the path), then:
+ * 14 families · Bangla ready (Noto Sans Bengali + Hind Siliguri)
+ * Usage: copy assets/fonts/ next to the site, then:
  *   <link rel="stylesheet" href="assets/fonts/fonts.css">
- * All families are local woff2 — works with NO internet (file:// too).
- * Weights included: 400/500/600/700 (varies per family).
+ * All local woff2 — works with NO internet (file:// too).
  */
 
 /* JetBrains Mono latin 400 */
@@ -125,4 +125,132 @@
   font-display: swap;
   font-weight: 400;
   src: url('noto-sans-bengali/noto-sans-bengali-latin-400-normal.woff2') format('woff2');
+}
+/* Fraunces latin 400 */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('fraunces/fraunces-latin-400-normal.woff2') format('woff2');
+}
+/* Fraunces latin 700 */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('fraunces/fraunces-latin-700-normal.woff2') format('woff2');
+}
+/* Archivo Black latin 400 */
+@font-face {
+  font-family: 'Archivo Black';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('archivo-black/archivo-black-latin-400-normal.woff2') format('woff2');
+}
+/* Nunito latin 400 */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('nunito/nunito-latin-400-normal.woff2') format('woff2');
+}
+/* Nunito latin 700 */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('nunito/nunito-latin-700-normal.woff2') format('woff2');
+}
+/* Nunito Sans latin 400 */
+@font-face {
+  font-family: 'Nunito Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('nunito-sans/nunito-sans-latin-400-normal.woff2') format('woff2');
+}
+/* Nunito Sans latin 600 */
+@font-face {
+  font-family: 'Nunito Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('nunito-sans/nunito-sans-latin-600-normal.woff2') format('woff2');
+}
+/* Source Sans 3 latin 400 */
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('source-sans-3/source-sans-3-latin-400-normal.woff2') format('woff2');
+}
+/* Source Sans 3 latin 600 */
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('source-sans-3/source-sans-3-latin-600-normal.woff2') format('woff2');
+}
+/* Montserrat latin 400 */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('montserrat/montserrat-latin-400-normal.woff2') format('woff2');
+}
+/* Montserrat latin 700 */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('montserrat/montserrat-latin-700-normal.woff2') format('woff2');
+}
+/* Work Sans latin 400 */
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('work-sans/work-sans-latin-400-normal.woff2') format('woff2');
+}
+/* Work Sans latin 500 */
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('work-sans/work-sans-latin-500-normal.woff2') format('woff2');
+}
+/* Hind Siliguri bengali 400 */
+@font-face {
+  font-family: 'Hind Siliguri';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('hind-siliguri/hind-siliguri-bengali-400-normal.woff2') format('woff2');
+}
+/* Hind Siliguri bengali 600 */
+@font-face {
+  font-family: 'Hind Siliguri';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('hind-siliguri/hind-siliguri-bengali-600-normal.woff2') format('woff2');
+}
+/* Hind Siliguri latin 400 */
+@font-face {
+  font-family: 'Hind Siliguri';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('hind-siliguri/hind-siliguri-latin-400-normal.woff2') format('woff2');
 }
