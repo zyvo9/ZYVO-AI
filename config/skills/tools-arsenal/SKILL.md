@@ -41,7 +41,11 @@ tag-byte = `(field<<3)|wiretype`।
 | **dnSpy/ILSpy** (PC) | https://github.com/dnSpy/dnSpy | Unity Mono + .NET panel exe সোজা C# এডিট |
 | **de4dot** (PC) | https://github.com/de4dot/de4dot | obfuscated .NET (ConfuserEx ইত্যাদি) unpack |
 | **x64dbg** (PC) | https://x64dbg.com | native exe live debug — string-ref → breakpoint → JZ→JMP |
-| **Wireshark** (PC) | https://www.wireshark.org | নিজের device-এর সব network traffic (TLS ছাড়া সব) |
+| **Wireshark** (PC) | https://www.wireshark.org | নিজের device-এর সব network traffic (SSLKEYLOGFILE দিলে TLS-ও) |
+| **pyinstxtractor + pycdc** | https://github.com/extremecoders-re/pyinstxtractor · https://github.com/zrax/pycdc | PyInstaller exe খুলে Python সোর্স ফেরত |
+| **Recaf/CFR** (PC) | https://github.com/Col-E/Recaf | Java JAR decompile + bytecode এডিট |
+| **Cheat Engine** (PC) | https://www.cheatengine.org | PC game trainer: scan, AOB, code injection |
+| **ScyllaHide/ExtremeDumper** (PC) | x64dbg plugin / https://github.com/wwh1004/ExtremeDumper | anti-anti-debug; .NET packer-এর runtime dump |
 | **apktool/jadx** | PC-তে (Windows build-এ আছে) | decompile java/kotlin — ফোনে APKTool M (user) |
 | **libimobiledevice/adb** | `pkg install android-tools` | adb logcat/pull — apk-mod নোট দেখো |
 

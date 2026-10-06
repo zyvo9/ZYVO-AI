@@ -161,3 +161,90 @@ proxy আর Windows trust store মানে** — তাই Android-এর ম
   date/flag বসে — সেই value এডিট/মুছে ফেলা trial reset-এর সবচেয়ে সস্তা পথ
 - **API Monitor / Process Monitor:** কোনো প্যাচ ছাড়াই দেখো প্রোগ্রাম কোন
   registry/file/network API কল করছে — gate-এর জায়গা ধরার শর্টকাট
+
+## O. PYTHON-PACKED EXE (PyInstaller) — সোর্স প্রায় পুরো ফেরত আসে
+
+অনেক tool/panel/cheat আসলে Python → PyInstaller exe। obfuscated দেখানো
+প্রোগ্রামের অনেকগুলো এভাবে **সোর্সসহ খোলা যায়** — সবচেয়ে কম-পরিশ্রমের
+বড় প্রমাণ:
+1. **চেনো:** strings-এ `pyi-`, `_MEIPASS`, `Error loading Python DLL
+   python3XX.dll` → PyInstaller নিশ্চিত
+2. **খোলো:** https://github.com/extremecoders-re/pyinstxtractor →
+   `python pyinstxtractor.py program.exe` → ফোল্ডারে সব `.pyc` + data
+3. **pyc-র magic header:** extractor-এ কিছু pyc header-বিহীন আসে — Python
+   version-এর 16-byte header সামনে জুড়ে দাও (extractor-এর warning-এ সঠিক
+   version বলে দেয়)
+4. **Decompile:** Python ≤3.8 → `decompyle3`/`uncompyle6` (প্রায় নিখুঁত);
+   3.9+ → **pycdc** (Decompyle++, আংশিক কিন্তু কাজের) — মূল script-এর নাম
+   সাধারণত exe-র নামেই থাকে
+5. ফল: endpoint, key, license-check logic — **প্রত্যক্ষ পাঠ্য** → এডিট →
+   পুনরায় package (pyinstaller) বা শুধু logic কপি করে নিজের script
+6. সৎ সীমা: **Nuitka**-compiled হলে C-তে compile হয় — সোর্স ফেরত আসে না
+   (strings + API Monitor পথ); Python version খুব নতুন হলে pycdc আংশিক
+
+## P. JAVA / JAR MODDING (Recaf/CFR)
+
+- **চেনো:** exe-র পাশে `java -jar app.jar` launcher, বা `.jar` ফাইল নিজেই
+  (JAR = zip — 7-zip-এ খোলো)
+- **Decompile:** CFR — `java -jar cfr.jar app.jar --outputdir src` → পাঠ্য
+  Java; Fernflower-ও ভালো
+- **সম্পাদনা:** **Recaf** (GUI) — decompiled view + bytecode editor একসাথে,
+  সরাসরি jar সেভ; ছোট পরিবর্তনে (একটা compare উল্টানো) Recaf-ই যথেষ্ট
+- **Repack নিয়ম:** manifest প্রথম entry (`jar cfm out.jar manifest.txt ...`),
+  পুরনো META-INF signature মুছে দাও, দরকারে নিজের key-তে sign
+- **Obfuscated?** ProGuard-এর মতো জব্বর-নাম (a.b.c) — কাজ করা যায় (strings
+  + structure থেকে), শুধু পাঠ কঠিন
+- **Runtime বিকল্প:** প্যাচ না করে `javaagent` (ASM transform) বা classpath
+  shadow — আপডেট-প্রতিরোধী এডিট দরকার হলে
+
+## Q. PC GAME TRAINER (Cheat Engine + AOB scan + code injection)
+
+offline/single-player PC game — নিজের device। **মেমরি ঠিকানা রিস্টার্টে
+বদলায়, তাই শেষ লক্ষ্য সবসময় AOB + code injection:**
+1. **Value scan:** জানা মান (gold=1250) → Exact/4 Bytes (বা float/double) →
+   First Scan → game-এ মান বদলাও → Next Scan → কয়েক রাউন্ডে ঠিকানা একক
+2. **"Find out what writes/accesses"** → instruction ধরো, যেমন
+   `mov [rax+30], ecx` — এটাই gold-লেখার জায়গা
+3. **AOB scan:** ওই instruction-এর চারপাশের ইউনিক byte-run নাও → module
+   ভিত্তিক AOB scan (রিস্টার্টেও টেকে) → এখানেই স্থায়ী patch/inject
+4. **Code injection (CE template):** নতুন alloc করে মূল instruction replace —
+   `gold = 999999`, `damage = 0` (god-mode), `freeze HP` — original code
+   না হারিয়ে তোমার logic বসে
+5. **Speed hack:** frame-delta hook — Unity হলে `Time.deltaTime`, native হলে
+   QueryPerformanceCounter/GetTickCount wrapper; CE-র speedhack ready
+6. Unity/.NET game হলে Frida/dnSpy path-ও আছে (section H + apk-mod J)
+7. **সীমা সৎ:** server-authoritative মান (online game) মেমরিতে এদিক-ওদিক
+   হলেও server মানে না — **offline/single-player-ই এই playbook**
+8. ট্রেনার ফাইল হিসেবে রাখো: `.CT` table + AOB/offset গুলো
+   PATCH_REGISTRY-তে
+
+## R. ANTI-DEBUG & PROTECTOR PACK (ScyllaHide, VMProtect-এর বাস্তবতা)
+
+- **সাধারণ চেক:** IsDebuggerPresent, CheckRemoteDebuggerPresent,
+  NtQueryInformationProcess(ProcessDebugPort), RDTSC timing, VM artifact
+  (registry/CPUID), PEB BeingDebugged — **ScyllaHide** (x64dbg plugin) এক
+  checkbox-set-এই সব নিষ্ক্রিয় — আগে ওটাই, হাতে প্যাচ পরে
+- **কাস্টম চেক:** decompiler/disasm-এ `IsDebuggerPresent`-এর caller খুঁজে
+  NOP, বা Frida-তে ফাংশন replace → সবসময় 0
+- **VMProtect/Themida (নিষ্ঠার সাথে):** পূর্ণ devirtualization = গবেষণা-স্তরের
+  কাজ — বাস্তবসম্মত পথ: ScyllaHide → run-and-trace → **OEP খোঁজা → dump
+  (x64dbg/Scylla) → IAT fix (Scylla)** → dumped build-এ static analysis;
+  string-refs প্রায়ই তবু কাজ করে; যেখানে ভার্চুয়ালাইজড logic — সেখানে
+  dynamic (x64dbg/Frida) পথেই রাজি
+- **.NET packers** (.NET Reactor, ConfuserEx anti-tamper): disk-এর assembly
+  পড়ে লাভ নেই — **ExtremeDumper** দিয়ে চলন্ত প্রসেস থেকে (decrypted
+  অবস্থায়) assembly dump → সেটা decompile
+- সীমা মানলে সময় বাঁচে: প্রথমেই দেখো প্রোগ্রাম আসলে protected কিনা —
+  অনেকেই নামে-ই protected, ভেতরে খালি
+
+## S. .NET SINGLE-FILE + UPDATER + SELF-SIGN
+
+- **.NET 5+ single-file exe:** ILSpy (নতুন version) bundle সরাসরি খোলে —
+  ভেতরের সব managed dll decompile করা যায়; ReadyToRun হলেও managed অংশ
+  পাঠ্য
+- **Updater নিষ্ক্রিয়:** vendor-এর update service (`services.msc` → disabled/
+  `sc delete`), Task Scheduler task বাদ, startup entry (Autoruns), আর
+  in-app update call NOP — mod যেন আপডেটে ধুেছে না যায়
+- **Self-sign:** `New-SelfSignedCertificate` → `signtool sign /fd SHA256 /a
+  patched.exe` → cert Trusted Root/People-এ install — install-এ সমস্যা কমে;
+  সৎ নোট: SmartScreen তবু জানাতে পারে (reputation নেই)
