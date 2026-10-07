@@ -6,8 +6,8 @@
 
 **Zyvo AI** (the `zyvo` command) is a free, open-source AI coding CLI for
 Android Termux — build Android apps, websites, and motion-graphics videos
-from your phone, no PC needed. A fork of
-[opencode](https://github.com/anomalyco/opencode) (MIT), rebuilt natively
+from your phone, no PC needed.
+ (MIT), rebuilt natively
 for Android.
 
 `zyvo · zyvo ai · zyvoai · AI coding CLI · Termux · free AI models · Banglish`
@@ -17,9 +17,8 @@ for Android.
 ---
 
 ## ⚡ Install
-
-Install 
-## [Termux](https://github.com/termux/termux-app/releases) first — the
+ 
+## [Termux](https://github.com/termux/termux-app/releases) **Install**
 [F-Droid](https://f-droid.org/en/packages/com.termux/) or GitHub build (the Play Store version is outdated and unsupported) —
 then run:
 
