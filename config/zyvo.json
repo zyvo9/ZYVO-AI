@@ -4,6 +4,7 @@
   "fallback_models": [
     "zyvo-free-kilo/nvidia/nemotron-3.5-lightning:free",
     "zyvo-free-kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
+    "zyvo-free-nvidia/z-ai/glm-5.3-flash",
     "zyvo-free-kilo/dots-studio/dots-3-note-preview:free",
     "zyvo-free-kilo/poolside/laguna-s-2.1:free",
     "zyvo-free-kilo/cohere/north-mini-code:free",
@@ -14,7 +15,7 @@
     "zyvo-free-nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
     "zyvo-free-nvidia/nvidia/nemotron-3-ultra-550b-a55b",
     "zyvo-free-nvidia/deepseek-ai/deepseek-v4.1-flash",
-    "zyvo-free-nvidia/z-ai/glm-5.3-flash",
+    "zyvo-free-nvidia/z-ai/glm-5.3",
     "zyvo-free-nvidia/moonshotai/kimi-k3",
     "zyvo-free-mistral/mistral-code-latest",
     "zyvo-free-mistral/codestral-latest",
