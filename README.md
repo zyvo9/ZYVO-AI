@@ -18,8 +18,9 @@ for Android.
 
 ## ⚡ Install
 
-Install [Termux](https://github.com/termux/termux-app/releases) first — the
-F-Droid or GitHub build (the Play Store version is outdated and unsupported) —
+Install 
+## [Termux](https://github.com/termux/termux-app/releases) first — the
+[F-Droid](https://f-droid.org/en/packages/com.termux/) or GitHub build (the Play Store version is outdated and unsupported) —
 then run:
 
 ```bash
