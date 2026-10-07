@@ -2,9 +2,9 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
+    "zyvo-free-nvidia/z-ai/glm-5.3-flash",
     "zyvo-free-kilo/nvidia/nemotron-3.5-lightning:free",
     "zyvo-free-kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
-    "zyvo-free-nvidia/z-ai/glm-5.3-flash",
     "zyvo-free-kilo/dots-studio/dots-3-note-preview:free",
     "zyvo-free-kilo/poolside/laguna-s-2.1:free",
     "zyvo-free-kilo/cohere/north-mini-code:free",
@@ -30,6 +30,30 @@
         "apiKey": "brk_live_3Jlxlkx05UDorGYi6jYJ2eSo1xnDhgLxEWco6riJ"
       },
       "models": {
+        "nvidia/nemotron-3.5-lightning": {
+          "name": "Nemotron 3.5 Lightning",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3-ultra-550b": {
+          "name": "Nemotron 3 Ultra 550B",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "poolside/laguna-xs-2.1": {
+          "name": "Poolside Laguna XS 2.1",
+          "limit": {
+            "context": 262000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
         "cohere/north-mini-code": {
           "name": "North Mini Code",
           "limit": {
@@ -61,30 +85,6 @@
             "output": 65536
           },
           "tool_call": false
-        },
-        "nvidia/nemotron-3-ultra-550b": {
-          "name": "Nemotron 3 Ultra 550B",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "nvidia/nemotron-3.5-lightning": {
-          "name": "Nemotron 3.5 Lightning",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "poolside/laguna-xs-2.1": {
-          "name": "Poolside Laguna XS 2.1",
-          "limit": {
-            "context": 262000,
-            "output": 65536
-          },
-          "tool_call": true
         }
       }
     },
@@ -96,10 +96,18 @@
         "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTExNDYwNjQsImV4cCI6MTk0ODgyNjA2NH0.QnqNzSWdRAIInoaIP0dYtMlhPW8vhSn6OCFm1pPwdUA"
       },
       "models": {
-        "cohere/north-mini-code:free": {
-          "name": "North Mini Code",
+        "nvidia/nemotron-3.5-lightning:free": {
+          "name": "Nemotron 3.5 Lightning",
           "limit": {
-            "context": 256000,
+            "context": 1000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3-ultra-550b-a55b:free": {
+          "name": "Nemotron 3 Ultra 550B",
+          "limit": {
+            "context": 1000,
             "output": 65536
           },
           "tool_call": true
@@ -108,6 +116,22 @@
           "name": "Dots3 Note Preview",
           "limit": {
             "context": 512000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "poolside/laguna-s-2.1:free": {
+          "name": "Poolside Laguna S 2.1",
+          "limit": {
+            "context": 262000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "cohere/north-mini-code:free": {
+          "name": "North Mini Code",
+          "limit": {
+            "context": 256000,
             "output": 65536
           },
           "tool_call": true
@@ -144,14 +168,6 @@
           },
           "tool_call": true
         },
-        "nvidia/nemotron-3-ultra-550b-a55b:free": {
-          "name": "Nemotron 3 Ultra 550B",
-          "limit": {
-            "context": 1000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "nvidia/nemotron-3.5-content-safety:free": {
           "name": "Nemotron 3.5 Content Safety",
           "limit": {
@@ -159,22 +175,6 @@
             "output": 65536
           },
           "tool_call": false
-        },
-        "nvidia/nemotron-3.5-lightning:free": {
-          "name": "Nemotron 3.5 Lightning",
-          "limit": {
-            "context": 1000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "poolside/laguna-s-2.1:free": {
-          "name": "Poolside Laguna S 2.1",
-          "limit": {
-            "context": 262000,
-            "output": 65536
-          },
-          "tool_call": true
         },
         "poolside/laguna-xs-2.1:free": {
           "name": "Poolside Laguna XS 2.1",
@@ -194,8 +194,8 @@
         "apiKey": "mstrl_2aSe1tU3noYJwbyJiKLXBASCTrVMTNIe_1btZD9"
       },
       "models": {
-        "codestral-2508": {
-          "name": "Codestral 2508",
+        "mistral-code-latest": {
+          "name": "Mistral Code",
           "limit": {
             "context": 256000,
             "output": 65536
@@ -204,6 +204,22 @@
         },
         "codestral-latest": {
           "name": "Codestral",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "ministral-8b-latest": {
+          "name": "Ministral 8B",
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "codestral-2508": {
+          "name": "Codestral 2508",
           "limit": {
             "context": 256000,
             "output": 65536
@@ -250,14 +266,6 @@
           },
           "tool_call": true
         },
-        "ministral-8b-latest": {
-          "name": "Ministral 8B",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "mistral-code-fim-latest": {
           "name": "Mistral Code FIM",
           "limit": {
@@ -265,14 +273,6 @@
             "output": 65536
           },
           "tool_call": false
-        },
-        "mistral-code-latest": {
-          "name": "Mistral Code",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
         },
         "voxtral-small-2507": {
           "name": "Voxtral Small 2507 (audio)",
@@ -300,11 +300,51 @@
         "apiKey": "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"
       },
       "models": {
+        "z-ai/glm-5.3-flash": {
+          "name": "GLM-5.3 Flash",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3.5-lightning-30b-a3b": {
+          "name": "Nemotron 3.5 Lightning",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "nvidia/nemotron-3-ultra-550b-a55b": {
+          "name": "Nemotron 3 Ultra 550B",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
         "deepseek-ai/deepseek-v4.1-flash": {
           "name": "DeepSeek V4.1 Flash",
           "limit": {
             "context": 1000000,
             "output": 128000
+          },
+          "tool_call": true
+        },
+        "z-ai/glm-5.3": {
+          "name": "GLM-5.3",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "moonshotai/kimi-k3": {
+          "name": "Kimi K3",
+          "limit": {
+            "context": 262144,
+            "output": 65536
           },
           "tool_call": true
         },
@@ -340,14 +380,6 @@
           },
           "tool_call": true
         },
-        "moonshotai/kimi-k3": {
-          "name": "Kimi K3",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning": {
           "name": "Nemotron 3 Nano Omni Reasoning",
           "limit": {
@@ -358,22 +390,6 @@
         },
         "nvidia/nemotron-3-super-120b-a12b": {
           "name": "Nemotron 3 Super 120B",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "nvidia/nemotron-3-ultra-550b-a55b": {
-          "name": "Nemotron 3 Ultra 550B",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "nvidia/nemotron-3.5-lightning-30b-a3b": {
-          "name": "Nemotron 3.5 Lightning",
           "limit": {
             "context": 1000000,
             "output": 128000
@@ -393,22 +409,6 @@
           "limit": {
             "context": 262000,
             "output": 65536
-          },
-          "tool_call": true
-        },
-        "z-ai/glm-5.3": {
-          "name": "GLM-5.3",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "z-ai/glm-5.3-flash": {
-          "name": "GLM-5.3 Flash",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
           },
           "tool_call": true
         }
