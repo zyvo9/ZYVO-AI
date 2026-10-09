@@ -10,7 +10,6 @@
     "zyvo-free-kilo/cohere/north-mini-code:free",
     "zyvo-free-blockrun/nvidia/nemotron-3.5-lightning",
     "zyvo-free-blockrun/nvidia/nemotron-3-ultra-550b",
-    "zyvo-free-blockrun/poolside/laguna-xs-2.1",
     "zyvo-free-blockrun/cohere/north-mini-code",
     "zyvo-free-nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
     "zyvo-free-nvidia/nvidia/nemotron-3-ultra-550b-a55b",
@@ -43,14 +42,6 @@
           "limit": {
             "context": 1000000,
             "output": 128000
-          },
-          "tool_call": true
-        },
-        "poolside/laguna-xs-2.1": {
-          "name": "Poolside Laguna XS 2.1",
-          "limit": {
-            "context": 262000,
-            "output": 65536
           },
           "tool_call": true
         },
