@@ -403,14 +403,6 @@
             "output": 65536
           },
           "tool_call": true
-        },
-        "poolside/laguna-xs-2.1": {
-          "name": "Poolside Laguna XS 2.1",
-          "limit": {
-            "context": 262000,
-            "output": 65536
-          },
-          "tool_call": true
         }
       }
     }
