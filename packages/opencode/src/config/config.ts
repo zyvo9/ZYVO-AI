@@ -243,8 +243,35 @@ export const layer = Layer.effect(
       return yield* loadConfig(text, { path: filepath }, env)
     })
 
+    // STARTUP SYNC: the admin panel deploys the model config to GitHub; fetch it
+    // fresh on every launch so OK-deploy on the web reaches the CLI WITHOUT a
+    // zyvo update. Best-effort with a short timeout — offline keeps the local file.
+    const syncRemoteModelConfig = Effect.fnUntraced(function* () {
+      const remote = "https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json"
+      const file = path.join(Global.Path.config, "zyvo.json")
+      const response = yield* http
+        .execute(HttpClientRequest.get(remote))
+        .pipe(Effect.option)
+      if (Option.isNone(response)) return
+      const body = yield* response.value.text.pipe(Effect.orElseSucceed(() => ""))
+      if (!body.trim().startsWith("{")) return
+      const parsed = yield* Effect.try(() => ConfigParse.jsonc(body, remote) as Info).pipe(Effect.option)
+      if (Option.isNone(parsed)) return
+      const info = parsed.value
+      if (!info.provider || Object.keys(info.provider).length === 0) return
+      yield* fs.writeFileString(file, JSON.stringify(info, null, 2)).pipe(Effect.catch(() => Effect.void))
+      yield* Effect.logInfo("remote model config synced", {
+        providers: Object.keys(info.provider).length,
+        lanes: (info.fallback_models ?? []).length,
+      })
+    })
+
     const loadGlobal = Effect.fnUntraced(function* (env?: Record<string, string>) {
       let result: Info = {}
+      yield* syncRemoteModelConfig().pipe(
+        Effect.timeout(Duration.seconds(5)),
+        Effect.catch(() => Effect.void),
+      )
       // Seed the default global config with the schema for editor completion, but avoid writing when the user
       // explicitly routes config through env-provided paths or content.
       if (!Flag.OPENCODE_CONFIG && !Flag.OPENCODE_CONFIG_DIR && !Flag.OPENCODE_CONFIG_CONTENT) {
