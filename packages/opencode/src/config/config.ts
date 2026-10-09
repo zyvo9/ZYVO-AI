@@ -245,24 +245,27 @@ export const layer = Layer.effect(
 
     // STARTUP SYNC: the admin panel deploys the model config to GitHub; fetch it
     // fresh on every launch so OK-deploy on the web reaches the CLI WITHOUT a
-    // zyvo update. Best-effort with a short timeout — offline keeps the local file.
+    // zyvo update. EVERYTHING runs inside one try/catch inside Effect.promise —
+    // this can never defect, so a bad network can never kill the boot.
     const syncRemoteModelConfig = Effect.fnUntraced(function* () {
-      const remote = "https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json"
-      const file = path.join(Global.Path.config, "zyvo.json")
-      const response = yield* http
-        .execute(HttpClientRequest.get(remote))
-        .pipe(Effect.option)
-      if (Option.isNone(response)) return
-      const body = yield* response.value.text.pipe(Effect.orElseSucceed(() => ""))
-      if (!body.trim().startsWith("{")) return
-      const parsed = yield* Effect.try(() => ConfigParse.jsonc(body, remote) as Info).pipe(Effect.option)
-      if (Option.isNone(parsed)) return
-      const info = parsed.value
-      if (!info.provider || Object.keys(info.provider).length === 0) return
-      yield* fs.writeFileString(file, JSON.stringify(info, null, 2)).pipe(Effect.catch(() => Effect.void))
-      yield* Effect.logInfo("remote model config synced", {
-        providers: Object.keys(info.provider).length,
-        lanes: (info.fallback_models ?? []).length,
+      yield* Effect.promise(async () => {
+        try {
+          const remote = "https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json"
+          const file = path.join(Global.Path.config, "zyvo.json")
+          const ctrl = new AbortController()
+          const timer = setTimeout(() => ctrl.abort(), 5000)
+          const res = await fetch(remote, { signal: ctrl.signal })
+          clearTimeout(timer)
+          if (!res.ok) return
+          const body = await res.text()
+          if (!body.trim().startsWith("{")) return
+          const parsed = JSON.parse(body)
+          if (!parsed.provider || Object.keys(parsed.provider).length === 0) return
+          await fsNode.writeFile(file, JSON.stringify(parsed, null, 2))
+          console.log("[zyvo] remote model config synced:", Object.keys(parsed.provider).length, "providers")
+        } catch {
+          // offline, timeout, bad body — keep the local config untouched
+        }
       })
     })
 
