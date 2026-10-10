@@ -1,6 +1,6 @@
 ---
 name: game-mod
-description: Game modding and porting playbook (PC + mobile) — potato-graphics mode for low-end PCs (per-engine config scalers, physics/AI reduction, file diet, launch params), deep game system customization (save editors, Cheat Engine tables, BepInEx/MelonLoader plugins, UE4SS Lua, asset swaps — beyond premium unlock), and PC game → phone porting (Winlator/Box64/Mobox/GameHub recipes, asset ports, Moonlight+Sunshine streaming). Use when the user asks to make a game run on a weak PC, lower graphics/physics, delete heavy game files, port a PC game to phone, run Windows games on Android, add/change game features, edit saves, or says "potato graphics koro", "game customize koro", "game port koro", "pc game phone e chalao", "game low pc te chalao".
+description: Game modding and porting playbook (PC + mobile) — potato-graphics mode for low-end PCs (per-engine config scalers, physics/AI reduction, file diet, launch params), deep game system customization (save editors, Cheat Engine tables, BepInEx/MelonLoader plugins, UE4SS Lua, asset swaps — beyond premium unlock), and PC game → phone porting (Winlator/Box64/Mobox/GameHub recipes, break-and-rehost in open engines with built-in touch — Xash3D/OpenMW/EasyRPG/DevilutionX/ScummVM/sm64ex, JS/WebView game wrapping with virtual buttons, asset ports, Moonlight+Sunshine streaming). Use when the user asks to make a game run on a weak PC, lower graphics/physics, delete heavy game files, port a PC game to phone, run Windows games on Android, break a game and add touch buttons, rehost a game in an open engine, add/change game features, edit saves, or says "potato graphics koro", "game customize koro", "game port koro", "pc game phone e chalao", "game bhenge button bosao", "game low pc te chalao".
 ---
 
 # Game Mod & Porting Playbook
@@ -290,9 +290,44 @@ near-zero phone load. Setup: install Sunshine → pair Moonlight with the
 PIN → stream the desktop or a specific game. This is also the answer when
 Winlator tiers fail. LAN only for quality; internet play needs good upload.
 
-### C.4 — Choosing the path (one line each)
+### C.4 — Path 4: BREAK & REHOST (open engine + the game's own files)
+
+The "break the original game and build buttons inside it" idea — its real,
+working form: don't run Windows at all. Extract the game's DATA (maps,
+models, sounds, scripts) and run them inside an open-source engine
+reimplementation that already ships on Android with touch controls:
+
+| Original game | Open engine that runs its files | Touch controls |
+|---|---|---|
+| Half-Life, CS 1.6, GoldSrc mods | **Xash3D FWGS** | built-in + fully customizable (`touch.ini`) |
+| The Elder Scrolls III: Morrowind | **OpenMW** | official Android build, touch UI |
+| Diablo 1 | **DevilutionX** | built-in touch |
+| RPG Maker 2000/2003 games | **EasyRPG Player** | touch |
+| SCUMM/LucasArts-era adventures | **ScummVM** | touch |
+| Super Mario 64 (decompilation) | **sm64ex / sm64coopdx** | Android ports + touch |
+| Red Alert / C&C, Transport Tycoon | **OpenRA / OpenTTD** | playable with touch UI |
+| Ren'Py visual novels | **official Ren'Py Android packaging** | built-in touch |
+| Godot-made games | **repackage/export for Android** | native touch events |
+
+- **JS/WebView games** (RPG Maker MV/MZ, many indie/itch.io titles): the
+  game IS a webpage — extract the `www/` folder, wrap it in a WebView app,
+  and add a virtual gamepad overlay (HTML buttons that dispatch
+  KeyboardEvents into the canvas). This is literally "bhenge vitor button
+  bosano" — build the wrapper + button layout yourself, preview it through
+  the localhost-8484 flow, then package as an APK (apk skill flow).
+- Finding the engine: search "<game name> open source reimplementation" on
+  GitHub + PCGamingWiki — if a community decomp/reimpl exists, it usually
+  already has an Android build or an ARM-friendly source tree.
+- Honest limit: a rehost needs an EXISTING open engine for that specific
+  game. Writing a new engine reimplementation from scratch is a years-long
+  project — say so in one line, then offer the best of the other paths.
+
+### C.5 — Choosing the path (one line each)
 
 - Phone strong (Adreno 7xx, 8GB+) and game light/old → **Path 1 (Winlator)**
+- An open engine reimplementation exists (Xash3D/OpenMW/EasyRPG/…) →
+  **Path 4 (rehost)** — the cleanest phone experience: original files,
+  native touch, no Windows layer
 - Official mobile version exists and the user wants its graphics/content →
   **Path 2 (asset port)**
 - Phone weak but a PC is on the same WiFi → **Path 3 (Moonlight)** — and it
