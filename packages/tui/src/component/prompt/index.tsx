@@ -19,7 +19,7 @@ import { tint, useTheme } from "../../context/theme"
 import { EmptyBorder, SplitBorder } from "../../ui/border"
 import { useTuiPaths, useTuiTerminalEnvironment } from "../../context/runtime"
 import { useClipboard } from "../../context/clipboard"
-import { Spinner } from "../spinner"
+import { Spinner, SPINNER_FRAMES } from "../spinner"
 import { useSDK } from "../../context/sdk"
 import { useRoute } from "../../context/route"
 import { useProject } from "../../context/project"
@@ -1526,10 +1526,13 @@ export function Prompt(props: PromptProps) {
         ? (local.agent.list().find((a) => a.name === lastUserMessage()?.agent) ?? local.agent.current())
         : local.agent.current()
     const color = agent ? local.agent.color(agent.name) : theme.border
-    // simple braille frames — the Knight-Rider "blocks" scanner leaves a
-    // full-screen trail on Termux (frames never clear on narrow terminals)
+    // platform-aware frames from SPINNER_FRAMES — braille on Termux (the
+    // Knight-Rider "blocks" scanner left a full-screen trail on narrow
+    // terminals), ASCII on PC (console fonts have no braille glyphs —
+    // braille there rendered as a solid tofu block, the busy state looked
+    // invisible while the AI was actually running)
     return {
-      frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
+      frames: SPINNER_FRAMES,
       color,
     }
   })

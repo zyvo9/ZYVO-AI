@@ -4,7 +4,14 @@ import { useKV } from "../context/kv"
 import type { JSX } from "@opentui/solid"
 import type { ColorInput, RGBA } from "@opentui/core"
 
-export const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+// Platform-aware frames: Termux fonts render braille fine (and braille never
+// leaves trails), but PC console fonts ship WITHOUT braille glyphs — every
+// frame renders as a solid tofu block, so the busy state looks invisible
+// ("is it running?"). ASCII |/-\ exists in every PC font.
+export const SPINNER_FRAMES =
+  process.platform === "android"
+    ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    : ["|", "/", "-", "\\"]
 
 // Matches opentui-spinner's ColorGenerator signature (returns ColorInput).
 type SpinnerGenerator = (frameIndex: number, charIndex: number, totalFrames: number, totalChars: number) => ColorInput
