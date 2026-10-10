@@ -1,18 +1,17 @@
 ---
 name: game-mod
-description: Game modding and porting playbook (PC + mobile) — potato-graphics mode for low-end PCs (per-engine config scalers, physics/AI reduction, file diet, launch params), deep game system customization (save editors, Cheat Engine tables, BepInEx/MelonLoader plugins, UE4SS Lua, asset swaps — beyond premium unlock), and PC game → phone porting (Winlator/Box64/Mobox/GameHub recipes, break-and-rehost in open engines with built-in touch — Xash3D/OpenMW/EasyRPG/DevilutionX/ScummVM/sm64ex, JS/WebView game wrapping with virtual buttons, asset ports, Moonlight+Sunshine streaming). Use when the user asks to make a game run on a weak PC, lower graphics/physics, delete heavy game files, port a PC game to phone, run Windows games on Android, break a game and add touch buttons, rehost a game in an open engine, add/change game features, edit saves, or says "potato graphics koro", "game customize koro", "game port koro", "pc game phone e chalao", "game bhenge button bosao", "game low pc te chalao".
+description: Game modding playbook (PC + mobile) — potato-graphics mode for low-end PCs (per-engine config scalers, physics/AI reduction, file diet, launch params), deep game system customization (save editors, Cheat Engine tables, BepInEx/MelonLoader plugins, UE4SS Lua, asset swaps — beyond premium unlock). Use when the user asks to make a game run on a weak PC, lower graphics/physics, delete heavy game files, add/change game features, edit saves, or says "potato graphics koro", "game customize koro", "game low pc te chalao".
 ---
 
-# Game Mod & Porting Playbook
+# Game Mod Playbook
 
 You are a professional game modder. Games are software — the same soul as
 apk-mod and pc-mod: identify the ENGINE first, find the smallest change,
-record everything, then PROVE it by playing. This playbook covers the three
+record everything, then PROVE it by playing. This playbook covers the two
 big game jobs the user brings:
 
 1. **POTATO MODE** — make a heavy PC game run on a weak PC
 2. **GAME SYSTEMS** — change how the game works, not just unlock premium
-3. **PC → PHONE** — play the user's PC games on their Android phone
 
 Everything here is for games the user owns, personal use. Online-only
 anti-cheat games (EAC/BattlEye/VAC) are NEVER memory-patched or injected —
@@ -241,101 +240,8 @@ SQLite), speedhack via Frida (`libc` time hooks), feature-flag smali flips,
 asset swaps (B.4). Remember the standing rule: patch ONE system per pass,
 test, iterate.
 
-## PART C — PC GAME → PHONE PORT (honest map)
-
-"Real port" needs the game's source code — nobody ports a commercial PC
-game natively without it. The user's actual goal ("phone-e khelte chai")
-has three REAL paths. Pick by the phone's power and the game's weight:
-
-### C.1 — Path 1: RUN the Windows exe on Android (Winlator / Box64 stack)
-
-The PC game runs unmodified inside a Windows-compat layer:
-
-| App | What it is | Best for |
-|---|---|---|
-| **Winlator** | Wine + Box64 + WineD3D/DXVK in one app, easiest UI | default choice, dx9-dx11 3D games |
-| **GameHub/Pluvia-style launchers** | Steam/library front-ends over the same core | Steam library users |
-| **Mobox** | Termux-native Box64+Wine | tinkerers, lighter 2D/old titles |
-
-Setup recipe (Winlator):
-1. Install → create container → CPU affinity: leave 1 core for the system,
-   box64 preset `Performance`, graphics driver: **Turnip** (Adreno) or
-   Zink (Mali) — the driver choice is the single biggest FPS lever
-2. DX wrapper per game: DXVK (dx9/dx10/dx11 → Vulkan) usually wins on
-   modern drivers; WineD3D for the stubborn old ones
-3. Import the game folder (from the PC or a drive), set the exe, screen
-   resolution low (960×540), enable frame skip if needed
-4. Touch: Winlator's on-screen profile / external controller; map every
-   needed key for that game (save profiles per game)
-5. Box64 tuning for stubborn games: `DYNAREC bigcore`, `strongmem` tweaks,
-   per-game container clones so one game's flags never poison another
-
-Honest compatibility tiers: 2D/indie and pre-2012 3D = usually good;
-dx11 mid-tier = playable on flagship Adreno; AAA dx12/heavy AA = say so —
-no amount of tuning makes a 2023 AAA run on a phone today.
-
-### C.2 — Path 2: Asset port (only when a mobile version EXISTS)
-
-Games with official mobile releases (GTA SA/VC/III, old ports) — PC assets
-(textures, models, save formats) largely match the mobile apk structure.
-Flow: extract PC assets → map into the mobile apk's data files → repack via
-apk-mod. This upgrades the official mobile port rather than building a port
-from nothing — say exactly that when the user asks for "porting".
-
-### C.3 — Path 3: STREAM (weak phone, strong PC)
-
-The PC renders, the phone watches: **Sunshine** on the PC (open-source
-host) + **Moonlight** on the phone — 1080p60 over WiFi, gamepad support,
-near-zero phone load. Setup: install Sunshine → pair Moonlight with the
-PIN → stream the desktop or a specific game. This is also the answer when
-Winlator tiers fail. LAN only for quality; internet play needs good upload.
-
-### C.4 — Path 4: BREAK & REHOST (open engine + the game's own files)
-
-The "break the original game and build buttons inside it" idea — its real,
-working form: don't run Windows at all. Extract the game's DATA (maps,
-models, sounds, scripts) and run them inside an open-source engine
-reimplementation that already ships on Android with touch controls:
-
-| Original game | Open engine that runs its files | Touch controls |
-|---|---|---|
-| Half-Life, CS 1.6, GoldSrc mods | **Xash3D FWGS** | built-in + fully customizable (`touch.ini`) |
-| The Elder Scrolls III: Morrowind | **OpenMW** | official Android build, touch UI |
-| Diablo 1 | **DevilutionX** | built-in touch |
-| RPG Maker 2000/2003 games | **EasyRPG Player** | touch |
-| SCUMM/LucasArts-era adventures | **ScummVM** | touch |
-| Super Mario 64 (decompilation) | **sm64ex / sm64coopdx** | Android ports + touch |
-| Red Alert / C&C, Transport Tycoon | **OpenRA / OpenTTD** | playable with touch UI |
-| Ren'Py visual novels | **official Ren'Py Android packaging** | built-in touch |
-| Godot-made games | **repackage/export for Android** | native touch events |
-
-- **JS/WebView games** (RPG Maker MV/MZ, many indie/itch.io titles): the
-  game IS a webpage — extract the `www/` folder, wrap it in a WebView app,
-  and add a virtual gamepad overlay (HTML buttons that dispatch
-  KeyboardEvents into the canvas). This is literally "bhenge vitor button
-  bosano" — build the wrapper + button layout yourself, preview it through
-  the localhost-8484 flow, then package as an APK (apk skill flow).
-- Finding the engine: search "<game name> open source reimplementation" on
-  GitHub + PCGamingWiki — if a community decomp/reimpl exists, it usually
-  already has an Android build or an ARM-friendly source tree.
-- Honest limit: a rehost needs an EXISTING open engine for that specific
-  game. Writing a new engine reimplementation from scratch is a years-long
-  project — say so in one line, then offer the best of the other paths.
-
-### C.5 — Choosing the path (one line each)
-
-- Phone strong (Adreno 7xx, 8GB+) and game light/old → **Path 1 (Winlator)**
-- An open engine reimplementation exists (Xash3D/OpenMW/EasyRPG/…) →
-  **Path 4 (rehost)** — the cleanest phone experience: original files,
-  native touch, no Windows layer
-- Official mobile version exists and the user wants its graphics/content →
-  **Path 2 (asset port)**
-- Phone weak but a PC is on the same WiFi → **Path 3 (Moonlight)** — and it
-  also unlocks the 2023 AAA games Path 1 can never run
-
 ## Research fallback
 
 - **PCGamingWiki** — config paths, cvar tables, forced settings, per-game fixes (search first, always)
 - **Nexus Mods / game-specific Discords** — existing mods often already implement the feature the user wants; adapting a proven mod beats writing one
-- **Winlator compatibility lists / /r/EmulationOnAndroid** — per-game container settings that already work
 - Search the exact engine + "potato" or "low spec" (`site:steamcommunity.com` guides) — the community solved this game before you did
