@@ -2084,6 +2084,34 @@ export function InlineToolRow(props: {
   )
 }
 
+// ZCode-style +N/−N diff summary parsed from a unified diff — colored green
+// for additions, red for deletions; hidden when the diff has neither.
+function DiffStats(p: { diff: string }) {
+  const { theme } = useTheme()
+  const s = createMemo(() => {
+    let add = 0
+    let del = 0
+    for (const line of p.diff.split("\n")) {
+      if (line.startsWith("+++") || line.startsWith("---")) continue
+      if (line.startsWith("+")) add++
+      else if (line.startsWith("-")) del++
+    }
+    return { add, del }
+  })
+  return (
+    <Show when={s().add > 0 || s().del > 0}>
+      <text>
+        <Show when={s().add > 0}>
+          <span style={{ fg: theme.diffHighlightAdded }}>{` +${s().add}`}</span>
+        </Show>
+        <Show when={s().del > 0}>
+          <span style={{ fg: theme.diffHighlightRemoved }}>{` -${s().del}`}</span>
+        </Show>
+      </text>
+    </Show>
+  )
+}
+
 function BlockTool(props: {
   title: string
   children: JSX.Element
@@ -2091,6 +2119,7 @@ function BlockTool(props: {
   part?: ToolPart
   spinner?: boolean
   compact?: boolean
+  titleRight?: JSX.Element
 }) {
   const { theme } = useTheme()
   const renderer = useRenderer()
@@ -2118,9 +2147,10 @@ function BlockTool(props: {
       <Show
         when={props.spinner}
         fallback={
-          <text paddingLeft={3} fg={theme.textMuted}>
-            {props.title}
-          </text>
+          <box flexDirection="row" paddingLeft={3}>
+            <text fg={theme.textMuted}>{props.title}</text>
+            <Show when={props.titleRight}>{props.titleRight}</Show>
+          </box>
         }
       >
         <Spinner color={theme.textMuted}>{props.title.replace(/^# /, "")}</Spinner>
@@ -2214,20 +2244,36 @@ function Write(props: ToolProps) {
   const code = createMemo(() => {
     return stringValue(props.input.content) ?? ""
   })
+  const isRunning = createMemo(() => props.part.state.status === "running")
+  const lines = createMemo(() => code().split("\n").length)
+  const [expanded, setExpanded] = createSignal(false)
 
   return (
     <Switch>
       <Match when={props.metadata.diagnostics !== undefined}>
-        <BlockTool title={"# Wrote " + pathFormatter.format(stringValue(props.input.filePath))} part={props.part}>
-          <line_number fg={theme.textMuted} minWidth={3} paddingRight={1}>
-            <code
-              conceal={false}
-              fg={theme.text}
-              filetype={filetype(stringValue(props.input.filePath))}
-              syntaxStyle={syntax()}
-              content={code()}
-            />
-          </line_number>
+        <BlockTool
+          title={"# Wrote " + pathFormatter.format(stringValue(props.input.filePath))}
+          part={props.part}
+          spinner={isRunning()}
+          compact={!expanded() && !isRunning()}
+          onClick={() => setExpanded((prev) => !prev)}
+          titleRight={
+            <Show when={lines() > 0}>
+              <text fg={theme.diffHighlightAdded}>{` +${lines()}`}</text>
+            </Show>
+          }
+        >
+          <Show when={expanded() || isRunning()}>
+            <line_number fg={theme.textMuted} minWidth={3} paddingRight={1}>
+              <code
+                conceal={false}
+                fg={theme.text}
+                filetype={filetype(stringValue(props.input.filePath))}
+                syntaxStyle={syntax()}
+                content={code()}
+              />
+            </line_number>
+          </Show>
           <Diagnostics diagnostics={props.metadata.diagnostics} filePath={stringValue(props.input.filePath) ?? ""} />
         </BlockTool>
       </Match>
@@ -2453,32 +2499,43 @@ function Edit(props: ToolProps) {
   const ft = createMemo(() => filetype(stringValue(props.input.filePath)))
 
   const diffContent = createMemo(() => stringValue(props.metadata.diff) ?? "")
+  const isRunning = createMemo(() => props.part.state.status === "running")
+  const [expanded, setExpanded] = createSignal(false)
 
   return (
     <Switch>
       <Match when={stringValue(props.metadata.diff) !== undefined}>
-        <BlockTool title={"← Edit " + pathFormatter.format(stringValue(props.input.filePath))} part={props.part}>
-          <box paddingLeft={1}>
-            <diff
-              diff={diffContent()}
-              view={view()}
-              filetype={ft()}
-              syntaxStyle={syntax()}
-              showLineNumbers={true}
-              width="100%"
-              wrapMode={ctx.diffWrapMode()}
-              fg={theme.text}
-              addedBg={theme.diffAddedBg}
-              removedBg={theme.diffRemovedBg}
-              contextBg={theme.diffContextBg}
-              addedSignColor={theme.diffHighlightAdded}
-              removedSignColor={theme.diffHighlightRemoved}
-              lineNumberFg={theme.diffLineNumber}
-              lineNumberBg={theme.diffContextBg}
-              addedLineNumberBg={theme.diffAddedLineNumberBg}
-              removedLineNumberBg={theme.diffRemovedLineNumberBg}
-            />
-          </box>
+        <BlockTool
+          title={"← Edit " + pathFormatter.format(stringValue(props.input.filePath))}
+          part={props.part}
+          spinner={isRunning()}
+          compact={!expanded() && !isRunning()}
+          onClick={() => setExpanded((prev) => !prev)}
+          titleRight={<DiffStats diff={diffContent()} />}
+        >
+          <Show when={expanded() || isRunning()}>
+            <box paddingLeft={1}>
+              <diff
+                diff={diffContent()}
+                view={view()}
+                filetype={ft()}
+                syntaxStyle={syntax()}
+                showLineNumbers={true}
+                width="100%"
+                wrapMode={ctx.diffWrapMode()}
+                fg={theme.text}
+                addedBg={theme.diffAddedBg}
+                removedBg={theme.diffRemovedBg}
+                contextBg={theme.diffContextBg}
+                addedSignColor={theme.diffHighlightAdded}
+                removedSignColor={theme.diffHighlightRemoved}
+                lineNumberFg={theme.diffLineNumber}
+                lineNumberBg={theme.diffContextBg}
+                addedLineNumberBg={theme.diffAddedLineNumberBg}
+                removedLineNumberBg={theme.diffRemovedLineNumberBg}
+              />
+            </box>
+          </Show>
           <Diagnostics diagnostics={props.metadata.diagnostics} filePath={stringValue(props.input.filePath) ?? ""} />
         </BlockTool>
       </Match>
