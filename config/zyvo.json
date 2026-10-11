@@ -89,7 +89,7 @@
         "kilo-auto/free": {
           "name": "Free Router",
           "limit": {
-            "context": 250000,
+            "context": 256000,
             "output": 65536
           },
           "tool_call": true
