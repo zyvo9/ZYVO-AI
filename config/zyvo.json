@@ -13,9 +13,7 @@
     "zyvo-free-blockrun/cohere/north-mini-code",
     "zyvo-free-nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
     "zyvo-free-nvidia/nvidia/nemotron-3-ultra-550b-a55b",
-    "zyvo-free-nvidia/deepseek-ai/deepseek-v4.1-flash",
     "zyvo-free-nvidia/z-ai/glm-5.3",
-    "zyvo-free-nvidia/moonshotai/kimi-k3",
     "zyvo-free-mistral/mistral-code-latest",
     "zyvo-free-mistral/codestral-latest",
     "zyvo-free-mistral/ministral-8b-latest"
@@ -315,14 +313,6 @@
           },
           "tool_call": true
         },
-        "deepseek-ai/deepseek-v4.1-flash": {
-          "name": "DeepSeek V4.1 Flash",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
         "z-ai/glm-5.3": {
           "name": "GLM-5.3",
           "limit": {
@@ -331,32 +321,8 @@
           },
           "tool_call": true
         },
-        "moonshotai/kimi-k3": {
-          "name": "Kimi K3",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "google/gemma-4-31b-it": {
-          "name": "Gemma 4 31B",
-          "limit": {
-            "context": 131072,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "meta/llama-3.2-11b-vision-instruct": {
           "name": "Llama 3.2 11B Vision",
-          "limit": {
-            "context": 131072,
-            "output": 65536
-          },
-          "tool_call": false
-        },
-        "meta/llama-3.2-90b-vision-instruct": {
-          "name": "Llama 3.2 90B Vision",
           "limit": {
             "context": 131072,
             "output": 65536
