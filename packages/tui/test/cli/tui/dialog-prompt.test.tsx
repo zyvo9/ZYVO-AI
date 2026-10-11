@@ -23,6 +23,7 @@ async function mountPrompt(input: {
   root: string
   keybinds: Partial<TuiKeybind.Keybinds>
   onConfirm: (value: string) => void
+  clipboard?: { read?: () => Promise<{ data: string; mime: string } | undefined> }
 }) {
   const state = path.join(input.root, "state")
   await mkdir(state, { recursive: true })
@@ -36,6 +37,7 @@ async function mountPrompt(input: {
     { TuiConfigProvider },
     { ToastProvider },
     { OpencodeKeymapProvider, registerOpencodeKeymap },
+    { ClipboardProvider },
   ] = await Promise.all([
     import("../../../src/ui/dialog"),
     import("../../../src/ui/dialog-prompt"),
@@ -44,6 +46,7 @@ async function mountPrompt(input: {
     import("../../../src/config"),
     import("../../../src/ui/toast"),
     import("../../../src/keymap"),
+    import("../../../src/context/clipboard"),
   ])
 
   function Harness() {
@@ -71,7 +74,9 @@ async function mountPrompt(input: {
               <ThemeProvider mode="dark">
                 <ToastProvider>
                   <DialogProvider>
-                    <DialogPrompt title="Rename Session" value="draft" onConfirm={input.onConfirm} />
+                    <ClipboardProvider value={input.clipboard}>
+                      <DialogPrompt title="Rename Session" value="draft" onConfirm={input.onConfirm} />
+                    </ClipboardProvider>
                   </DialogProvider>
                 </ToastProvider>
               </ThemeProvider>
@@ -112,6 +117,30 @@ test("dialog prompt submit wins when return is also input newline", async () => 
 
     expect(confirmed).toEqual(["draft"])
     expect(textarea.plainText).toBe("draft")
+  } finally {
+    await prompt.cleanup()
+  }
+})
+
+test("dialog prompt pastes clipboard text into its own field with ctrl+v", async () => {
+  await using tmp = await tmpdir()
+  const confirmed: string[] = []
+  const prompt = await mountPrompt({
+    root: tmp.path,
+    keybinds: {},
+    onConfirm: (value) => confirmed.push(value),
+    clipboard: { read: async () => ({ data: "pasted-token", mime: "text/plain" }) },
+  })
+
+  try {
+    await wait(() => prompt.app.renderer.currentFocusedEditor instanceof TextareaRenderable)
+    const textarea = prompt.app.renderer.currentFocusedEditor
+    if (!(textarea instanceof TextareaRenderable)) throw new Error("expected focused dialog textarea")
+
+    prompt.app.mockInput.pressKey("v", { ctrl: true })
+    await wait(() => textarea.plainText.includes("pasted-token"))
+
+    expect(textarea.plainText).toBe("draftpasted-token")
   } finally {
     await prompt.cleanup()
   }

@@ -4,6 +4,7 @@ import { useDialog, type DialogContext } from "./dialog"
 import { createStore } from "solid-js/store"
 import { onMount, Show } from "solid-js"
 import { useBindings } from "../keymap"
+import { useFieldPaste } from "./paste"
 
 export type DialogExportOptionsProps = {
   defaultFilename: string
@@ -25,6 +26,7 @@ export function DialogExportOptions(props: DialogExportOptionsProps) {
   const dialog = useDialog()
   const { theme } = useTheme()
   let textarea: TextareaRenderable
+  const paste = useFieldPaste(() => textarea)
   const [store, setStore] = createStore({
     thinking: props.defaultThinking,
     toolDetails: props.defaultToolDetails,
@@ -116,6 +118,7 @@ export function DialogExportOptions(props: DialogExportOptionsProps) {
           textColor={theme.text}
           focusedTextColor={theme.text}
           cursorColor={theme.text}
+          onPaste={paste.onPaste}
         />
       </box>
       <box flexDirection="column">

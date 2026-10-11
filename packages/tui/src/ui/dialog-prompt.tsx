@@ -5,6 +5,7 @@ import { Show, createEffect, createSignal, onMount, type JSX } from "solid-js"
 import { Spinner } from "../component/spinner"
 import { useTuiConfig } from "../config"
 import { useBindings, useCommandShortcut } from "../keymap"
+import { useFieldPaste } from "./paste"
 
 export type DialogPromptProps = {
   title: string
@@ -24,6 +25,7 @@ export function DialogPrompt(props: DialogPromptProps) {
   const submitShortcut = useCommandShortcut("dialog.prompt.submit")
   const [textareaTarget, setTextareaTarget] = createSignal<TextareaRenderable>()
   let textarea: TextareaRenderable
+  const paste = useFieldPaste(() => textarea, { enabled: () => !props.busy })
 
   function confirm() {
     if (props.busy) return
@@ -96,6 +98,7 @@ export function DialogPrompt(props: DialogPromptProps) {
           textColor={props.busy ? theme.textMuted : theme.text}
           focusedTextColor={props.busy ? theme.textMuted : theme.text}
           cursorColor={props.busy ? theme.backgroundElement : theme.text}
+          onPaste={paste.onPaste}
         />
         <Show when={props.busy}>
           <Spinner color={theme.textMuted}>{props.busyText ?? "Working..."}</Spinner>

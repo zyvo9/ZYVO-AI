@@ -8,6 +8,7 @@ import { useSDK } from "../../context/sdk"
 import { SplitBorder } from "../../ui/border"
 import { useTuiConfig } from "../../config"
 import { useBindings, useOpencodeModeStack } from "../../keymap"
+import { useFieldPaste } from "../../ui/paste"
 
 const QUESTION_MODE = "question"
 
@@ -31,6 +32,7 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
   })
 
   let textarea: TextareaRenderable | undefined
+  const paste = useFieldPaste(() => textarea, { enabled: () => store.editing })
 
   const question = createMemo(() => questions()[store.tab])
   const confirm = createMemo(() => !single() && store.tab === questions().length)
@@ -441,6 +443,7 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
                         textColor={theme.text}
                         focusedTextColor={theme.text}
                         cursorColor={theme.primary}
+                        onPaste={paste.onPaste}
                       />
                     </box>
                   </Show>

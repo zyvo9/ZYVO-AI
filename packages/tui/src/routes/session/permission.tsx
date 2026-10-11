@@ -16,6 +16,7 @@ import { getScrollAcceleration } from "../../util/scroll"
 import { useTuiConfig } from "../../config"
 import { OPENCODE_BASE_MODE, useBindings, useCommandShortcut } from "../../keymap"
 import { usePathFormatter } from "../../context/path-format"
+import { useFieldPaste } from "../../ui/paste"
 
 type PermissionStage = "permission" | "always" | "reject"
 
@@ -425,6 +426,7 @@ export function PermissionPrompt(props: { request: PermissionRequest; directory?
 
 function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: () => void }) {
   let input: TextareaRenderable
+  const paste = useFieldPaste(() => input)
   const { theme } = useTheme()
   const tuiConfig = useTuiConfig()
   const dimensions = useTerminalDimensions()
@@ -490,6 +492,7 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
           textColor={theme.text}
           focusedTextColor={theme.text}
           cursorColor={theme.primary}
+          onPaste={paste.onPaste}
         />
         <box flexDirection="row" gap={2} flexShrink={0}>
           <text fg={theme.text}>

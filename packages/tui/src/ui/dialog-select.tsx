@@ -19,6 +19,7 @@ import { Locale } from "../util/locale"
 import { getScrollAcceleration } from "../util/scroll"
 import { useTuiConfig } from "../config"
 import { formatKeyBindings, useBindings, useKeymapSelector } from "../keymap"
+import { useFieldPaste } from "./paste"
 
 export interface DialogSelectProps<T> {
   title: string
@@ -109,6 +110,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   )
 
   let input: InputRenderable
+  const paste = useFieldPaste(() => input, { enabled: () => !props.locked })
 
   const actions = createMemo(() => props.actions ?? [])
   const shownActions = createMemo(() => actions().filter((item) => !item.hidden))
@@ -520,6 +522,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
               }}
               placeholder={props.placeholder ?? "Search"}
               placeholderColor={theme.textMuted}
+              onPaste={paste.onPaste}
             />
           </box>
         </Show>
