@@ -3,6 +3,7 @@
   "model": "opencode/big-pickle",
   "fallback_models": [
     "zyvo-free-nvidia/z-ai/glm-5.3-flash",
+    "zyvo-free-kilo/kilo-auto/free",
     "zyvo-free-kilo/nvidia/nemotron-3.5-lightning:free",
     "zyvo-free-kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free-kilo/dots-studio/dots-3-note-preview:free",
@@ -85,6 +86,14 @@
         "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTExNDYwNjQsImV4cCI6MTk0ODgyNjA2NH0.QnqNzSWdRAIInoaIP0dYtMlhPW8vhSn6OCFm1pPwdUA"
       },
       "models": {
+        "kilo-auto/free": {
+          "name": "Free Router",
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
         "nvidia/nemotron-3.5-lightning:free": {
           "name": "Nemotron 3.5 Lightning",
           "limit": {
@@ -121,14 +130,6 @@
           "name": "North Mini Code",
           "limit": {
             "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "kilo-auto/free": {
-          "name": "Free Router",
-          "limit": {
-            "context": 200000,
             "output": 65536
           },
           "tool_call": true
