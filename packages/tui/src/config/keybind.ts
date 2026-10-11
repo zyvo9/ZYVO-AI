@@ -156,7 +156,10 @@ export const Definitions = {
   workspace_set: keybind("none", "Set workspace"),
 
   input_clear: keybind("ctrl+c", "Clear input field"),
-  input_paste: keybind({ key: "ctrl+v,ctrl+shift+v", preventDefault: false }, "Paste from clipboard"),
+  // ctrl+v only — ctrl+shift+v belongs to the TERMINAL (Windows Terminal's
+  // elevated-window switch / native paste): the app binding made BOTH fire,
+  // and the terminal's action (admin window) hijacked the press
+  input_paste: keybind({ key: "ctrl+v", preventDefault: false }, "Paste from clipboard"),
   input_copy: keybind("ctrl+shift+c", "Copy selection or input text"),
   input_submit: keybind("return", "Submit input"),
   input_newline: keybind("shift+return,ctrl+return,alt+return,ctrl+j", "Insert newline in input"),

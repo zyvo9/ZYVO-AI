@@ -12,6 +12,7 @@ import { serviceUse } from "@opencode-ai/core/effect/service-use"
 import { type LanguageModelV3 } from "@ai-sdk/provider"
 import { ModelsDev } from "@opencode-ai/core/models-dev"
 import { Auth } from "../auth"
+import { KeyPool } from "./keypool"
 import { Env } from "../env"
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { iife } from "@/util/iife"
@@ -1670,6 +1671,26 @@ export const layer = Layer.effect(
 
         if (baseURL !== undefined) options["baseURL"] = baseURL
         if (options["apiKey"] === undefined && provider.key) options["apiKey"] = provider.key
+        // zyvo multi-key pool: when the provider carries "apiKeys", every
+        // outgoing request gets the pool's CURRENT key injected (rotated on
+        // quota walls by the session processor) — the SAME model keeps
+        // working instead of dying for hours. The pool wins over the single
+        // baked key; a user auth-login key still overrides below for the
+        // legacy zyvo/omniroute providers.
+        if (Array.isArray(options["apiKeys"])) {
+          KeyPool.configure(model.providerID, options["apiKeys"])
+          if (KeyPool.size(model.providerID) > 1) {
+            const innerFetch = typeof options["fetch"] === "function" ? (options["fetch"] as typeof fetch) : undefined
+            const poolProviderID = model.providerID
+            options["fetch"] = ((input: any, init?: any) => {
+              const poolKey = KeyPool.current(poolProviderID)
+              if (!poolKey) return innerFetch ? innerFetch(input, init) : fetch(input, init)
+              const headers = new Headers(init?.headers ?? undefined)
+              headers.set("authorization", `Bearer ${poolKey}`)
+              return innerFetch ? innerFetch(input, { ...init, headers }) : fetch(input, { ...init, headers })
+            }) as typeof fetch
+          }
+        }
         // zyvo/omniroute: a key the user entered via auth login always wins
         // over the baked default key from our shipped config
         if (model.providerID === "zyvo" || model.providerID === "omniroute") {
