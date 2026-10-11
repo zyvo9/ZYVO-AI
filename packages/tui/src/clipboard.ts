@@ -26,6 +26,12 @@ function writeOsc52(text: string) {
   process.stdout.write(process.env.TMUX || process.env.STY ? `\x1bPtmux;\x1b${sequence}\x1b\\` : sequence)
 }
 
+async function readText() {
+  const { default: clipboardy } = await import("clipboardy")
+  const text = await clipboardy.read().catch(() => undefined)
+  if (text) return { data: text, mime: "text/plain" }
+}
+
 export async function read() {
   if (platform() === "darwin") {
     const file = path.join(tmpdir(), "opencode-clipboard.png")
@@ -50,7 +56,13 @@ export async function read() {
     }
   }
 
+  // Windows: read TEXT first — the image probe spawns PowerShell, which
+  // adds seconds to EVERY paste (and can hang under AV scans), while a
+  // screenshot in the clipboard never carries text anyway. The image
+  // probe runs only when the clipboard holds no text.
   if (platform() === "win32" || release().includes("WSL")) {
+    const text = await readText()
+    if (text) return text
     const script =
       "Add-Type -AssemblyName System.Windows.Forms; $img = [System.Windows.Forms.Clipboard]::GetImage(); if ($img) { $ms = New-Object System.IO.MemoryStream; $img.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png); [System.Convert]::ToBase64String($ms.ToArray()) }"
     const image = await command("powershell.exe", ["-NonInteractive", "-NoProfile", "-command", script]).catch(() =>
@@ -68,9 +80,7 @@ export async function read() {
     if (x11.length) return { data: x11.toString("base64"), mime: "image/png" }
   }
 
-  const { default: clipboardy } = await import("clipboardy")
-  const text = await clipboardy.read().catch(() => undefined)
-  if (text) return { data: text, mime: "text/plain" }
+  return readText()
 }
 
 export function copyCommand(

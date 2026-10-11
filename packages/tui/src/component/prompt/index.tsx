@@ -450,6 +450,25 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
+        title: "Copy",
+        name: "prompt.copy",
+        category: "Prompt",
+        hidden: true,
+        run: async (ctx: CommandContext<Renderable, KeyEvent>) => {
+          ctx.event.preventDefault()
+          ctx.event.stopPropagation()
+          // terminal text selection wins (that is what the user sees
+          // highlighted); with no selection, copy the whole input
+          const selection = renderer.getSelection()?.getSelectedText()
+          if (selection) {
+            await clipboard.write?.(selection)
+            renderer.clearSelection?.()
+            return
+          }
+          if (store.prompt.input !== "") await clipboard.write?.(store.prompt.input)
+        },
+      },
+      {
         title: "Interrupt session",
         name: "session.interrupt",
         category: "Session",
@@ -908,6 +927,14 @@ export function Prompt(props: PromptProps) {
       target: inputTarget,
       enabled: inputTarget() !== undefined && !props.disabled,
       bindings: tuiConfig.keybinds.get("prompt.paste"),
+    }
+  })
+
+  useBindings(() => {
+    return {
+      target: inputTarget,
+      enabled: inputTarget() !== undefined && !props.disabled,
+      bindings: tuiConfig.keybinds.get("prompt.copy"),
     }
   })
 
