@@ -1655,7 +1655,20 @@ export function Prompt(props: PromptProps) {
                   input.cursorColor = theme.text
                 }, 0)
               }}
-              onMouseDown={(r: MouseEvent) => r.target?.focus()}
+              onMouseDown={(r: MouseEvent) => {
+                // keep the built-in focus behavior...
+                r.target?.focus()
+                // ...and add right-click = paste / selection+right-click = copy
+                if (r.button !== 2) return
+                r.preventDefault?.()
+                const selection = renderer.getSelection()?.getSelectedText()
+                if (selection) {
+                  void clipboard.write?.(selection)
+                  renderer.clearSelection?.()
+                  return
+                }
+                keymap.dispatchCommand("prompt.paste")
+              }}
               focusedBackgroundColor={theme.backgroundElement}
               cursorColor={props.disabled ? theme.backgroundElement : theme.text}
               syntaxStyle={syntax()}
