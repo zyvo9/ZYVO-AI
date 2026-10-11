@@ -1016,6 +1016,10 @@ export const layer = Layer.effect(
                       fallbacks.length > 0
                     ) {
                       const next = fallbacks[fallbackCursor % fallbacks.length]
+                      // once every lane has been tried, say so instead of
+                      // silently wrapping — the chain keeps cycling because
+                      // quotas reset over time, but the user should know
+                      const cycled = fallbackCursor >= fallbacks.length
                       fallbackCursor += 1
                       const slash = next.indexOf("/")
                       const providerID = next.slice(0, slash)
@@ -1025,7 +1029,7 @@ export const layer = Layer.effect(
                         .pipe(Effect.either)
                       if (resolved._tag === "Right") {
                         activeModel = resolved.right
-                        message = `${message} - switching to ${next}`
+                        message = `${message} - switching to ${next}${cycled ? ` (all ${fallbacks.length} fallback lanes cycled — retrying the chain; quotas reset over time)` : ""}`
                       }
                     }
                     // TODO(v2): Temporary dual-write while migrating session messages to v2 events.

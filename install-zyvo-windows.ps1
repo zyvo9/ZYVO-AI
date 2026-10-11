@@ -41,16 +41,32 @@ Write-Host "==> Refreshing the default config..." -ForegroundColor Green
 New-Item -ItemType Directory -Force -Path $cfg | Out-Null
 Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/config/zyvo.json" -OutFile "$cfg\zyvo.json" -UseBasicParsing
 
-# --- 3. Skills: FULL tree, nested folders included (git trees API) ---
-Write-Host "==> Deploying skills (full tree, nested folders included)..." -ForegroundColor Green
-$tree = Invoke-RestMethod "https://api.github.com/repos/$repo/git/trees/main?recursive=1"
-$skillFiles = $tree.tree | Where-Object { $_.path -like 'config/skills/*' -and $_.type -eq 'blob' }
-foreach ($f in $skillFiles) {
-  $rel = $f.path.Substring("config/skills/".Length)
-  $target = Join-Path "$cfg\skills" $rel
-  New-Item -ItemType Directory -Force -Path (Split-Path $target -Parent) | Out-Null
-  Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/$($f.path)" -OutFile "$target.tmp" -UseBasicParsing
-  Move-Item "$target.tmp" $target -Force
+# --- 3. Skills: FULL tree via ONE repo zip (2,400+ files land in seconds —
+#     the per-file raw fetch made installs take many minutes) ---
+Write-Host "==> Deploying skills (single repo zip - fast)..." -ForegroundColor Green
+New-Item -ItemType Directory -Force -Path "$env:TEMP\zyvo-skills" | Out-Null
+try {
+  Invoke-WebRequest "https://codeload.github.com/$repo/zip/refs/heads/main" -OutFile "$env:TEMP\zyvo-skills\repo.zip" -UseBasicParsing
+  Expand-Archive "$env:TEMP\zyvo-skills\repo.zip" "$env:TEMP\zyvo-skills\x" -Force
+  $srcRoot = Get-ChildItem "$env:TEMP\zyvo-skills\x" -Directory | Select-Object -First 1
+  $skillsSrc = Join-Path $srcRoot.FullName "config\skills"
+  if (Test-Path $skillsSrc) {
+    New-Item -ItemType Directory -Force -Path "$cfg\skills" | Out-Null
+    Copy-Item (Join-Path $skillsSrc '*') "$cfg\skills" -Recurse -Force
+  }
+} catch {
+  Write-Host "   fast deploy failed ($($_.Exception.Message)) - per-file fallback" -ForegroundColor DarkGray
+  $tree = Invoke-RestMethod "https://api.github.com/repos/$repo/git/trees/main?recursive=1"
+  $skillFiles = $tree.tree | Where-Object { $_.path -like 'config/skills/*' -and $_.type -eq 'blob' }
+  foreach ($f in $skillFiles) {
+    $rel = $f.path.Substring("config/skills/".Length)
+    $target = Join-Path "$cfg\skills" $rel
+    New-Item -ItemType Directory -Force -Path (Split-Path $target -Parent) | Out-Null
+    Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/$($f.path)" -OutFile "$target.tmp" -UseBasicParsing
+    Move-Item "$target.tmp" $target -Force
+  }
+} finally {
+  Remove-Item "$env:TEMP\zyvo-skills" -Recurse -Force -ErrorAction SilentlyContinue
 }
 Get-ChildItem "$cfg\skills" -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } | ForEach-Object {
   Write-Host ("   skill deployed: " + $_.Name) -ForegroundColor Cyan

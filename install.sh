@@ -152,24 +152,45 @@ info "Latest: v${LATEST_VERSION} (build ${REMOTE_BUILD_ID})"
 
 CONFIG_FILE="$HOME/.config/zyvo/zyvo.json"
 deploy_skills() {
-  # deploy every skill FULLY — nested folders too (references/data/scripts) —
-  # via the git trees API (one call lists every file in the repo)
-  TREE="$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1" 2>/dev/null || true)"
-  [ -n "$TREE" ] || return 0
-  FILES="$(echo "$TREE" | grep -o '"path": *"config/skills/[^"]*"' | sed 's/"path": *"//;s/"$//' | sort -u)"
-  [ -n "$FILES" ] || return 0
-  for F in $FILES; do
-    REL="${F#config/skills/}"
-    NAME="${REL%%/*}"
-    SKILL_DIR="$HOME/.config/zyvo/skills/$NAME"
-    mkdir -p "$SKILL_DIR/$(dirname "$REL")"
-    if curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPO}/main/$F" -o "$SKILL_DIR/$REL.tmp" 2>/dev/null \
-       && [ -s "$SKILL_DIR/$REL.tmp" ]; then
-      mv "$SKILL_DIR/$REL.tmp" "$SKILL_DIR/$REL"
-    else
-      rm -f "$SKILL_DIR/$REL.tmp"
+  # deploy every skill FULLY — nested folders too. FAST PATH: one git sparse
+  # clone — 2,400+ files land in seconds; the old per-file raw fetch made
+  # installs take 15-30 minutes on mobile networks. Fallback: the per-file
+  # raw loop (only when git/sparse clone is unavailable). Repo-owned folders
+  # are OVERLAID (cp over existing) — skills the USER added themselves are
+  # never touched or deleted.
+  SKILLS_TMP="$(mktemp -d)"
+  SKILLS_COPIED=false
+  if command -v git >/dev/null 2>&1 \
+    && git clone --depth 1 --filter=blob:none --sparse "https://github.com/${GITHUB_REPO}.git" "$SKILLS_TMP/repo" >/dev/null 2>&1 \
+    && ( cd "$SKILLS_TMP/repo" && git sparse-checkout set config/skills >/dev/null 2>&1 ) \
+    && [ -d "$SKILLS_TMP/repo/config/skills" ]; then
+    mkdir -p "$HOME/.config/zyvo/skills"
+    if cp -rf "$SKILLS_TMP/repo/config/skills/." "$HOME/.config/zyvo/skills/" 2>/dev/null; then
+      SKILLS_COPIED=true
+      info "skills deployed (sparse clone — fast path)"
     fi
-  done
+  fi
+  rm -rf "$SKILLS_TMP"
+  if [ "$SKILLS_COPIED" != true ]; then
+    # fallback: per-file raw fetch via the git trees API (one call lists
+    # every file, then one download each — slow but always works)
+    TREE="$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1" 2>/dev/null || true)"
+    [ -n "$TREE" ] || return 0
+    FILES="$(echo "$TREE" | grep -o '"path": *"config/skills/[^"]*"' | sed 's/"path": *"//;s/"$//' | sort -u)"
+    [ -n "$FILES" ] || return 0
+    for F in $FILES; do
+      REL="${F#config/skills/}"
+      NAME="${REL%%/*}"
+      SKILL_DIR="$HOME/.config/zyvo/skills/$NAME"
+      mkdir -p "$SKILL_DIR/$(dirname "$REL")"
+      if curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPO}/main/$F" -o "$SKILL_DIR/$REL.tmp" 2>/dev/null \
+         && [ -s "$SKILL_DIR/$REL.tmp" ]; then
+        mv "$SKILL_DIR/$REL.tmp" "$SKILL_DIR/$REL"
+      else
+        rm -f "$SKILL_DIR/$REL.tmp"
+      fi
+    done
+  fi
   for D in "$HOME/.config/zyvo/skills"/*/; do
     [ -f "$D/SKILL.md" ] && info "skill deployed: $(basename "$D")"
   done

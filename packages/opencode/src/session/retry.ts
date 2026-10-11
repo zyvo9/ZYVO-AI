@@ -72,7 +72,25 @@ export function retryable(error: Err, provider: string) {
     const status = error.data.statusCode
     // 5xx errors are transient server failures and should always be retried,
     // even when the provider SDK doesn't explicitly mark them as retryable.
-    if (!error.data.isRetryable && !(status !== undefined && status >= 500)) return undefined
+    if (!error.data.isRetryable && !(status !== undefined && status >= 500)) {
+      // a 429 is a usage-limit wall regardless of how the SDK classified it —
+      // waiting out the provider's window (sometimes hours) is the wrong
+      // answer when a fallback lane exists; classify it so the processor
+      // rotates to the next lane instead
+      if (status === 429 || /rate limit|too many requests|quota/i.test(error.data.message)) {
+        return {
+          message: error.data.message || "Rate limited",
+          action: {
+            reason: "account_rate_limit" as const,
+            provider,
+            title: "Rate limited",
+            message: error.data.message || "Rate limited — switching lane",
+            label: "switch",
+          },
+        }
+      }
+      return undefined
+    }
     if (error.data.responseBody?.includes("FreeUsageLimitError")) {
       return {
         message: GO_UPSELL_MESSAGE,
@@ -119,7 +137,23 @@ export function retryable(error: Err, provider: string) {
         },
       }
     }
-    return { message: error.data.message.includes("Overloaded") ? "Provider is overloaded" : error.data.message }
+    // a throttled lane should hand off to the next fallback, not wait —
+    // same reasoning as the unretryable-429 branch above
+    const limitMessage =
+      error.data.message.includes("Overloaded") ? "Provider is overloaded" : error.data.message
+    if (status === 429) {
+      return {
+        message: limitMessage,
+        action: {
+          reason: "account_rate_limit" as const,
+          provider,
+          title: "Rate limited",
+          message: limitMessage || "Rate limited — switching lane",
+          label: "switch",
+        },
+      }
+    }
+    return { message: limitMessage }
   }
 
   // Check for rate limit patterns in plain text error messages
@@ -131,7 +165,16 @@ export function retryable(error: Err, provider: string) {
       lower.includes("rate limit") ||
       lower.includes("too many requests")
     ) {
-      return { message: msg }
+      return {
+        message: msg,
+        action: {
+          reason: "account_rate_limit" as const,
+          provider,
+          title: "Rate limited",
+          message: msg,
+          label: "switch",
+        },
+      }
     }
   }
 
@@ -140,13 +183,31 @@ export function retryable(error: Err, provider: string) {
   const code = typeof json.code === "string" ? json.code : ""
 
   if (json.type === "error" && json.error?.type === "too_many_requests") {
-    return { message: "Too Many Requests" }
+    return {
+      message: "Too Many Requests",
+      action: {
+        reason: "account_rate_limit" as const,
+        provider,
+        title: "Rate limited",
+        message: "Too Many Requests — switching lane",
+        label: "switch",
+      },
+    }
   }
   if (code.includes("exhausted") || code.includes("unavailable")) {
     return { message: "Provider is overloaded" }
   }
   if (json.type === "error" && typeof json.error?.code === "string" && json.error.code.includes("rate_limit")) {
-    return { message: "Rate Limited" }
+    return {
+      message: "Rate Limited",
+      action: {
+        reason: "account_rate_limit" as const,
+        provider,
+        title: "Rate limited",
+        message: "Rate Limited — switching lane",
+        label: "switch",
+      },
+    }
   }
   return undefined
 }
