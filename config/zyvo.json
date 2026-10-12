@@ -11,6 +11,7 @@
     "zyvo-free-blockrun/nvidia/nemotron-3-ultra-550b",
     "zyvo-free-blockrun/cohere/north-mini-code",
     "zyvo-free-nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "zyvo-free/opus-4.7",
     "zyvo-free-nvidia/nvidia/nemotron-3-ultra-550b-a55b",
     "zyvo-free-nvidia/z-ai/glm-5.3",
     "zyvo-free-mistral/codestral-latest"
@@ -240,6 +241,24 @@
         },
         "nvidia/nemotron-3-super-120b-a12b": {
           "name": "Nemotron 3 Super 120B",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://ninerouter-ylri.onrender.com/v1",
+        "apiKey": "sk-a231234747058768-9uritc-b3f55005"
+      },
+      "models": {
+        "opus-4.7": {
+          "name": "Opus 4.7",
           "limit": {
             "context": 256000,
             "output": 65536
