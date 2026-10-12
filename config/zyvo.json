@@ -12,6 +12,7 @@
     "zyvo-free-blockrun/cohere/north-mini-code",
     "zyvo-free-nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
     "zyvo-free/opus-4.7",
+    "zyvo-free/deploy-merge-test",
     "zyvo-free-nvidia/nvidia/nemotron-3-ultra-550b-a55b",
     "zyvo-free-nvidia/z-ai/glm-5.3",
     "zyvo-free-mistral/codestral-latest"
@@ -267,6 +268,14 @@
         },
         "save-race-test-1": {
           "name": "Race Test",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "deploy-merge-test": {
+          "name": "Merge Test",
           "limit": {
             "context": 256000,
             "output": 65536
