@@ -237,7 +237,12 @@ function parseJSON(value: unknown) {
 export function policy(opts: {
   provider: string
   parse: (error: unknown) => Err
-  set: (input: { attempt: number; message: string; action?: Retryable["action"]; next: number }) => Effect.Effect<void>
+  set: (input: {
+    attempt: number
+    message: string
+    action?: Retryable["action"]
+    next: number
+  }) => Effect.Effect<number | void>
 }) {
   return Schedule.fromStepWithMetadata(
     Effect.succeed((meta: Schedule.InputMetadata<unknown>) => {
@@ -247,13 +252,19 @@ export function policy(opts: {
       return Effect.gen(function* () {
         const wait = delay(meta.attempt, SessionV1.APIError.isInstance(error) ? error : undefined)
         const now = yield* Clock.currentTimeMillis
-        yield* opts.set({
+        // the handler may OVERRIDE the wait — a lane/key switch starts on
+        // FRESH quota, so waiting out the dead key's retry-after (hours)
+        // after switching would strand the session anyway
+        const override = yield* opts.set({
           attempt: meta.attempt,
           message: retry.message,
           action: retry.action,
           next: now + wait,
         })
-        return [meta.attempt, Duration.millis(wait)] as [number, Duration.Duration]
+        return [meta.attempt, Duration.millis(typeof override === "number" ? override : wait)] as [
+          number,
+          Duration.Duration,
+        ]
       })
     }),
   )

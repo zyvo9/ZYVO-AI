@@ -1010,6 +1010,10 @@ export const layer = Layer.effect(
                 set: (info) =>
                   Effect.gen(function* () {
                     let message = info.message
+                    // a switch means FRESH quota — override the retry wait
+                    // (the dead lane's retry-after can be HOURS; sleeping on
+                    // it after switching would strand the session anyway)
+                    let overrideWait: number | undefined
                     // usage-limit errors are not fixable by waiting — first
                     // rotate the same model's API-key pool, then fall back to
                     // the next configured model
@@ -1050,21 +1054,22 @@ export const layer = Layer.effect(
                           message = `${message} - switching to ${next}${cycled ? ` (all ${fallbacks.length} fallback lanes cycled — retrying the chain; quotas reset over time)` : ""}`
                         }
                       }
+                      if (keyRotated || activeModel !== streamInput.model) overrideWait = 1500
                     }
-                    // TODO(v2): Temporary dual-write while migrating session messages to v2 events.
-                    const event = mirrorAssistant
-                      ? events.publish(SessionEvent.Retried, {
-                          sessionID: ctx.sessionID,
-                          attempt: info.attempt,
-                          error: {
-                            message,
-                            isRetryable: true,
-                          },
-                          timestamp: DateTime.makeUnsafe(Date.now()),
-                        })
-                      : Effect.void
-                    return yield* flushV2Fragments().pipe(
-                      Effect.andThen(event),
+                    yield* flushV2Fragments().pipe(
+                      Effect.andThen(
+                        mirrorAssistant
+                          ? events.publish(SessionEvent.Retried, {
+                              sessionID: ctx.sessionID,
+                              attempt: info.attempt,
+                              error: {
+                                message,
+                                isRetryable: true,
+                              },
+                              timestamp: DateTime.makeUnsafe(Date.now()),
+                            })
+                          : Effect.void,
+                      ),
                       Effect.andThen(
                         status.set(ctx.sessionID, {
                           type: "retry",
@@ -1075,6 +1080,7 @@ export const layer = Layer.effect(
                         }),
                       ),
                     )
+                    return overrideWait
                   }),
               }),
             ),
