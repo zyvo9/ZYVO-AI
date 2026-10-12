@@ -1,0 +1,31 @@
+# Keep the 9router free instance awake — Render free sleeps after 15 min
+# without inbound traffic; a ping every 10 min keeps it warm so zyvo never
+# eats the 30-50s cold-start delay mid-task. Scheduled workflows on public
+# repos run free. Note: GitHub cron can drift a few minutes — if a run ever
+# lands after the sleep threshold, this ping WAKES the service instead
+# (worst case = one slow request, then warm again).
+name: keep 9router awake
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: ping-9router
+  cancel-in-progress: false
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping
+        run: |
+          for attempt in 1 2; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 \
+              "https://ninerouter-ylri.onrender.com/")
+            echo "ping -> HTTP $code"
+            # any HTTP answer (200/307/401/…) proves the router is warm;
+            # 000 means unreachable — one retry, then fail visibly
+            if [ "$code" != "000" ]; then exit 0; fi
+            sleep 45
+          done
+          exit 1
