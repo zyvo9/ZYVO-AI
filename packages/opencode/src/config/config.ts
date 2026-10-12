@@ -245,28 +245,53 @@ export const layer = Layer.effect(
 
     // STARTUP SYNC: the admin panel deploys the model config to GitHub; fetch it
     // fresh on every launch so OK-deploy on the web reaches the CLI WITHOUT a
-    // zyvo update. EVERYTHING runs inside one try/catch inside Effect.promise —
-    // this can never defect, so a bad network can never kill the boot.
+    // zyvo update. EVERYTHING runs inside one try/catch — this can never
+    // defect, so a bad network can never kill the boot.
+    // ?t= cache-buster: the raw.githubusercontent CDN serves up to 5-min-stale
+    // copies — panel deploys stayed invisible for minutes without it.
+    let pollStarted = false
+    const syncRemoteModelConfigOnce = async (): Promise<"updated" | "unchanged" | "failed"> => {
+      try {
+        const remote = `https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json?t=${Date.now()}`
+        const file = path.join(Global.Path.config, "zyvo.json")
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), 10_000)
+        const res = await fetch(remote, { signal: ctrl.signal })
+        clearTimeout(timer)
+        if (!res.ok) return "failed"
+        const body = await res.text()
+        if (!body.trim().startsWith("{")) return "failed"
+        const parsed = JSON.parse(body)
+        if (!parsed.provider || Object.keys(parsed.provider).length === 0) return "failed"
+        const serialized = JSON.stringify(parsed, null, 2)
+        const existing = await fsNode.readFile(file, "utf8").catch(() => "")
+        if (existing === serialized) return "unchanged"
+        await fsNode.writeFile(file, serialized)
+        const modelCount = Object.values(parsed.provider).reduce(
+          (n: number, p: any) => n + Object.keys(p?.models ?? {}).length,
+          0,
+        )
+        console.log(
+          `[zyvo] panel config synced: ${Object.keys(parsed.provider).length} providers, ${modelCount} models — restart zyvo to pick up new/removed models`,
+        )
+        return "updated"
+      } catch {
+        // offline, timeout, bad body — keep the local config untouched
+        return "failed"
+      }
+    }
     const syncRemoteModelConfig = Effect.fnUntraced(function* () {
-      yield* Effect.promise(async () => {
-        try {
-          const remote = "https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json"
-          const file = path.join(Global.Path.config, "zyvo.json")
-          const ctrl = new AbortController()
-          const timer = setTimeout(() => ctrl.abort(), 5000)
-          const res = await fetch(remote, { signal: ctrl.signal })
-          clearTimeout(timer)
-          if (!res.ok) return
-          const body = await res.text()
-          if (!body.trim().startsWith("{")) return
-          const parsed = JSON.parse(body)
-          if (!parsed.provider || Object.keys(parsed.provider).length === 0) return
-          await fsNode.writeFile(file, JSON.stringify(parsed, null, 2))
-          console.log("[zyvo] remote model config synced:", Object.keys(parsed.provider).length, "providers")
-        } catch {
-          // offline, timeout, bad body — keep the local config untouched
-        }
-      })
+      yield* Effect.promise(syncRemoteModelConfigOnce).pipe(Effect.timeout(Duration.seconds(12)))
+      // BACKGROUND POLL: the panel can deploy a new config at any time —
+      // re-sync every 3 minutes so the file on disk is always current, and
+      // the change log tells the user when a restart is worth doing
+      if (!pollStarted) {
+        pollStarted = true
+        const timer = setInterval(() => {
+          void syncRemoteModelConfigOnce()
+        }, 3 * 60 * 1000)
+        timer.unref?.()
+      }
     })
 
     const loadGlobal = Effect.fnUntraced(function* (env?: Record<string, string>) {
