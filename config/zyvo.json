@@ -264,6 +264,14 @@
             "output": 65536
           },
           "tool_call": true
+        },
+        "save-race-test-1": {
+          "name": "Race Test",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
         }
       }
     }
