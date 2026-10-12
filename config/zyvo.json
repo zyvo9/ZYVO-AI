@@ -23,6 +23,7 @@
     "zyvo-free-mistral/mistral-code-fim-latest",
     "zyvo-free-mistral/voxtral-small-2507",
     "zyvo-free-mistral/voxtral-small-latest",
+    "zyvo-free/opus-4.7",
     "zyvo-free-nvidia/meta/muse-glimmer-30b",
     "zyvo-free-nvidia/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
     "zyvo-free-nvidia/nvidia/nemotron-3-super-120b-a12b"
@@ -252,6 +253,24 @@
         },
         "nvidia/nemotron-3-super-120b-a12b": {
           "name": "Nemotron 3 Super 120B",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://ninerouter-ylri.onrender.com/v1",
+        "apiKey": "sk-7f9cf3411d6a80e6-gjjjgs-08ecdd49"
+      },
+      "models": {
+        "opus-4.7": {
+          "name": "Opus 4.7",
           "limit": {
             "context": 256000,
             "output": 65536
