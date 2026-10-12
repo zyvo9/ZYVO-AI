@@ -242,7 +242,11 @@ export function policy(opts: {
     message: string
     action?: Retryable["action"]
     next: number
-  }) => Effect.Effect<number | void>
+    // the handler sets this when a key/lane switch happened — a switch
+    // starts on FRESH quota, so the dead lane's retry-after (HOURS) must
+    // NOT be waited out after switching
+    waitOverrideMs?: number
+  }) => Effect.Effect<void>
 }) {
   return Schedule.fromStepWithMetadata(
     Effect.succeed((meta: Schedule.InputMetadata<unknown>) => {
@@ -252,19 +256,15 @@ export function policy(opts: {
       return Effect.gen(function* () {
         const wait = delay(meta.attempt, SessionV1.APIError.isInstance(error) ? error : undefined)
         const now = yield* Clock.currentTimeMillis
-        // the handler may OVERRIDE the wait — a lane/key switch starts on
-        // FRESH quota, so waiting out the dead key's retry-after (hours)
-        // after switching would strand the session anyway
-        const override = yield* opts.set({
+        const input = {
           attempt: meta.attempt,
           message: retry.message,
           action: retry.action,
           next: now + wait,
-        })
-        return [meta.attempt, Duration.millis(typeof override === "number" ? override : wait)] as [
-          number,
-          Duration.Duration,
-        ]
+          waitOverrideMs: undefined as number | undefined,
+        }
+        yield* opts.set(input)
+        return [meta.attempt, Duration.millis(input.waitOverrideMs ?? wait)] as [number, Duration.Duration]
       })
     }),
   )

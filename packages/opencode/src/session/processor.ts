@@ -968,9 +968,6 @@ export const layer = Layer.effect(
         // models to rotate onto when the current one hits a usage limit
         let activeModel = streamInput.model
         let fallbackCursor = 0
-        // how many keys of the CURRENT model's pool have been tried —
-        // reset when the lane switches to a different model
-        let keyTries = 0
 
         return yield* Effect.gen(function* () {
           yield* Effect.gen(function* () {
@@ -1012,31 +1009,18 @@ export const layer = Layer.effect(
                     let message = info.message
                     // a switch means FRESH quota — override the retry wait
                     // (the dead lane's retry-after can be HOURS; sleeping on
-                    // it after switching would strand the session anyway)
+                    // it after switching would strand the session anyway).
+                    // Same-model multi-key pooling now lives in the 9router
+                    // gateway — the CLI rotates MODELS, keys stay server-side.
                     let overrideWait: number | undefined
-                    // usage-limit errors are not fixable by waiting — first
-                    // rotate the same model's API-key pool, then fall back to
-                    // the next configured model
+                    // usage-limit errors are not fixable by waiting — rotate
+                    // onto the next configured fallback model
                     if (
                       info.action &&
                       (info.action.reason === "free_tier_limit" || info.action.reason === "account_rate_limit")
                     ) {
-                      // FIRST: same model, next API key — the user chose this
-                      // model; a multi-key pool keeps it alive when one key's
-                      // quota dies (keys come from provider options "apiKeys")
-                      const poolSize = KeyPool.size(activeModel.providerID)
-                      let keyRotated = false
-                      if (poolSize > 1 && keyTries < poolSize - 1) {
-                        keyTries += 1
-                        KeyPool.rotate(activeModel.providerID)
-                        keyRotated = true
-                        message = `${message} - switching to API key ${keyTries + 1}/${poolSize} (same model)`
-                      }
-                      // THEN: every key of this model is exhausted (or no
-                      // pool) — rotate onto the next configured fallback model
                       const fallbacks = (yield* config.get()).fallback_models ?? []
-                      if (!keyRotated && fallbacks.length > 0) {
-                        keyTries = 0 // fresh key pool for the next lane
+                      if (fallbacks.length > 0) {
                         const next = fallbacks[fallbackCursor % fallbacks.length]
                         // once every lane has been tried, say so instead of
                         // silently wrapping — the chain keeps cycling because
@@ -1048,14 +1032,15 @@ export const layer = Layer.effect(
                         const modelID = next.slice(slash + 1)
                         const resolved = yield* provider
                           .getModel(ProviderV2.ID.make(providerID), ModelV2.ID.make(modelID))
-                          .pipe(Effect.either)
-                        if (resolved._tag === "Right") {
-                          activeModel = resolved.right
+                          .pipe(Effect.exit)
+                        if (resolved._tag === "Success") {
+                          activeModel = resolved.value
+                          overrideWait = 1500
                           message = `${message} - switching to ${next}${cycled ? ` (all ${fallbacks.length} fallback lanes cycled — retrying the chain; quotas reset over time)` : ""}`
                         }
                       }
-                      if (keyRotated || activeModel !== streamInput.model) overrideWait = 1500
                     }
+                    if (overrideWait !== undefined) info.waitOverrideMs = overrideWait
                     yield* flushV2Fragments().pipe(
                       Effect.andThen(
                         mirrorAssistant
@@ -1080,7 +1065,6 @@ export const layer = Layer.effect(
                         }),
                       ),
                     )
-                    return overrideWait
                   }),
               }),
             ),
