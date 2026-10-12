@@ -12,9 +12,7 @@
     "zyvo-free-blockrun/cohere/north-mini-code",
     "zyvo-free-nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
     "zyvo-free-nvidia/nvidia/nemotron-3-ultra-550b-a55b",
-    "zyvo-free-nvidia/z-ai/glm-5.3",
-    "zyvo-free/mistral/mistral-code-latest",
-    "zyvo-free/mistral/codestral-latest"
+    "zyvo-free-nvidia/z-ai/glm-5.3"
   ],
   "provider": {
     "zyvo-free-blockrun": {
@@ -241,32 +239,6 @@
         },
         "nvidia/nemotron-3-super-120b-a12b": {
           "name": "Nemotron 3 Super 120B",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        }
-      }
-    },
-    "zyvo-free": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free (9router)",
-      "options": {
-        "baseURL": "https://ninerouter-ylri.onrender.com/v1",
-        "apiKey": "sk-7f9cf3411d6a80e6-gjjjgs-08ecdd49"
-      },
-      "models": {
-        "mistral/mistral-code-latest": {
-          "name": "Mistral Code (9router)",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "mistral/codestral-latest": {
-          "name": "Codestral (9router)",
           "limit": {
             "context": 256000,
             "output": 65536
