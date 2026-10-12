@@ -264,6 +264,14 @@
             "output": 65536
           },
           "tool_call": true
+        },
+        "test-save-model-xyz": {
+          "name": "Test Save Model",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
         }
       }
     }
