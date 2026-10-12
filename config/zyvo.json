@@ -251,10 +251,10 @@
     },
     "zyvo-free": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "zyvo-free",
+      "name": "Zyvo Free (9router)",
       "options": {
-        "baseURL": "",
-        "apiKey": ""
+        "baseURL": "https://ninerouter-ylri.onrender.com/v1",
+        "apiKey": "sk-7f9cf3411d6a80e6-gjjjgs-08ecdd49"
       },
       "models": {
         "mistral/mistral-code-latest": {
