@@ -53,7 +53,7 @@
     },
     "zyvo-free-2": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free 2",
+      "name": "Zyvo Free",
       "options": {
         "baseURL": "https://api.xkiro.com/v1",
         "apiKey": "sk-xt-6d89d3acf9b94ca44ef6f1ab32dacb74ea2479954bfc6860"
@@ -127,7 +127,7 @@
     },
     "zyvo-free-3": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free 3",
+      "name": "Zyvo Free",
       "options": {
         "baseURL": "https://ollama.com/v1",
         "apiKey": "89a96a3867c04aa494dfa04f15c9f31d.ytAkTZYoHEkiZNJhNp26hO_x"
