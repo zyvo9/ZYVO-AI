@@ -26,6 +26,21 @@ Everything here is for software the user possesses, personal use.
    continue silently.
 5. Remote-kill switches and stolen-data features get neutralized, never
    preserved.
+6. **DECOMPILE-FIRST IS THE LAW (the overlay/fake-server ban):** when the
+   target is .NET/readable, you MUST decompile (dnSpy/ILSpy/ilspycmd) and
+   patch the BINARY itself. Building an overlay/wrapper on top of the
+   panel, or faking the license server locally, BEFORE decompiling = a
+   FAILED crack — those shortcuts leak bugs (every flow you didn't see
+   keeps checking the gate). Emulation/overlay is the LAST RESORT: only
+   after decompilation PROVES the gate lives server-side (nothing to
+   patch locally) or the binary is armored beyond recovery. Same for
+   web panels: edit the real PHP/source, never paper over it.
+   Relays/local fake servers are also UNSTABLE: port conflicts (two panels
+   cannot run at once), IP bind errors, works-in-the-morning-dies-by-evening.
+7. **NEVER CLAIM "DECOMPILE E SOMBHOB NA" WITHOUT EVIDENCE:** run the actual
+   triage first (file type check + the tools). Game panels (Free Fire-style
+   topup/admin panels) are ordinary .NET/PHP/web apps — decompilable and
+   readable. Prove impossibility with the triage result, or do the work.
 
 ## Phase 0 — Triage (what is this program?)
 
