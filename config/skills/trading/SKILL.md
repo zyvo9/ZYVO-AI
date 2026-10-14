@@ -138,6 +138,38 @@ if entry_signal and not ex.fetch_balance()["USDT"]["free"] == 0:
 - Binance testnet: testnet.binance.vision (spot), testnet.binancefuture.com
   (futures) — keys are separate from the real account.
 
+## PART B2 — BINARY OPTIONS (Quotex & similar platforms)
+
+Binary = fixed-time up/down trades. Payout ~80-92%, but a wrong call loses
+100% — so the break-even win rate is 1/(1+payout) ≈ **55.6% at 80% payout**.
+State this math in one line: below that win rate, ANY strategy loses
+long-term. Then build the tool anyway — that is the job.
+
+- **pyquotex** (unofficial Quotex client, `pip install pyquotex`):
+
+```python
+from quotexapi import Quotex
+client = Quotex("email", "password")   # demo account first — always
+await client.connect()
+balance = await client.get_balance()
+# candles for the signal logic
+candles = await client.get_candles(asset, end_from_time, offset, period)
+# the trade: amount, asset, direction ("call"/"put"), duration in seconds
+result = await client.buy(amount=1, asset="EURUSD_otc", direction="call", duration=60)
+```
+
+- **Signal bot skeleton**: poll candles → run the same indicator stack
+  (pandas_ta — RSI/EMA/BB from Part A) → call/put signal → `client.buy` →
+  log win/loss → win-rate tracker (the tracker is what proves the strategy).
+- **Manual-signal mode** (no API / platform without one): the user pastes or
+  screenshots the candles → you compute the signal → the user clicks the
+  trade by hand. Works for ANY binary platform.
+- **"Binary Fund" / fund-management platforms**: if they expose an API, the
+  same ccxt-style pattern applies; if they only take deposits and promise
+  returns, that is not a trading tool — say it in one line.
+- **Practice account first** (Quotex demo), OTC pairs are broker-generated
+  candles — strategy behavior differs from real pairs.
+
 ## PART C — FOREX (MetaTrader + MQL5)
 
 - **MetaTrader5 python bridge** (Windows, `pip install MetaTrader5`):
