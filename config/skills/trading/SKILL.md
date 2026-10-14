@@ -170,6 +170,40 @@ result = await client.buy(amount=1, asset="EURUSD_otc", direction="call", durati
 - **Practice account first** (Quotex demo), OTC pairs are broker-generated
   candles — strategy behavior differs from real pairs.
 
+## PART B3 — FUNDED CHALLENGES (prop firms: BinaryFunded etc.)
+
+Binary-options prop firms: pay a small challenge fee → hit a profit target
+within drawdown limits → trade the firm's capital → keep 80-90% of profits.
+BinaryFunded example: $3 Mini Challenge → $1,500 funded; up to $100K funded
+accounts; 85% profit split; per-trade payout up to 94% (indices), crypto
+84-92%, commodities 82-88%, forex 78-82%; no time limit; free $10K demo.
+
+**The math that decides everything:**
+- Break-even win rate = 1/(1+payout) → indices at 94% = 51.5%, forex at 80%
+  = 55.6%. Trade the HIGHEST-payout market available (indices) — the edge
+  needed is smallest there.
+- The challenge is a SURVIVAL test, not a profit race: max daily drawdown
+  (~3%) and total drawdown (~5%) kill more accounts than losing trades do.
+
+**Passing framework (any funded binary challenge):**
+1. Fixed 1-2% risk per trade — never more, the drawdown limit is the boss.
+2. ONE setup only (e.g. S/R level + reversal candle + RSI confirmation on
+   1-5 min expiry), mastered on the free demo first.
+3. Trade ONLY the best windows: London open + NY overlap; skip OTC/choppy
+   sessions.
+4. Daily stop: after -2% day (or 2 losses), STOP until tomorrow — protects
+   the daily drawdown limit.
+5. Progression flat (same size every trade) — no martingale EVER (one
+   streak = total drawdown breach = challenge failed).
+6. Track every trade: asset, setup, win/loss, payout — the win-rate tracker
+   (Part B2) tells you when the edge is real (need >55% at 90% payout).
+7. Verify the firm: payout proofs/withdrawal reviews BEFORE paying more
+   than the minimum challenge fee — the smallest fee IS the verification.
+
+Red flags to state in one line: unregulated niche, aggressive marketing
+("$3 to $1,500"), some firms delay/deny payouts — start minimum, withdraw
+early and often.
+
 ## PART C — FOREX (MetaTrader + MQL5)
 
 - **MetaTrader5 python bridge** (Windows, `pip install MetaTrader5`):
