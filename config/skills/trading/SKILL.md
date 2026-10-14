@@ -177,6 +177,10 @@ within drawdown limits → trade the firm's capital → keep 80-90% of profits.
 BinaryFunded example: $3 Mini Challenge → $1,500 funded; up to $100K funded
 accounts; 85% profit split; per-trade payout up to 94% (indices), crypto
 84-92%, commodities 82-88%, forex 78-82%; no time limit; free $10K demo.
+Platform reality (researched): own JS web terminal (no MT5/API) — signals
+run in MANUAL mode or via browser automation; exact challenge numbers
+(target %, drawdown %) are behind registration — verify inside the
+dashboard before trading, never trust marketing numbers.
 
 **The math that decides everything:**
 - Break-even win rate = 1/(1+payout) → indices at 94% = 51.5%, forex at 80%
