@@ -131,6 +131,41 @@ The exe phones home to check the license — the server response can be faked:
 - Delivery: tell the user exactly what changed, what to test, and the
   safety-scan verdict
 
+## PANEL REBRAND + REDISTRIBUTION (the full package)
+
+When the user plans to redistribute a cracked panel to their own audience
+(their icon, their server, their users), the crack is only step one. Full flow:
+
+1. **CRACK** the gate (the phases above — decompile-first law).
+2. **VERIFY WITH THE USER'S SERVER**: the user supplies THEIR server/API
+   credentials for the panel. Connect the cracked panel to their infra and
+   run the FULL check-connection flow (login → real action → response) —
+   the crack must work against THEIR server, not just the original
+   vendor's. Report every step.
+3. **REBRAND**:
+   - **Icon**: Resource Hacker (or the .NET Icon property in dnSpy) — swap
+     the exe icon to the user's file
+   - **Metadata**: file name, product name, company, version — rewrite the
+     VersionInfo block so NO original-branding trace remains
+   - Re-run the crack verification after rebranding (resource edits can
+     break the gate — rare, but verify).
+4. **BUILD**: rebuild/repack (dnSpy Save Module / recompile / resource
+   update), run it — rebrand shows, gate opens, connection verified.
+5. **KILL SWITCH (ASK FIRST — one question at task start: "kill switch
+   lagbe ki na?")**: the distributor's off-switch for their audience:
+   - at startup the panel fetches a tiny config URL the distributor
+     controls (their GitHub raw / their server): response "off" → show
+     "service paused — contact admin" and exit
+   - cache the last response so one missed fetch never bricks it
+   - or a local expiry file / date-bomb — the user picks the style
+   - implement it as a small addition to the ALREADY-CRACKED code and log
+     it in MOD_NOTES like every other patch
+   NEVER add a kill switch unasked; NEVER skip it when the user asked.
+
+Ban reality: a cracked panel carries NO ban risk — it is local software and
+the vendor cannot see the patched exe (telemetry/updaters get neutralized in
+the safety scan). Long use with no incident is the normal outcome.
+
 ## Termux role
 
 On the phone build, this skill guides; the actual x64dbg/dnSpy work runs on
