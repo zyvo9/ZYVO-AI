@@ -1,6 +1,6 @@
 ---
 name: game-remake
-description: PC game REMAKE playbook for Android (Solarpunk-style porting) — extract assets/animations from Unity/Unreal/Godot/GameMaker games (AssetRipper full-project recovery, AssetStudio FBX-with-animation export, UModel/UE Viewer for Unreal), rebuild in Unity for Android (Hub + Android Build Support setup, URP mobile settings), write the game logic with AI (micro-task C# prompts — inventory, timers/growth, interaction, building, save systems), Mono decompile reference (dnSpy/ILSpy on Assembly-CSharp.dll), touch/joystick controls (Input System), mobile optimization (texture compression, batching, LOD), and the APK/AAB build with keystore. Use when the user asks to port a PC game to Android by rebuilding it, extract a game's assets/models/animations into a new engine, make a game remake, set up Unity for Android game dev, build an APK from a Unity project, or says "game remake koro", "asset extract kore notun engine e banao", "solarpunk port", "unity android build", "pc game er asset nao", "game port remake".
+description: PC game REMAKE playbook for Android (any PC game rebuilt as a mobile game) — extract assets/animations from Unity/Unreal/Godot/GameMaker games (AssetRipper full-project recovery, AssetStudio FBX-with-animation export, UModel/UE Viewer for Unreal), rebuild in Unity for Android (Hub + Android Build Support setup, URP mobile settings), write the game logic with AI (micro-task C# prompts — inventory, timers/growth, interaction, building, save systems), Mono decompile reference (dnSpy/ILSpy on Assembly-CSharp.dll), touch/joystick controls (Input System), mobile optimization (texture compression, batching, LOD), and the APK/AAB build with keystore. Use when the user asks to port a PC game to Android by rebuilding it, extract a game's assets/models/animations into a new engine, make a game remake, set up Unity for Android game dev, build an APK from a Unity project, or says "game remake koro", "asset extract kore notun engine e banao", "solarpunk port", "unity android build", "pc game er asset nao", "game port remake".
 ---
 
 # Game Remake Playbook (PC → Android rebuild)
@@ -52,7 +52,7 @@ Unity + IL2CPP = assets still perfect, logic rewritten from behavior.
 
 ## Phase 1 — EXTRACT the assets
 
-### Unity games (most simulators/solarpunk games)
+### Unity games (most modern simulators and indie games)
 
 1. **AssetRipper** (github.com/AssetRipper/AssetRipper — free, GUI):
    File → Open File/Folder → point at the game's `<Game>_Data` folder →
@@ -114,12 +114,12 @@ conversation turn. The prompt pattern (Banglish fine):
 - "Tree growth system: proti 30 second-e scale 20% barbe, 3 bar barle mature
   model-e swap hobe. Rain hole speed double."
 
-The standard systems checklist for a simulator/solarpunk remake:
+The standard systems checklist for a simulator/management remake:
 - [ ] Inventory (add/remove/count, UI binding)
 - [ ] Interaction (raycast tap → harvest/open/talk)
 - [ ] Growth timers (trees/crops: scale over time → swap prefab)
 - [ ] Building (cost check → spawn prefab → place)
-- [ ] Day/night cycle + energy production (solar: +5/day-second, 0 at night)
+- [ ] Day/night cycle + resource production ticks
 - [ ] Save/load (JSON to Application.persistentDataPath)
 - [ ] Touch camera control (drag-rotate, pinch-zoom)
 - [ ] UI (hotbar, counters, build menu)
@@ -134,7 +134,7 @@ prompts so the remake matches the original balance.
   (`isWalking`, `OpenDoor`, `isCutting`).
 - Smoothness is free: every transition gets **Has Exit Time off** +
   **Transition Duration 0.15–0.25s** — the engine blends, no code.
-- Particles/shaders (solarpunk green-growth effects) rarely extract cleanly —
+- Particles/shaders (growth sparkles, smoke, water) rarely extract cleanly —
   rebuild with Unity's particle system / Shader Graph; say this early.
 
 ## Phase 5 — TOUCH CONTROLS
