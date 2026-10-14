@@ -10,6 +10,8 @@
     "zyvo-free-2/stealth/space-bunny-alpha:free",
     "zyvo-free-2/sensenova/sensenova-6.8-flash-lite",
     "zyvo-free-2/cohere/north-mini-code",
+    "zyvo-free-3/gpt-oss:120b",
+    "zyvo-free-3/nemotron-3-ultra",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free/poolside/laguna-s-2.1:free"
@@ -118,6 +120,32 @@
           "limit": {
             "context": 256000,
             "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-3": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free 3",
+      "options": {
+        "baseURL": "https://ollama.com/v1",
+        "apiKey": "89a96a3867c04aa494dfa04f15c9f31d.ytAkTZYoHEkiZNJhNp26hO_x"
+      },
+      "models": {
+        "gpt-oss:120b": {
+          "name": "Gpt Oss:120b",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "nemotron-3-ultra": {
+          "name": "Nemotron 3 Ultra",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
           },
           "tool_call": true
         }
