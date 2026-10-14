@@ -1035,6 +1035,14 @@ export const layer = Layer.effect(
                           .pipe(Effect.exit)
                         if (resolved._tag === "Success") {
                           activeModel = resolved.value
+                          ctx.model = resolved.value
+                          // the switch happened in the background — retag the
+                          // assistant message with the lane that actually
+                          // generates from here so the TUI's model indicator
+                          // (▣ agent · model) follows the switch live
+                          ctx.assistantMessage.modelID = resolved.value.id
+                          ctx.assistantMessage.providerID = resolved.value.providerID
+                          yield* session.updateMessage(ctx.assistantMessage)
                           overrideWait = 1500
                           message = `${message} - switching to ${next}${cycled ? ` (all ${fallbacks.length} fallback lanes cycled — retrying the chain; quotas reset over time)` : ""}`
                         }
