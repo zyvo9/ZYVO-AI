@@ -13,6 +13,7 @@ import type { EventSource } from "@opencode-ai/tui/context/sdk"
 import { writeHeapSnapshot } from "v8"
 import { validateSession } from "../tui/validate-session"
 import { win32InstallCtrlCGuard } from "@opencode-ai/tui/terminal-win32"
+import { InstallationVersion } from "@opencode-ai/core/installation/version"
 
 declare global {
   const OPENCODE_WORKER_PATH: string
@@ -125,6 +126,45 @@ export const TuiThreadCommand = cmd({
         return
       }
       const cwd = Filesystem.resolve(process.cwd())
+
+      // PRE-BOOT (visible, not a black screen): update check + panel config
+      // sync run HERE — in parallel, hard-capped — so the TUI opens fast and
+      // the user sees exactly what happened in the terminal.
+      UI.println(`zyvo v${InstallationVersion}`)
+      UI.println(UI.Style.TEXT_DIM + "⟩ checking updates & syncing panel config…")
+      const preBoot = await Promise.allSettled([
+        (async () => {
+          const { Installation } = await import("@/installation")
+          const method = await Installation.method()
+          const latest = await Installation.latest(method).catch(() => undefined)
+          if (!latest || latest === InstallationVersion) return "none" as const
+          UI.println(UI.Style.TEXT_DIM + `⬇ update ${latest} found — auto-updating…`)
+          await Installation.upgrade(method, latest).catch(() => undefined)
+          UI.println("✓ updated — restarting…")
+          const { spawn } = await import("child_process")
+          const child = spawn(process.execPath, process.argv.slice(1), {
+            detached: true,
+            stdio: "ignore",
+          })
+          child.unref()
+          process.exit(0)
+        })(),
+        (async () => {
+          const { syncRemoteModelConfigOnce } = await import("@/config/config")
+          const result = await syncRemoteModelConfigOnce()
+          if (result === "updated") process.env.ZYVO_CONFIG_SYNCED = "1"
+          return result
+        })(),
+      ])
+      const [upd, sync] = preBoot
+      if (upd.status === "fulfilled" && upd.value === "none") {
+        UI.println(UI.Style.TEXT_DIM + "✓ up to date")
+      }
+      if (sync.status === "fulfilled") {
+        if (sync.value === "unchanged") UI.println(UI.Style.TEXT_DIM + "✓ config up to date")
+      } else {
+        UI.println(UI.Style.TEXT_DIM + "⚠ config sync failed — using the local copy")
+      }
 
       const worker = new Worker(file)
       const client = Rpc.client<typeof rpc>(worker)
