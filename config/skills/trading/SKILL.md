@@ -208,6 +208,74 @@ Red flags to state in one line: unregulated niche, aggressive marketing
 ("$3 to $1,500"), some firms delay/deny payouts — start minimum, withdraw
 early and often.
 
+## MONEY MANAGEMENT — the full math (explain this to users)
+
+Money management IS the strategy. A mediocre setup with great risk control
+passes challenges; a great setup with bad sizing blows them. When the user
+asks about money management, teach THIS.
+
+### Universal rules (every account, every market)
+
+1. **Fixed fractional sizing**: risk the same small % every trade (1-5%).
+   Never size by feeling, never double after a loss.
+2. **Streak survival — the sizing table** (losses WILL come in streaks;
+   at a 55% win rate a 5-6 loss streak is NORMAL, expected every ~100-150
+   trades):
+
+   | Risk/trade | Survives | Drawdown after 6 straight losses |
+   |---|---|---|
+   | 10% | 9 losses | -46.8% (account crippled) |
+   | 5% | 19 losses | -26.5% |
+   | 3% | 32 losses | -16.7% |
+   | 2% | 49 losses | -11.4% |
+   | 1% | 99 losses | -5.9% (challenge-safe) |
+
+3. **Kelly-lite**: Kelly% = (winrate × (payout+1) − 1) / payout. Example:
+   58% win rate at 0.85 payout → Kelly 8.6% → trade **HALF Kelly ≈ 4%**
+   max. Full Kelly swings destroy accounts; half-Kelly is the ceiling.
+4. **Daily stop**: stop after 2-3 losses or -2/-3% in a day. The market
+   exists tomorrow; the account must too.
+5. **Recovery trading BAN**: never increase size to "win it back" — that is
+   how -5% becomes -50%. After a losing streak, size stays the same.
+
+### Funded-challenge money management (BinaryFunded type)
+
+The challenge is a SURVIVAL test: the drawdown limits decide everything.
+
+- **Challenge phase (passing)**: risk 1% per trade (hard cap 2%). With a
+  ~3% daily / ~5% total drawdown, 1% risk = you can be wrong 5 times TOTAL
+  and still be in the game.
+- **The pass math**: profit target ÷ risk per trade = net wins needed.
+  Example: +10% target at 1% risk = +10 net wins. At 90% payout, a 58% win
+  rate gives +1.22R per 10 trades → ~8 net wins per 100 trades → pass in
+  roughly 2-4 weeks of patient trading. Bigger risk = faster, but one bad
+  day = breach.
+- **Flat sizing during the challenge** — compounding near the drawdown
+  cliff means one loss eats two wins. Compound AFTER funded.
+- **Funded phase**: same 1-2% risk, withdraw the 85% split regularly
+  (firm-risk reduction), keep a personal copy of every payout proof.
+
+### Binary-options money management (payout asymmetry)
+
+Binary is asymmetric: you risk 100 to win ~85 — the sizing must compensate:
+
+- **Payout-adjusted sizing**: to WIN a target W at payout b (0.85),
+  stake = W / b. Example: to net $85 you must stake $100 — plan targets in
+  RISK terms, not reward terms.
+- **Break-even win rate** = 1/(1+payout): 0.85 → 55.6%, 0.92 → 52.1%.
+  Track your REAL win rate (the tracker) — if it sits under break-even,
+  no sizing saves the strategy; stop and fix the setup.
+- **Streak rule for binary**: same table as above — at 1-2% sizing a 6-loss
+  streak costs 6-12%, survivable; at 10% it costs ~47%, account dead.
+- **Compounding** only after 100+ tracked trades above break-even, capped
+  at half-Kelly.
+
+### Teach it back
+
+When a user asks "koto taka diye khelbo", answer with THE TABLE + the
+streak math, then their number. "100% lagbe" is always the wrong answer —
+say what the survivable size is and why.
+
 ## PART C — FOREX (MetaTrader + MQL5)
 
 - **MetaTrader5 python bridge** (Windows, `pip install MetaTrader5`):
