@@ -2,6 +2,14 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
+    "zyvo-free-2/mistralai/mistral-large-4-0",
+    "zyvo-free-2/qwen/qwen3.8-omni-flash:free",
+    "zyvo-free-2/qwen/qwen3.8-max:free",
+    "zyvo-free-2/meituan/longcat-2.5-preview:free",
+    "zyvo-free-2/stealth/big-pickle",
+    "zyvo-free-2/stealth/space-bunny-alpha:free",
+    "zyvo-free-2/sensenova/sensenova-6.8-flash-lite",
+    "zyvo-free-2/cohere/north-mini-code",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free/poolside/laguna-s-2.1:free"
@@ -33,6 +41,80 @@
         },
         "poolside/laguna-s-2.1:free": {
           "name": "Laguna S 2.1",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free 2",
+      "options": {
+        "baseURL": "https://api.xkiro.com/v1",
+        "apiKey": "sk-xt-6d89d3acf9b94ca44ef6f1ab32dacb74ea2479954bfc6860"
+      },
+      "models": {
+        "mistralai/mistral-large-4-0": {
+          "name": "Mistral Large 4 0",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "qwen/qwen3.8-omni-flash:free": {
+          "name": "Qwen3.8 Omni Flash",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": false
+        },
+        "qwen/qwen3.8-max:free": {
+          "name": "Qwen3.8 Max",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "meituan/longcat-2.5-preview:free": {
+          "name": "Longcat 2.5 Preview",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "stealth/big-pickle": {
+          "name": "Big Pickle",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "stealth/space-bunny-alpha:free": {
+          "name": "Space Bunny Alpha",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "sensenova/sensenova-6.8-flash-lite": {
+          "name": "Sensenova 6.8 Flash Lite",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "cohere/north-mini-code": {
+          "name": "North Mini Code",
           "limit": {
             "context": 256000,
             "output": 65536
