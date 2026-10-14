@@ -137,6 +137,57 @@ prompts so the remake matches the original balance.
 - Particles/shaders (growth sparkles, smoke, water) rarely extract cleanly —
   rebuild with Unity's particle system / Shader Graph; say this early.
 
+### 4b — AUDIO extraction (the forgotten 30%)
+
+- **Unity:** AssetRipper/AssetStudio export `AudioClip` as WAV/OGG/MP3 —
+  most clips come out clean. Filter the Asset List by `AudioClip` and export
+  all.
+- **FMOD games** (`.bank` + `.strings.bank` files = FMOD middleware): open
+  the banks in **FMOD Studio** (free) to browse/play events, or
+  **python-fsb5** / **fsbext** to batch-extract the raw sounds.
+- **Wwise games** (`.wem` + `.bnk` files): **wwiser** (python, free) decodes
+  WEM → OGG/WAV in batch: `python wwiser.pyz -b . -o out/`
+- **GameMaker:** UndertaleModTool exports sounds directly.
+- Everything else: **ffmpeg** converts any odd format to ogg/wav
+  (`ffmpeg -in.x -out.ogg`).
+- Audio rarely needs changes — extract → drop into Unity → done.
+
+### 4c — TEXTURES: upscale & fix
+
+- **AI upscaling** (old/low-res textures → crisp on modern phones):
+  - **Upscayl** (GUI, free) — drag textures, choose model, batch folder
+  - **realesrgan-ncnn-vulkan** (CLI, batch): 
+    `realesrgan-ncnn-vulkan -i tex_in/ -o tex_out/ -n realesrgan-x4plus -s 2`
+  - Anime/stylized art: waifu2x or the animejanai models look better than
+    photo models — match the model to the art style.
+- **Missing/corrupt textures**: generate a placeholder with the same palette,
+  or AI-generate (the user's call) — never ship magenta missing-textures.
+- **Format**: do NOT pre-convert — Unity's ASTC import handles compression
+  per-platform. Only fix CONTENT (upscale, clean seams, alpha edges).
+- 2D sprite sheets: slice in Unity (Sprite Editor → grid/automatic) or
+  TexturePacker for complex sheets.
+
+### 4d — ANIMATION deep-dive (beyond FBX)
+
+- **3D with rig** (the golden path): AssetStudio/AssetRipper FBX carries
+  skeleton + clips together — see Phase 4.
+- **2D games** (sprite-sheet animation): extract the sheet → Unity Sprite
+  Editor slices frames → Animation controller records frame swaps. The
+  original frame timings are visible in AssetStudio's AnimationClip preview
+  — copy the frame order.
+- **Unreal .psa animations**: UModel exports PSA → import into **Blender
+  with the PSK/PSA importer** → fix → export FBX → Unity. Unreal→Unity
+  re-rigging is real work — say so.
+- **Missing humanoid animations**: **Mixamo** (free) auto-rigs humanoid
+  meshes and fills any missing clip (walk/idle/attack) — upload the FBX,
+  download animated.
+- **Animator Controller discipline**: one controller per character class,
+  parameters = bools/triggers (`isWalking`, `OpenDoor`), every transition
+  gets Has Exit Time OFF + Duration 0.15–0.25s.
+- **Retargeting**: Unity Humanoid avatar lets one rig's animations drive
+  another rig — use it when the extracted skeleton differs from the new
+  model.
+
 ## Phase 5 — TOUCH CONTROLS
 
 - **Unity Input System** package → on-screen Stick + Button controls: drag
