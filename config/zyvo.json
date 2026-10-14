@@ -254,7 +254,7 @@
       "name": "Zyvo Free",
       "options": {
         "baseURL": "https://ninerouter-ylri.onrender.com/v1",
-        "apiKey": "sk-7f9cf3411d6a80e6-gjjjgs-08ecdd49"
+        "apiKey": "sk-f3e45bcb37e29d3f-3qrkkx-1a5e39e5"
       },
       "models": {
         "mistral/codestral-latest": {
