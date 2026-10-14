@@ -276,6 +276,72 @@ When a user asks "koto taka diye khelbo", answer with THE TABLE + the
 streak math, then their number. "100% lagbe" is always the wrong answer —
 say what the survivable size is and why.
 
+## EDGE BOOSTERS — grow the profit margin (the full framework)
+
+The formula behind everything: **Expectancy = (Win% × AvgWin) − (Loss% × AvgLoss)**.
+When the user asks "profit margin barano jay?", THIS framework is the answer —
+every technique touches exactly one of the three terms.
+
+### Win-rate boosters
+
+1. **Confluence stacking** — enter only with 3+ confirmations together
+   (S/R level + rejection candle + RSI zone + volume spike): one signal alone
+   wins ~50-55%; three-four confluences test at 65%+ (verify in backtest).
+2. **Multi-timeframe alignment** — trade ONLY in the higher-timeframe
+   trend's direction (1H trend up → only CALL signals on 5m). The HTF is
+   the filter, the LTF is the trigger.
+3. **Session filter** — London open + NY overlap = the cleanest moves;
+   Asian chop and OTC candles behave differently — reduce size or skip.
+4. **News filter** — no entries 15 minutes around red-folder economic
+   events (spikes are random); integrate an economic calendar feed and
+   gate the signals.
+5. **Journal + cut weak setups** — log every trade (setup, session,
+   confluence count, result). Any setup under break-even after 30 trades
+   gets CUT. Killing two weak setups raises the blended win rate for free —
+   the most underrated boost.
+
+### Average-win boosters
+
+6. **Partial exits** — close 50% at 1R, trail the remainder (ATR trail) to
+   2-3R: the win stops being cut short.
+7. **Structure-based TP** — the next S/R level, never a fixed distance.
+8. **Trend mode** — trailing stop instead of fixed TP while the trend holds.
+
+### Average-loss reducers
+
+9. **Retest entries** — never chase breakouts; enter on the retest → the
+   stop sits closer → the same $ risk buys a bigger position → bigger win.
+10. **ATR-based stops** — `entry − 2×ATR` adapts to volatility; fixed pips
+    get spiked out.
+11. **The no-trade IS a position** — every trade costs spread/fees; a
+    marginal setup skipped = margin saved.
+
+### Market & cost selection
+
+12. **Highest payout / lowest spread market first** (indices on binary
+    platforms = lowest break-even win rate; tight-spread sessions on forex).
+13. **Over-trading is the biggest hidden margin killer** — 3 A+ trades beat
+    100 mediocre ones. Fewer, better, bigger.
+
+### The tools zyvo can build for the edge
+
+- **MTF dashboard indicator** — 4 timeframes' trend direction on one screen
+- **News-filter integration** — economic calendar feed → signals OFF around
+  red events
+- **Setup tracker** — per-setup win rate live (kill weak setups with data)
+- **Backtest engine** — expectancy numbers per setup (vectorbt / Pine
+  Strategy Tester) before real trades
+- **Journal analyzer** — auto-report: which session, pair, and confluence
+  count actually win
+- **Drawdown guard + win-rate tracker** (Part B2/B3) — the survival layer
+
+### The honest truth
+
+The biggest margin killers are psychological: over-trading, revenge
+trading, moving the stop. The rules above only work followed MECHANICALLY —
+that is why the automated path (Part B bots with hard-coded rules) often
+beats manual trading on the same strategy: code has no feelings.
+
 ## PART C — FOREX (MetaTrader + MQL5)
 
 - **MetaTrader5 python bridge** (Windows, `pip install MetaTrader5`):
