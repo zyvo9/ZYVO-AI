@@ -2,7 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
-    "zyvo-free-2/cloude-opus-7",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free/poolside/laguna-s-2.1:free"
@@ -34,24 +33,6 @@
         },
         "poolside/laguna-s-2.1:free": {
           "name": "Laguna S 2.1",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        }
-      }
-    },
-    "zyvo-free-2": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free 2",
-      "options": {
-        "baseURL": "https://ninerouter-ylri.onrender.com/v1",
-        "apiKey": "sk-8a1fbacb511e8034-k11750-e0b30549"
-      },
-      "models": {
-        "cloude-opus-7": {
-          "name": "Cloude Opus 7",
           "limit": {
             "context": 256000,
             "output": 65536
