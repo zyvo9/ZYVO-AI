@@ -26,7 +26,29 @@ function writeOsc52(text: string) {
   process.stdout.write(process.env.TMUX || process.env.STY ? `\x1bPtmux;\x1b${sequence}\x1b\\` : sequence)
 }
 
+// Termux clipboard helpers
+async function termuxRead(): Promise<string | undefined> {
+  try {
+    const result = await command("termux-clipboard-get")
+    return result.toString().trim()
+  } catch {
+    return undefined
+  }
+}
+
+async function termuxWrite(text: string): Promise<void> {
+  try {
+    await command("termux-clipboard-set", [text])
+  } catch {
+    // ignore
+  }
+}
+
 async function readText() {
+  // Termux: use termux-clipboard-get
+  if (process.env.TERMUX_VERSION) {
+    return termuxRead()
+  }
   const { default: clipboardy } = await import("clipboardy")
   const text = await clipboardy.read().catch(() => undefined)
   if (text) return { data: text, mime: "text/plain" }
@@ -107,6 +129,12 @@ let copyMethod: Promise<(text: string) => Promise<void>> | undefined
 
 function getCopyMethod() {
   return (copyMethod ??= (async () => {
+    // Termux: use termux-clipboard-set
+    if (process.env.TERMUX_VERSION) {
+      return async (text: string) => {
+        await termuxWrite(text)
+      }
+    }
     const { which } = await import("@opencode-ai/core/util/which")
     const native = copyCommand(platform(), Boolean(process.env.WAYLAND_DISPLAY), (name) => Boolean(which(name)))
     if (native?.[0] === "osascript") {
