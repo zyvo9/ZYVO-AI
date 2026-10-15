@@ -207,6 +207,17 @@ export function Prompt(props: PromptProps) {
   let anchor: BoxRenderable
   const [inputTarget, setInputTarget] = createSignal<TextareaRenderable | undefined>()
 
+  // queuedPrompts is a plain module map (not a store) — queueVersion gates
+  // every queued-message UI/effect so bumps make them reactive
+  const [queueVersion, setQueueVersion] = createSignal(0)
+  const bumpQueue = () => setQueueVersion((v) => v + 1)
+  const queued = createMemo(() => {
+    queueVersion()
+    const id = props.sessionID
+    if (!id) return [] as { prompt: PromptInfo; mode: "normal" | "shell" }[]
+    return queuedPrompts.get(id) ?? []
+  })
+
   const leader = useLeaderActive()
   const local = useLocal()
   const args = useArgs()
@@ -734,40 +745,51 @@ export function Prompt(props: PromptProps) {
   })
 
   // QUEUED PROMPTS: flush exactly when the session returns to idle — never
-  // mid-task. Waits for an empty input so a draft being typed is never lost.
+  // mid-task. The message is only removed from the queue AFTER a confirmed
+  // successful send: a failed attempt (autocomplete open, disabled prompt,
+  // draft race, wiped text) keeps it queued and the watchdog retries — a
+  // queued prompt can never be silently lost.
+  const flushOne = (sessionID: string) => {
+    const queue = queuedPrompts.get(sessionID)
+    if (!queue?.length) return
+    if (status().type !== "idle") return
+    if (store.prompt.input) return // a draft being typed — never overwritten
+    if (auto()?.visible) return // autocomplete open — retry on the next tick
+    const first = queue[0]
+    ref.set(first.prompt)
+    setStore("mode", first.mode)
+    flushing = true
+    void submit().then((ok) => {
+      flushing = false
+      if (!ok) return // stays queued; the watchdog retries
+      const q = queuedPrompts.get(sessionID)
+      if (q) {
+        q.shift()
+        if (!q.length) queuedPrompts.delete(sessionID)
+      } else {
+        queuedPrompts.delete(sessionID)
+      }
+      bumpQueue()
+    })
+  }
   createEffect(
     on(
       () => [props.sessionID, status().type] as const,
       ([sessionID, type]) => {
         if (!sessionID || type !== "idle") return
-        const attempt = () => {
-          const queue = queuedPrompts.get(sessionID)
-          if (!queue?.length) return
-          if (status().type !== "idle") return
-          if (store.prompt.input) {
-            // user is typing a draft — retry shortly instead of overwriting it
-            setTimeout(attempt, 1200)
-            return
-          }
-          const first = queue.shift()!
-          if (!queue.length) queuedPrompts.delete(sessionID)
-          setTimeout(() => {
-            if (status().type !== "idle") {
-              queuedPrompts.set(sessionID, [first, ...(queuedPrompts.get(sessionID) ?? [])])
-              return
-            }
-            ref.set(first.prompt)
-            setStore("mode", first.mode)
-            flushing = true
-            void submit().finally(() => {
-              flushing = false
-            })
-          }, 250)
-        }
-        setTimeout(attempt, 400)
+        setTimeout(() => flushOne(sessionID), 400)
       },
     ),
   )
+  // watchdog: covers missed status events (route remounts, dropped events) —
+  // while anything is queued, check twice a second and flush when idle
+  const queueWatchdog = setInterval(() => {
+    const id = props.sessionID
+    if (!id || !queuedPrompts.get(id)?.length) return
+    if (status().type !== "idle") return
+    flushOne(id)
+  }, 500)
+  onCleanup(() => clearInterval(queueWatchdog))
 
   createEffect(() => {
     if (!input || input.isDestroyed) return
@@ -1177,6 +1199,7 @@ export function Prompt(props: PromptProps) {
         const q = queuedPrompts.get(sessionID) ?? []
         q.push({ prompt: unwrap(store.prompt), mode: store.mode })
         queuedPrompts.set(sessionID, q)
+        bumpQueue()
         history.append({ ...store.prompt, mode: store.mode })
         input.extmarks.clear()
         input.clear()
@@ -1906,6 +1929,18 @@ export function Prompt(props: PromptProps) {
                   </text>
                 </Match>
               </Switch>
+            </box>
+          </Show>
+          <Show when={queued().length > 0}>
+            <box paddingLeft={3}>
+              <text wrapMode="none">
+                <span style={{ fg: theme.accent, bold: true }}>
+                  {`⏳ ${queued().length} queued`}
+                </span>
+                <span style={{ fg: theme.textMuted }}>
+                  {` — ${queued()[0].prompt.input.split("\n")[0].slice(0, 60)} — runs when this task finishes`}
+                </span>
+              </text>
             </box>
           </Show>
         </box>

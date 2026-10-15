@@ -47,7 +47,9 @@ async function termuxWrite(text: string): Promise<void> {
 async function readText() {
   // Termux: use termux-clipboard-get
   if (process.env.TERMUX_VERSION) {
-    return termuxRead()
+    const text = await termuxRead()
+    if (text) return { data: text, mime: "text/plain" }
+    return
   }
   const { default: clipboardy } = await import("clipboardy")
   const text = await clipboardy.read().catch(() => undefined)
