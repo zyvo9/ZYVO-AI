@@ -77,11 +77,27 @@ jobs:
           # linux cross base is musl and dies on stock Ubuntu/Debian), so the
           # --baseline flag needs the HOST bun itself to be the baseline
           # (glibc) build — swap it in, same trick the Windows seed uses.
+          # ALSO seed bun's compile-base cache: bun picks the base from
+          # ~/.bun/install/cache/bun-<target>-v<version> when it exists and
+          # only downloads (a musl build) when missing — issue #2.
           if [ "$RUNNER_OS" = "Linux" ] && [ "$(uname -m)" = "x86_64" ]; then
             curl -fsSL -m 600 "https://github.com/oven-sh/bun/releases/download/bun-v${HOST_BUN_VERSION}/bun-linux-x64-baseline.zip" -o /tmp/bl.zip
             unzip -oq /tmp/bl.zip -d /tmp/bl
-            find /tmp/bl -name bun -type f -exec cp {} "$HOME/.bun/bin/bun" \;
+            BASE=$(find /tmp/bl -name bun -type f | head -1)
+            cp "$BASE" "$HOME/.bun/bin/bun"
             chmod +x "$HOME/.bun/bin/bun"
+            mkdir -p "$HOME/.bun/install/cache"
+            cp "$BASE" "$HOME/.bun/install/cache/bun-linux-x64-baseline-v${HOST_BUN_VERSION}"
+            chmod +x "$HOME/.bun/install/cache/bun-linux-x64-baseline-v${HOST_BUN_VERSION}"
+          fi
+          # arm64: seed the plain base too (the packaged arm64 binary embeds it)
+          if [ "$RUNNER_OS" = "Linux" ] && [ "$(uname -m)" = "aarch64" ]; then
+            curl -fsSL -m 600 "https://github.com/oven-sh/bun/releases/download/bun-v${HOST_BUN_VERSION}/bun-linux-arm64.zip" -o /tmp/bl64.zip
+            unzip -oq /tmp/bl64.zip -d /tmp/bl64
+            BASE64=$(find /tmp/bl64 -name bun -type f | head -1)
+            mkdir -p "$HOME/.bun/install/cache"
+            cp "$BASE64" "$HOME/.bun/install/cache/bun-linux-arm64-v${HOST_BUN_VERSION}"
+            chmod +x "$HOME/.bun/install/cache/bun-linux-arm64-v${HOST_BUN_VERSION}"
           fi
           bun --version
 
@@ -122,6 +138,25 @@ jobs:
         working-directory: packages/opencode
         run: |
           bun run script/build.ts --single ${{ matrix.flags }} --skip-embed-web-ui
+
+      - name: Verify ELF interpreter (linux)
+        if: runner.os == 'Linux'
+        working-directory: packages/opencode/dist
+        shell: bash
+        run: |
+          set -e
+          for f in */bin/opencode; do
+            echo "$f -> $(readelf -l "$f" 2>/dev/null | grep -o 'Interpreter: .*' || echo 'static/no-interp')"
+          done
+          # the packaged binaries must be glibc — musl breaks stock
+          # Ubuntu/Debian with "Check the interpreter or linker?" (issue #2)
+          if [ -f "opencode-linux-x64-baseline/bin/opencode" ]; then
+            readelf -l "opencode-linux-x64-baseline/bin/opencode" | grep -q "ld-linux-x86-64" || { echo "::error::linux-x64 baseline binary is musl, not glibc"; exit 1; }
+          fi
+          if [ -f "opencode-linux-arm64/bin/opencode" ]; then
+            readelf -l "opencode-linux-arm64/bin/opencode" | grep -q "ld-linux-aarch64" || { echo "::error::linux-arm64 binary is musl, not glibc"; exit 1; }
+          fi
+          echo "ELF check passed: glibc"
 
       - name: Package (rename to zyvo)
         shell: bash

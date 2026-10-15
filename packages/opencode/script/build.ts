@@ -180,19 +180,6 @@ for (const item of targets) {
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
-      // bun 1.3.x downloads musl-linked bases for its linux compile targets —
-      // the binary demands /lib/ld-musl-x86_64.so.1 and dies on stock
-      // Ubuntu/Debian with "Check the interpreter or linker?" (issue #2).
-      // For NATIVE non-musl targets, embed the RUNNING bun instead of the
-      // downloaded base; the pc-build workflow swaps the host bun to the
-      // baseline glibc build first, so the output links glibc. Verified
-      // locally: interp flips from musl to /lib64/ld-linux-x86-64.so.2.
-      ...(item.os === "linux" &&
-      item.abi === undefined &&
-      item.os === process.platform &&
-      item.arch === process.arch
-        ? { executablePath: process.execPath }
-        : {}),
       outfile: `dist/${name}/bin/opencode`,
       execArgv: [`--user-agent=opencode/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
