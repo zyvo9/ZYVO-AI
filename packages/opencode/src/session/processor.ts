@@ -968,6 +968,13 @@ export const layer = Layer.effect(
         // models to rotate onto when the current one hits a usage limit
         let activeModel = streamInput.model
         let fallbackCursor = 0
+        // auto model change is OFF: the fallback chain may only be used to
+        // rotate among VARIANTS of the requested model (mutual prefix match —
+        // "glm-4.6" may fall onto "glm-4.6-air" or the same id on another
+        // gateway, never onto a different model line). A model with no
+        // variants retries in place on its normal rate-limit schedule.
+        const originModelID = streamInput.model.id
+        const isModelVariant = (a: string, b: string) => a.startsWith(b) || b.startsWith(a)
 
         return yield* Effect.gen(function* () {
           yield* Effect.gen(function* () {
@@ -1013,19 +1020,27 @@ export const layer = Layer.effect(
                     // Same-model multi-key pooling now lives in the 9router
                     // gateway — the CLI rotates MODELS, keys stay server-side.
                     let overrideWait: number | undefined
-                    // usage-limit errors are not fixable by waiting — rotate
-                    // onto the next configured fallback model
+                    // usage-limit errors rotate onto the next lane — but only
+                    // within the requested model's own variants (see the auto
+                    // model change note above)
                     if (
                       info.action &&
                       (info.action.reason === "free_tier_limit" || info.action.reason === "account_rate_limit")
                     ) {
                       const fallbacks = (yield* config.get()).fallback_models ?? []
-                      if (fallbacks.length > 0) {
-                        const next = fallbacks[fallbackCursor % fallbacks.length]
-                        // once every lane has been tried, say so instead of
-                        // silently wrapping — the chain keeps cycling because
+                      const currentLane = `${activeModel.providerID}/${activeModel.id}`
+                      const variants = fallbacks.filter((entry) => {
+                        const slash = entry.indexOf("/")
+                        if (slash < 0) return false
+                        if (entry === currentLane) return false
+                        return isModelVariant(entry.slice(slash + 1), originModelID)
+                      })
+                      if (variants.length > 0) {
+                        const next = variants[fallbackCursor % variants.length]
+                        // once every variant lane has been tried, say so instead
+                        // of silently wrapping — the chain keeps cycling because
                         // quotas reset over time, but the user should know
-                        const cycled = fallbackCursor >= fallbacks.length
+                        const cycled = fallbackCursor >= variants.length
                         fallbackCursor += 1
                         const slash = next.indexOf("/")
                         const providerID = next.slice(0, slash)
@@ -1044,7 +1059,7 @@ export const layer = Layer.effect(
                           ctx.assistantMessage.providerID = resolved.value.providerID
                           yield* session.updateMessage(ctx.assistantMessage)
                           overrideWait = 1500
-                          message = `${message} - switching to ${next}${cycled ? ` (all ${fallbacks.length} fallback lanes cycled — retrying the chain; quotas reset over time)` : ""}`
+                          message = `${message} - switching to ${next}${cycled ? ` (all ${variants.length} ${originModelID} variant lanes cycled — retrying; quotas reset over time)` : ""}`
                         }
                       }
                     }
