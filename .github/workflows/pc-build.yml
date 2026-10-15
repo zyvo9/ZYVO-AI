@@ -73,6 +73,17 @@ jobs:
           else
             echo "$HOME/.bun/bin" >> $GITHUB_PATH
           fi
+          # Linux x64 builds compile NATIVELY now (see script/build.ts — bun's
+          # linux cross base is musl and dies on stock Ubuntu/Debian), so the
+          # --baseline flag needs the HOST bun itself to be the baseline
+          # (glibc) build — swap it in, same trick the Windows seed uses.
+          if [ "$RUNNER_OS" = "Linux" ] && [ "$(uname -m)" = "x86_64" ]; then
+            curl -fsSL -m 600 "https://github.com/oven-sh/bun/releases/download/bun-v${HOST_BUN_VERSION}/bun-linux-x64-baseline.zip" -o /tmp/bl.zip
+            unzip -oq /tmp/bl.zip -d /tmp/bl
+            find /tmp/bl -name bun -type f -exec cp {} "$HOME/.bun/bin/bun" \;
+            chmod +x "$HOME/.bun/bin/bun"
+          fi
+          bun --version
 
       - name: Install dependencies
         shell: bash
