@@ -759,18 +759,23 @@ export function Prompt(props: PromptProps) {
     ref.set(first.prompt)
     setStore("mode", first.mode)
     flushing = true
-    void submit().then((ok) => {
-      flushing = false
-      if (!ok) return // stays queued; the watchdog retries
-      const q = queuedPrompts.get(sessionID)
-      if (q) {
-        q.shift()
-        if (!q.length) queuedPrompts.delete(sessionID)
-      } else {
-        queuedPrompts.delete(sessionID)
-      }
-      bumpQueue()
-    })
+    void submit()
+      .then((ok) => {
+        flushing = false
+        if (!ok) return // stays queued; the watchdog retries
+        const q = queuedPrompts.get(sessionID)
+        if (q) {
+          q.shift()
+          if (!q.length) queuedPrompts.delete(sessionID)
+        } else {
+          queuedPrompts.delete(sessionID)
+        }
+        bumpQueue()
+      })
+      .catch(() => {
+        // submit threw — flushing must reset or every future flush is blocked
+        flushing = false
+      })
   }
   createEffect(
     on(

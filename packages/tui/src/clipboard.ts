@@ -57,6 +57,14 @@ async function readText() {
 }
 
 export async function read() {
+  // Termux FIRST — platform() is "linux" here, and the linux probe below
+  // (wl-paste/xclip) doesn't exist on Termux and would only waste time
+  if (process.env.TERMUX_VERSION) {
+    const text = await termuxRead()
+    if (text) return { data: text, mime: "text/plain" }
+    return undefined
+  }
+
   if (platform() === "darwin") {
     const file = path.join(tmpdir(), "opencode-clipboard.png")
     try {
