@@ -90,9 +90,11 @@ jobs:
             cp "$BASE" "$HOME/.bun/install/cache/bun-linux-x64-baseline-v${HOST_BUN_VERSION}"
             chmod +x "$HOME/.bun/install/cache/bun-linux-x64-baseline-v${HOST_BUN_VERSION}"
           fi
-          # arm64: seed the plain base too (the packaged arm64 binary embeds it)
+          # arm64: seed the plain base too (the packaged arm64 binary embeds it).
+          # bun's release asset is named -aarch64 but the compile target/cache
+          # name is -arm64.
           if [ "$RUNNER_OS" = "Linux" ] && [ "$(uname -m)" = "aarch64" ]; then
-            curl -fsSL -m 600 "https://github.com/oven-sh/bun/releases/download/bun-v${HOST_BUN_VERSION}/bun-linux-arm64.zip" -o /tmp/bl64.zip
+            curl -fsSL -m 600 "https://github.com/oven-sh/bun/releases/download/bun-v${HOST_BUN_VERSION}/bun-linux-aarch64.zip" -o /tmp/bl64.zip
             unzip -oq /tmp/bl64.zip -d /tmp/bl64
             BASE64=$(find /tmp/bl64 -name bun -type f | head -1)
             mkdir -p "$HOME/.bun/install/cache"
