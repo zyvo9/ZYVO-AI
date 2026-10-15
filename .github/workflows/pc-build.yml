@@ -138,7 +138,14 @@ jobs:
             done
             DIR="${DIR%/bin}"
             mv "$DIR/bin/opencode.exe" "$DIR/bin/zyvo.exe"
-            powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force"
+            # Defender can hold the fresh exe locked mid-scan and make
+            # Compress-Archive fail with PermissionDenied — retry it
+            for i in 1 2 3 4 5; do
+              powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force" && break
+              echo "Compress-Archive locked (attempt $i) - retrying in 15s"
+              sleep 15
+            done
+            [ -f "zyvo-${VERSION}-windows-x64.zip" ] || { echo "zip was never created"; exit 1; }
           else
             DIR=""
             for d in */bin; do
