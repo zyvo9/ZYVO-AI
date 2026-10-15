@@ -186,12 +186,22 @@ jobs:
             done
             [ -f "zyvo-${VERSION}-windows-x64.zip" ] || { echo "zip was never created"; exit 1; }
           else
-            DIR=""
-            for d in */bin; do
-              [ -d "$d" ] || continue
-              [ -z "$DIR" ] && DIR="$d"
-              case "$d" in *baseline*) DIR="$d"; break ;; esac
-            done
+            # Pick the GLIBC baseline explicitly: prefer plain baseline over
+            # baseline-musl (glob order puts musl first, and the case *baseline*
+            # would pick it). The ELF verify step already validated the plain
+            # baseline is glibc, so we use that exact dir name.
+            if [ "${{ matrix.name }}" = "linux-x64" ]; then
+              DIR="opencode-linux-x64-baseline"
+            elif [ "${{ matrix.name }}" = "linux-arm64" ]; then
+              DIR="opencode-linux-arm64"
+            else
+              DIR=""
+              for d in */bin; do
+                [ -d "$d" ] || continue
+                [ -z "$DIR" ] && DIR="$d"
+                case "$d" in *baseline*) DIR="$d"; break ;; esac
+              done
+            fi
             DIR="${DIR%/bin}"
             mv "$DIR/bin/opencode" "$DIR/bin/zyvo" 2>/dev/null || true
             if [ "${{ matrix.package }}" = "tar" ]; then
