@@ -139,9 +139,11 @@ jobs:
             DIR="${DIR%/bin}"
             mv "$DIR/bin/opencode.exe" "$DIR/bin/zyvo.exe"
             # Defender can hold the fresh exe locked mid-scan and make
-            # Compress-Archive fail with PermissionDenied — retry it
+            # Compress-Archive fail with PermissionDenied — the Write-Error
+            # is NON-terminating (exit 0), so -ErrorAction Stop is required
+            # for the retry loop to actually retry
             for i in 1 2 3 4 5; do
-              powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force" && break
+              powershell -NoProfile -Command "Compress-Archive -Path '$DIR/bin/*' -DestinationPath 'zyvo-${VERSION}-windows-x64.zip' -Force -ErrorAction Stop" && break
               echo "Compress-Archive locked (attempt $i) - retrying in 15s"
               sleep 15
             done
