@@ -44,16 +44,54 @@ async function termuxWrite(text: string): Promise<void> {
   }
 }
 
-async function readText() {
+// Windows text clipboard via PowerShell. clipboardy spawns a bundled
+// clipboard_x86_64.exe from its own folder — bun --compile moves that
+// folder into the bunfs virtual filesystem where spawn() cannot reach it,
+// so on the compiled zyvo.exe BOTH read() and write() die silently.
+// Get-Clipboard/Set-Clipboard work everywhere PowerShell exists (always).
+async function windowsReadText(): Promise<string | undefined> {
+  try {
+    const out = await command("powershell.exe", [
+      "-NonInteractive",
+      "-NoProfile",
+      "-Command",
+      "Get-Clipboard -Raw",
+    ])
+    const text = out.toString("utf8")
+    return text === "" ? undefined : text
+  } catch {
+    return undefined
+  }
+}
+
+const windowsWriteArgs = [
+  "-NonInteractive",
+  "-NoProfile",
+  "-Command",
+  "[Console]::InputEncoding = [System.Text.Encoding]::UTF8; Set-Clipboard -Value ([Console]::In.ReadToEnd())",
+]
+
+async function windowsWriteText(text: string): Promise<void> {
+  await command("powershell.exe", windowsWriteArgs, text)
+}
+
+async function readText(): Promise<{ data: string; mime: string } | undefined> {
   // Termux: use termux-clipboard-get
   if (process.env.TERMUX_VERSION) {
     const text = await termuxRead()
     if (text) return { data: text, mime: "text/plain" }
-    return
+    return undefined
+  }
+  // Windows/WSL: PowerShell first — clipboardy is dead in compiled binaries
+  if (platform() === "win32" || release().includes("WSL")) {
+    const text = await windowsReadText()
+    if (text) return { data: text, mime: "text/plain" }
+    return undefined
   }
   const { default: clipboardy } = await import("clipboardy")
   const text = await clipboardy.read().catch(() => undefined)
   if (text) return { data: text, mime: "text/plain" }
+  return undefined
 }
 
 export async function read() {
@@ -143,6 +181,12 @@ function getCopyMethod() {
     if (process.env.TERMUX_VERSION) {
       return async (text: string) => {
         await termuxWrite(text)
+      }
+    }
+    // Windows/WSL: PowerShell direct — clipboardy is dead in compiled binaries
+    if (platform() === "win32" || release().includes("WSL")) {
+      return async (text: string) => {
+        await windowsWriteText(text)
       }
     }
     const { which } = await import("@opencode-ai/core/util/which")
