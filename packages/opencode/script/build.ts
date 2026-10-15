@@ -182,12 +182,12 @@ for (const item of targets) {
       // bun's linux CROSS-compile bases are musl-linked — the binary demands
       // /lib/ld-musl-x86_64.so.1 and dies on stock Ubuntu/Debian ("Check the
       // interpreter or linker?"). When the selected target IS the host
-      // platform (and not an explicit musl/abi target), compile natively
-      // (target "bun") so bun embeds the running glibc executable instead.
-      target:
-        item.os === "linux" && item.abi === undefined && item.os === process.platform && item.arch === process.arch
-          ? ("bun" as any)
-          : (name.replace(pkg.name, "bun") as any),
+      // platform (and not an explicit musl/abi target), compile natively by
+      // OMITTING target (bun rejects target:"bun") so it embeds the running
+      // glibc executable instead.
+      ...(item.os === "linux" && item.abi === undefined && item.os === process.platform && item.arch === process.arch
+        ? {}
+        : { target: name.replace(pkg.name, "bun") as any }),
       outfile: `dist/${name}/bin/opencode`,
       execArgv: [`--user-agent=opencode/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
