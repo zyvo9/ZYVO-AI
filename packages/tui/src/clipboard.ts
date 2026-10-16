@@ -44,12 +44,49 @@ async function termuxWrite(text: string): Promise<void> {
   }
 }
 
-// Windows text clipboard via PowerShell. clipboardy spawns a bundled
-// clipboard_x86_64.exe from its own folder — bun --compile moves that
-// folder into the bunfs virtual filesystem where spawn() cannot reach it,
-// so on the compiled zyvo.exe BOTH read() and write() die silently.
-// Get-Clipboard/Set-Clipboard work everywhere PowerShell exists (always).
+// Windows text clipboard via the bundled win-clipboard helper exe.
+// WHY NOT POWERSHELL: spawning powershell.exe for Get-Clipboard takes
+// 5.5-8.3 SECONDS on real machines (AV scans every spawn) — every paste
+// hung for seconds. The tiny helper (sindresorhus/win-clipboard, MIT,
+// embedded as base64 from clipboard-helper.gen.ts) answers in ~60ms.
+// It is extracted ONCE to %LOCALAPPDATA%\zyvo\ and spawned from there
+// (never from bunfs — binaries inside the compiled exe's virtual
+// filesystem cannot be spawned).
+const windowsHelperDir = () =>
+  path.join(process.env.LOCALAPPDATA || tmpdir(), "zyvo")
+
+const windowsHelperPath = () => path.join(windowsHelperDir(), "clipboard-x64.exe")
+
+async function ensureWindowsHelper(): Promise<string | undefined> {
+  try {
+    const target = windowsHelperPath()
+    try {
+      const st = await import("node:fs/promises").then((fs) => fs.stat(target))
+      if (st.isFile() && st.size > 100_000) return target
+    } catch {
+      // not present yet — extract below
+    }
+    const { WIN_CLIPBOARD_HELPER_B64 } = await import("./clipboard-helper.gen")
+    const { mkdir, writeFile } = await import("node:fs/promises")
+    await mkdir(windowsHelperDir(), { recursive: true })
+    await writeFile(target, Buffer.from(WIN_CLIPBOARD_HELPER_B64, "base64"))
+    return target
+  } catch {
+    return undefined
+  }
+}
+
 async function windowsReadText(): Promise<string | undefined> {
+  const helper = await ensureWindowsHelper()
+  if (helper) {
+    try {
+      const out = await command(helper, ["--paste"])
+      const text = out.toString("utf8")
+      return text === "" ? undefined : text
+    } catch {
+      // helper failed — fall through to PowerShell
+    }
+  }
   try {
     const out = await command("powershell.exe", [
       "-NonInteractive",
@@ -64,7 +101,7 @@ async function windowsReadText(): Promise<string | undefined> {
   }
 }
 
-const windowsWriteArgs = [
+const windowsWriteArgsFallback = [
   "-NonInteractive",
   "-NoProfile",
   "-Command",
@@ -72,7 +109,16 @@ const windowsWriteArgs = [
 ]
 
 async function windowsWriteText(text: string): Promise<void> {
-  await command("powershell.exe", windowsWriteArgs, text)
+  const helper = await ensureWindowsHelper()
+  if (helper) {
+    try {
+      await command(helper, ["--copy"], text)
+      return
+    } catch {
+      // helper failed — fall through to PowerShell
+    }
+  }
+  await command("powershell.exe", windowsWriteArgsFallback, text)
 }
 
 async function readText(): Promise<{ data: string; mime: string } | undefined> {
