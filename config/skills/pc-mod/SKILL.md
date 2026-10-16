@@ -105,6 +105,34 @@ The exe phones home to check the license — the server response can be faked:
 4. Kill-switch calls (remote disable) → same redirect, answer "active
    forever"
 
+### 3.0 THE RELAY LIFECYCLE — TEST with it, BUILD without it
+
+The relay is a TOOL, used in the right phase — never "never used":
+
+**PHASE T — TEST (relay stays):** classify the gate (memory strings,
+traffic watch). For a server-verdict gate, stand up a QUICK local relay
+(hosts redirect + small responder) and PROVE the hypothesis: fake
+"success" → panel opens? → capture and refine the exact response format
+(JSON fields, HMAC math) until it works E2E locally. The relay here is
+your lab instrument — it teaches you what the server says and what the
+client believes.
+
+**PHASE B — BUILD (relay logic migrates, relay body is thrown away):**
+take the PROVEN response logic from the test relay and move it into the
+PERMANENT home, then DELETE the loose relay:
+- ONLINE deliverable: the logic becomes a Railway/VPS service → URL-patch
+  the binary to it (Phase 3A) → remove the hosts entry and kill the dev
+  responder
+- OFFLINE deliverable: the logic becomes an EMBEDDED responder inside the
+  launcher (Phase 3B, 9MProfessor-style — hosts/cert/responder managed
+  automatically by the exe itself) → the separate test scripts are deleted
+Either way the RUNNING product never depends on a loose relay process —
+the relay's BRAIN ships inside the product, the relay's BODY is removed.
+
+**PHASE V — VERIFY without the relay:** machine restart, next-day
+signature, two instances, zero vendor traffic (the gate in 3B). Only then
+is the crack done.
+
 ### 3A. REMOTE RELAY on Railway/VPS — the UPGRADE over local relays (prefer this)
 
 A local 127.0.0.1 relay inherits local problems: the PC must stay on, port
@@ -149,26 +177,34 @@ extra process):
 - If the panel validates the HOSTNAME inside TLS or compares it in code
   (rare) — patch that compare too; Railway's real cert covers the rest.
 
-When to still use the LOCAL hosts-redirect variant: quick one-off tests on
-one machine, or when the client validates the HOSTNAME inside TLS and you
-cannot patch that check (then hosts + local TLS with your CA is the path).
-For anything that must KEEP working — ship the Railway relay.
+When to still use the LOCAL hosts-redirect variant: the PHASE T test relay
+(fast hypothesis proof), and one real deliverable case — when the client
+validates the HOSTNAME inside TLS and you cannot patch that check (then
+hosts + local TLS with your CA is the path). The ONLINE deliverable
+otherwise ships as the Railway relay.
 
 ### 3B. DISTRIBUTION LAUNCHER + the 3 things that kill it after 1-2 days
 
 The classic distribution shell is a C# all-in-one launcher (hosts + cert +
-responder + panel, one click) — but ITS GUTS decide whether the crack dies
-in 2-3 days. Two models:
+responder + panel, one click) — both models below are VALID deliverables;
+what decides survival is FRESH SIGNING + SELF-HEALING, not which model:
 
-- FRAGILE (old model — field-proven to die): launcher writes hosts +
-  installs a CA + starts a LOCAL responder + launches the panel. AV flags
-  the cert/hosts edit, the responder dies (sleep/crash/AV), and every
-  user's machine becomes a server you must babysit.
-- DURABLE (Morad law — build this): patch EVERY vendor URL in the binary
-  to your Railway (strings-search ALL `https://` vendor domains — auth,
-  check, heartbeat, telemetry — redirect each), launcher only LAUNCHES the
-  panel (+ first-run Railway reachability check). No hosts, no cert, no
-  responder, nothing to die.
+- OFFLINE model (9MProfessor-proven, no server needed): launcher writes
+  hosts + installs its own CA + runs an EMBEDDED TLS responder + launches
+  the panel. Survives when: every response is HMAC-signed FRESH (never
+  replayed), and the launcher SELF-HEALS on every run (re-adds hosts entry
+  if AV removed it, re-checks the cert, restarts the responder thread,
+  checks the port is free before binding). Fully offline — works with no
+  internet at all.
+- ONLINE model (all-Railway — no hosts/cert/responder on the user's PC):
+  patch EVERY vendor URL in the binary to your Railway (strings-search ALL
+  `https://` vendor domains — auth, check, heartbeat, telemetry — redirect
+  each), launcher only LAUNCHES the panel (+ first-run reachability
+  check). Nothing on the user's machine to babysit; keys/tiers editable
+  centrally.
+- What ACTUALLY dies in 1-2 days is neither model itself — it is a LOOSE
+  relay setup: replayed captured signatures, an unmanaged responder script
+  that dies (sleep/crash/AV), or manual hosts/cert edits with no self-heal.
 
 The 3 recurring day-2/3 failures and their fixes:
 1. **"invalid signature verification failed"** — the vendor SIGNS its
@@ -243,9 +279,11 @@ Key facts that make this work:
 
 **Formula: decision LOCAL → patch. Decision SERVER → patch the client's
 TRUST first (make it accept always-success), fake server only if the client
-cannot be patched to trust blindly. When a fake server IS needed, host it
-REMOTE (Railway/VPS, Phase 3A) — a local 127.0.0.1 relay is for quick tests
-only, never the deliverable.**
+cannot be patched to trust blindly. When a fake server IS needed, follow
+the LIFECYCLE (Phase 3.0): TEST with a quick local relay, then BUILD the
+deliverable as either the Railway relay (online, Phase 3A) or the
+embedded-responder launcher (offline, Phase 3B) — the loose relay itself
+never ships, only its logic does.**
 
 ### Live process recon (do this BEFORE choosing a path)
 
