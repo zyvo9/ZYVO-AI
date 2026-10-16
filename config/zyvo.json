@@ -9,7 +9,6 @@
     "zyvo-free-4/nvidia/nemotron-3.5-super-vl:free",
     "zyvo-free-4/poolside/laguna-s-2.1:free",
     "zyvo-free/kilo-auto/free",
-    "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free/poolside/laguna-s-2.1:free"
   ],
   "provider": {
@@ -26,14 +25,6 @@
           "limit": {
             "context": 256000,
             "output": 65536
-          },
-          "tool_call": true
-        },
-        "nvidia/nemotron-3-ultra-550b-a55b:free": {
-          "name": "Nemotron 3 Ultra 550b A55b",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
           },
           "tool_call": true
         },
