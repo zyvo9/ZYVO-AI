@@ -191,6 +191,16 @@ The 3 recurring day-2/3 failures and their fixes:
 Railway — the vendor's server must NEVER be contacted by the cracked
 panel. No telemetry, no blocklist, no tracking, no signature surprises.**
 
+**VERIFICATION GATE — a server-side crack is NOT done until ALL pass:**
+(a) full machine RESTART → panel still works (self-heal survived),
+(b) NEXT-DAY test → signature still valid (fresh-sign proof, not replay),
+(c) TWO panel instances at once → no port conflict (stuck port = kill the
+stale listener or fail loudly, never hang),
+(d) traffic capture during a full run → the vendor's domains receive
+NOTHING (zero packets — every request landed on your server).
+Any check failing = the crack is NOT done — fix the model, never ship a
+crack that works only for the first 1-2 days.
+
 ## Phase 2.5 — GATE CLASSIFICATION (decide the path BEFORE patching)
 
 Where does the DECISION live? Scan first (live memory strings, traffic
