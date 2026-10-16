@@ -102,16 +102,16 @@
         "nvidia/nemotron-3-super-120b-a12b:free": {
           "name": "Nemotron 3 Super 120b A12b",
           "limit": {
-            "context": 256000,
-            "output": 65536
+            "context": 1000000,
+            "output": 128000
           },
           "tool_call": true
         },
         "nvidia/nemotron-3.5-super-vl:free": {
           "name": "Nemotron 3.5 Super Vl",
           "limit": {
-            "context": 256000,
-            "output": 65536
+            "context": 1000000,
+            "output": 128000
           },
           "tool_call": true
         },
