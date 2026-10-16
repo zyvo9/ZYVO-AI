@@ -4,6 +4,7 @@
   "fallback_models": [
     "zyvo-free-3/gpt-oss:120b",
     "zyvo-free-3/nemotron-3-ultra",
+    "zyvo-free-2/z-ai/glm-5.3-flash",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free/poolside/laguna-s-2.1:free"
@@ -61,6 +62,24 @@
         },
         "nemotron-3-ultra": {
           "name": "Nemotron 3 Ultra",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://integrate.api.nvidia.com/v1",
+        "apiKey": "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"
+      },
+      "models": {
+        "z-ai/glm-5.3-flash": {
+          "name": "Glm 5.3 Flash",
           "limit": {
             "context": 1000000,
             "output": 128000
