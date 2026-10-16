@@ -147,6 +147,7 @@ const queuedPrompts = new Map<string, { prompt: PromptInfo; mode: "normal" | "sh
 function DialogQueOrSide(props: { onQue: () => void; onSide: () => void }) {
   const dialog = useDialog()
   const { theme } = useTheme()
+  const clipboard = useClipboard()
   const pick = (choice: "que" | "side") => {
     if (choice === "que") props.onQue()
     else props.onSide()
@@ -156,6 +157,7 @@ function DialogQueOrSide(props: { onQue: () => void; onSide: () => void }) {
     bindings: [
       { key: "return", desc: "Queue the prompt", group: "Dialog", cmd: () => pick("que") },
       { key: "s", desc: "Ask as side question", group: "Dialog", cmd: () => pick("side") },
+      { key: "ctrl+c", desc: "Copy button text", group: "Dialog", cmd: () => clipboard.write?.("Queued — runs after the current task\nSide question — answered now, task keeps running") },
     ],
   }))
   return (
