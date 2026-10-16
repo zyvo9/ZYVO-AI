@@ -105,6 +105,35 @@ The exe phones home to check the license — the server response can be faked:
 4. Kill-switch calls (remote disable) → same redirect, answer "active
    forever"
 
+### 3A. REMOTE RELAY on Railway/VPS — the UPGRADE over local relays (prefer this)
+
+A local 127.0.0.1 relay inherits local problems: the PC must stay on, port
+80/443 fights other apps, TWO panels at once collide, self-signed certs get
+rejected, and it works only on that one machine. Host the fake server on
+Railway (or any free host/VPS) instead and ALL of that disappears:
+
+1. Deploy the captured "success" response as a tiny web service (python
+   Flask/fastapi — one route that mimics the vendor's JSON, exactly the
+   format captured in step 1 above; include every field the client parses:
+   sessionid, username, hwid, subscriptions, expiry far in the future)
+2. **URL-patch the binary (P4, brooth-style) to point at the Railway URL**
+   — replace the embedded `https://vendor.com/...` string with
+   `https://yourapp.up.railway.app/...` (watch string LENGTH: pad with
+   dots/slashes or relocate the string if the new URL is longer; keep the
+   NUL terminator). No hosts file, no admin rights, no cert problems —
+   Railway's TLS certificate is REAL, the client trusts it natively
+3. **Keep it awake:** free tiers sleep — add a GitHub Actions cron pinger
+   (`.github/workflows/ping.yml`, `*/5 * * * *` curl the health route —
+   same pattern as the 9router uptime workflow) or an external pinger
+4. Result: the cracked panel works on ANY device (PC, phone, emulator),
+   always-on, zero local dependencies; update the responses by editing the
+   Railway app, no re-patch needed
+
+When to still use the LOCAL hosts-redirect variant: quick one-off tests on
+one machine, or when the client validates the HOSTNAME inside TLS and you
+cannot patch that check (then hosts + local TLS with your CA is the path).
+For anything that must KEEP working — ship the Railway relay.
+
 ## Phase 2.5 — GATE CLASSIFICATION (decide the path BEFORE patching)
 
 Where does the DECISION live? Scan first (live memory strings, traffic
@@ -147,7 +176,9 @@ Key facts that make this work:
 
 **Formula: decision LOCAL → patch. Decision SERVER → patch the client's
 TRUST first (make it accept always-success), fake server only if the client
-cannot be patched to trust blindly.**
+cannot be patched to trust blindly. When a fake server IS needed, host it
+REMOTE (Railway/VPS, Phase 3A) — a local 127.0.0.1 relay is for quick tests
+only, never the deliverable.**
 
 ### Live process recon (do this BEFORE choosing a path)
 
