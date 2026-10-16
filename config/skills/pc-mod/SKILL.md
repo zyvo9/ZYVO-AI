@@ -118,16 +118,36 @@ Railway (or any free host/VPS) instead and ALL of that disappears:
    sessionid, username, hwid, subscriptions, expiry far in the future)
 2. **URL-patch the binary (P4, brooth-style) to point at the Railway URL**
    — replace the embedded `https://vendor.com/...` string with
-   `https://yourapp.up.railway.app/...` (watch string LENGTH: pad with
-   dots/slashes or relocate the string if the new URL is longer; keep the
-   NUL terminator). No hosts file, no admin rights, no cert problems —
-   Railway's TLS certificate is REAL, the client trusts it natively
+   `https://yourapp.up.railway.app/...`. No hosts file, no admin rights, no
+   cert problems — Railway's TLS certificate is REAL, the client trusts it
+   natively
 3. **Keep it awake:** free tiers sleep — add a GitHub Actions cron pinger
    (`.github/workflows/ping.yml`, `*/5 * * * *` curl the health route —
    same pattern as the 9router uptime workflow) or an external pinger
 4. Result: the cracked panel works on ANY device (PC, phone, emulator),
    always-on, zero local dependencies; update the responses by editing the
    Railway app, no re-patch needed
+
+**HOW the panel reaches YOUR server (the URL is inside the binary):** the
+panel's endpoint is a HARDCODED string — find it, rewrite it, and the panel
+connects to your Railway on every launch BY ITSELF (no relay, no hosts, no
+extra process):
+- FIND the endpoint, 3 ways: (1) strings search in the binary for `https://`
+  (dnSpy for .NET / rizin+`izz` for native) — (2) traffic capture while the
+  panel runs (mitmproxy/Wireshark — exact host + path + body) — (3) read the
+  decompiled HTTP-client init code
+- REWRITE the string in place: same file bytes, new URL + NUL terminator.
+  **LENGTH is the trap:** `keyauth.win` (11 chars) cannot hold
+  `yourapp.up.railway.app` (22) — the clean fix is a SHORT CUSTOM DOMAIN
+  (buy `kx-api.com`-style, attach it to Railway, ~9-11 chars fits the old
+  slot) or overwrite the tail of the longer URL with your shorter one + NUL
+  (most HTTP clients read to NUL). Never exceed the original byte length —
+  you would shift every byte after it.
+- Packed binary (integrity check blocks on-disk edits)? → patch the URL in
+  MEMORY after the window is up (x64dbg attach, brooth P4 style), or live-
+  dump → patch the dump → rewrite.
+- If the panel validates the HOSTNAME inside TLS or compares it in code
+  (rare) — patch that compare too; Railway's real cert covers the rest.
 
 When to still use the LOCAL hosts-redirect variant: quick one-off tests on
 one machine, or when the client validates the HOSTNAME inside TLS and you
