@@ -154,6 +154,43 @@ one machine, or when the client validates the HOSTNAME inside TLS and you
 cannot patch that check (then hosts + local TLS with your CA is the path).
 For anything that must KEEP working — ship the Railway relay.
 
+### 3B. DISTRIBUTION LAUNCHER + the 3 things that kill it after 1-2 days
+
+The classic distribution shell is a C# all-in-one launcher (hosts + cert +
+responder + panel, one click) — but ITS GUTS decide whether the crack dies
+in 2-3 days. Two models:
+
+- FRAGILE (old model — field-proven to die): launcher writes hosts +
+  installs a CA + starts a LOCAL responder + launches the panel. AV flags
+  the cert/hosts edit, the responder dies (sleep/crash/AV), and every
+  user's machine becomes a server you must babysit.
+- DURABLE (Morad law — build this): patch EVERY vendor URL in the binary
+  to your Railway (strings-search ALL `https://` vendor domains — auth,
+  check, heartbeat, telemetry — redirect each), launcher only LAUNCHES the
+  panel (+ first-run Railway reachability check). No hosts, no cert, no
+  responder, nothing to die.
+
+The 3 recurring day-2/3 failures and their fixes:
+1. **"invalid signature verification failed"** — the vendor SIGNS its
+   responses (HMAC with an app secret + timestamp/nonce; the secret lives
+   in the client). A captured/replayed response works briefly, then the
+   time window or one missed field kills it. FIX: find the signer in the
+   decompiled client, reimplement it on Railway, SIGN EVERY RESPONSE FRESH
+   (current timestamp, every field) — replaying captured bodies NEVER
+   survives.
+2. **"curl not responding" / silent timeouts** — the local responder died
+   (PC sleep, AV, crash) or hosts+HTTPS mismatch. FIX: no local responder
+   at all (all-Railway model); Railway + cron pinger + real TLS.
+3. **HWID blocklist** — happens ONLY if any traffic still reaches the
+   vendor. FIX: ALL server requests → your Railway; the original server
+   sees ZERO traffic so it cannot block, track or flag anything. On
+   Railway, spoof HWIDs: one stable fake per user, a new distribution
+   batch = new HWIDs; strip the real HWID from any forwarding path.
+
+**LAW for the AI building any of this: EVERY server request goes to YOUR
+Railway — the vendor's server must NEVER be contacted by the cracked
+panel. No telemetry, no blocklist, no tracking, no signature surprises.**
+
 ## Phase 2.5 — GATE CLASSIFICATION (decide the path BEFORE patching)
 
 Where does the DECISION live? Scan first (live memory strings, traffic
