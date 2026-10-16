@@ -105,6 +105,66 @@ The exe phones home to check the license — the server response can be faked:
 4. Kill-switch calls (remote disable) → same redirect, answer "active
    forever"
 
+## Phase 2.5 — GATE CLASSIFICATION (decide the path BEFORE patching)
+
+Where does the DECISION live? Scan first (live memory strings, traffic
+watch, decompiled code), patch second. Proven on kiraxis (native+VMP,
+local date gate) and brooth (KeyAuth server verdict, client trusts it):
+
+| Class | Evidence | Path | Example |
+|---|---|---|---|
+| 1. LOCAL gate | hardcoded expiry string in binary/memory ("Exp. 2026-10-17"), local flag/compare, client-side key check | DIRECT PATCH — flip the compare, always easiest | kiraxis |
+| 2. Server VERDICT, client trusts it | login hits server, but feature code is inside the binary (13MB exe has everything) | patch client → "always success" — still DIRECT, no server needed | brooth |
+| 3. Payload DOWNLOADS from server | feature files fetched at runtime | FORWARDING RELAY: local answers auth, forwards payload to the real server (permission local, payload original) — or SPLIT-HOST (redirect only the auth domain, leave payload domain alone) — or CAPTURED COPY (fetch once, serve locally) | rare loaders |
+| 4. Fully server-driven | real-time server computation, client is a thin shell | only a REBUILT SERVER wins — say so honestly | cloud engines |
+
+Key facts that make this work:
+- **User/pass servers only deliver PERMISSION (valid/invalid + metadata:
+  sessionid, hwid, expiry). The FEATURES (aimbot/ESP/bypass) live in the
+  binary** — proof: a fake "success" response makes the full feature set
+  run with the real server gone. So cracking = opening permission; the
+  feature is already there.
+- A relay/re-URL sends ALL that host's traffic to YOUR server — the
+  original server sends nothing anymore. If payload is needed, that's why
+  forwarding/split-host exists (Class 3), not the plain redirect.
+
+### When DIRECT EDIT fails (know before promising)
+
+1. **Feature itself comes from the server** — patched client opens the UI,
+   features dead → Class 3/4 path.
+2. **Periodic server re-verify** — patch works for a while, then server
+   re-checks and blocks/fails → find the re-check timer call and NOP it, or
+   relay the verify endpoint too.
+3. **Packer integrity check at startup** ("File corrupted") — on-disk patch
+   gets rejected before the window opens → patch in MEMORY after the window
+   is up (attach to the live process), like brooth.
+4. **Encrypted/virtualized gate (deep VMProtect)** — no findable patch
+   point on disk → live-dump the unpacked image FIRST, then find the gate
+   in the dump.
+5. **Zero local authority** — client only acts on the server's "yes", no
+   local flag anywhere → direct patch has nothing to flip; fake-server
+   becomes the ONLY path (this is the one real last-resort).
+
+**Formula: decision LOCAL → patch. Decision SERVER → patch the client's
+TRUST first (make it accept always-success), fake server only if the client
+cannot be patched to trust blindly.**
+
+### Live process recon (do this BEFORE choosing a path)
+
+- `tasklist /fi "imagename eq X.exe"` → pid; window titles/class via
+  powershell `Get-Process | fl MainWindowTitle`
+- **Memory strings scan** (find the gate without touching disk): python
+  `pymem` or x64dbg attach → search for "Exp"/"license"/"invalid" in the
+  live process — a HARDCODED expiry found in memory = Class 1 proof; a JSON
+  like `{"app_id":...,"license_key":...,"hwid":...}` = phones home (2+).
+- **pe-sieve / hollows_hunter** (`pe-sieve64.exe /pid X /dir dumped`):
+  dumps the UNPACKED image of a running packed process — VMProtect/UPX
+  unpacked in memory even when the on-disk file is sealed. Patch the dump
+  or write back with WriteProcessMemory.
+- x64dbg snapshot (github release zip, ~30MB, no install) works headless
+  from a script: attach, `find` memory, set bp, patch — the whole
+  kiraxis-style flow runs from commands, no GUI needed.
+
 ## Phase 4 — PHP/HTML game panels (topup/admin panels)
 
 - Plain PHP: read `license.php`/`check.php`/`config.php` directly — patch
