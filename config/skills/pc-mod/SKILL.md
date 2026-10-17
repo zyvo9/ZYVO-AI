@@ -24,6 +24,9 @@ Everything here is for software the user possesses, personal use.
    pass is not a patch (PROOF DISCIPLINE).
 4. MOD_NOTES.md: task goal at top + every offset/patch; after compaction
    continue silently.
+5. Known-panel gotchas may exist in the owner's private playbook
+   (vault 05 Playbooks/) — check it for this target before choosing the
+   path; its gotchas beat generic advice.
 5. Remote-kill switches and stolen-data features get neutralized, never
    preserved.
 6. **DECOMPILE-FIRST IS THE LAW (the overlay/fake-server ban):** when the
