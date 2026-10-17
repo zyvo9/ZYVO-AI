@@ -4,7 +4,6 @@
   "fallback_models": [
     "zyvo-free-4/nvidia/nemotron-3-super-120b-a12b:free",
     "zyvo-free-4/nvidia/nemotron-3.5-super-vl:free",
-    "zyvo-free-2/Opus-xtra-6",
     "zyvo-free-4/poolside/laguna-s-2.1:free",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/poolside/laguna-s-2.1:free"
@@ -62,24 +61,6 @@
         },
         "poolside/laguna-s-2.1:free": {
           "name": "Laguna S 2.1",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        }
-      }
-    },
-    "zyvo-free-2": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free",
-      "options": {
-        "baseURL": "https://ninerouter-ylri.onrender.com/v1",
-        "apiKey": "sk-c7b74f292f7af292-pt5ij7-a67f4796"
-      },
-      "models": {
-        "Opus-xtra-6": {
-          "name": "Opus Xtra 6",
           "limit": {
             "context": 256000,
             "output": 65536
