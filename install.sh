@@ -303,7 +303,7 @@ if [ -d "$OLD_VAULT" ] && [ ! -d "$VAULT" ]; then
 fi
 if [ ! -f "$VAULT/00 Home/Memory Index.md" ]; then
   mkdir -p "$VAULT/00 Home" "$VAULT/01 User" "$VAULT/02 Projects" \
-           "$VAULT/03 Credentials" "$VAULT/04 Sessions"
+           "$VAULT/03 Credentials" "$VAULT/04 Sessions" "$VAULT/05 Playbooks"
   cat > "$VAULT/00 Home/Memory Index.md" <<'EOF'
 # ZyvoVault — Memory Index (2nd brain)
 
@@ -312,6 +312,11 @@ the Obsidian app to view and edit everything.
 
 ## Agent rules
 - Need history? Read AGENTS.md (hot memory) first, then this index and the relevant note.
+- BRAIN FIRST: before starting any multi-step task, check `05 Playbooks/`
+  for a matching proven flow — found one → load it and follow it to the
+  end (never re-derive, never stop halfway). New repeatable flow proven →
+  distill it into a playbook the same turn (checklist + gotchas, not a
+  story) and list it below with keywords.
 - When a lasting fact is learned, write it to the right folder immediately — never stockpile for later.
 - At the end of a work session, add `04 Sessions/YYYY-MM-DD <topic>.md`: what happened, what was decided, next steps.
 - Never store raw tokens/keys — only the state of where each is configured (`03 Credentials/state.md`).
@@ -321,9 +326,15 @@ the Obsidian app to view and edit everything.
 - `02 Projects/` — one dossier per project
 - `03 Credentials/state.md` — where each credential is configured
 - `04 Sessions/` — dated session logs
+- `05 Playbooks/` — proven repeat-task flows (load BEFORE starting a matching task)
+
+## Playbooks
+- (empty — a repeatable flow goes here once proven, with KEYWORDS for matching)
 EOF
   info "Memory vault created: $VAULT (open this folder as a vault in the Obsidian app)"
 fi
+# existing vaults gain the Playbooks folder (idempotent upgrade)
+mkdir -p "$VAULT/05 Playbooks" 2>/dev/null || true
 
 refresh_config() {
   # Default setup: opencode Zen is the default model provider (`zyvo auth login`

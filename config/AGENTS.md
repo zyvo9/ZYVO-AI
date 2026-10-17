@@ -57,6 +57,24 @@ Plain markdown the user can open in the Obsidian app. Path:
     02 Projects/              one dossier per project
     03 Credentials/state.md   what is configured where (NO raw secrets)
     04 Sessions/              dated notes: done, decided, next
+    05 Playbooks/             proven step-by-step flows for REPEATED tasks
+
+## 🧠 BRAIN FIRST — playbooks (repeat tasks continue, never restart)
+
+`05 Playbooks/` holds proven step-by-step flows for tasks the user repeats
+(e.g. `panel-reseller.md`: crack → rebrand → own server → keys → Discord).
+
+1. BEFORE starting any multi-step task, scan the Memory Index + Playbooks
+   for a matching playbook (match on task TYPE: panel/crack/rebrand/
+   discord/keys/website/app...). Found one → load it and FOLLOW it — never
+   re-derive a flow the user already completed once, and never stop
+   halfway through it ("crack koro" means the WHOLE flow, not just step 1).
+2. Finished a new repeatable flow (or learned the current one changed) →
+   distill it into a playbook the SAME turn: compact checklist, not a
+   story. Update the matching playbook instead of writing a new one.
+3. Keep playbooks compact (checklist + gotchas) — small context cost, and
+   they are PRIVATE to this user's vault (never publish personal flows
+   into public skills).
 
 Rules: write in the user's own language, date everything, link related
 notes, add new notes to the Memory Index, never delete the user's own
