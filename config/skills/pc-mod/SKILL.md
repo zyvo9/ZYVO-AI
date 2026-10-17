@@ -1,6 +1,6 @@
 ---
 name: pc-mod
-description: Windows PC exe/panel/soft modding playbook — .NET decompile and patch (ilspycmd, dnSpy, de4dot), native live debugging (x64dbg, rizin), keygen from validation math, license-server emulation via hosts redirect, PHP/HTML game-panel license cracks (HWID/IP/domain lock, ionCube reality), UPX unpack, safety scan for malware traps. Use when the user asks to crack/patch/mod a PC program, panel, exe, dll, remove num-pass/validity/HWID lock, extend trial, bypass license check, make a keygen, or says "panel crack koro", "exe mod", "validity barao".
+description: Windows PC exe/panel/soft modding playbook — gate classification FIRST (local / server-verdict / public-key-signed pubkey-swap / server-payload / server-driven), .NET decompile and patch (ilspycmd, dnSpy, de4dot), native live debugging (x64dbg, rizin), keygen from validation math, server-side cracks via the relay lifecycle (TEST with a local relay → BUILD the deliverable as a Railway server or an embedded launcher responder — fresh signing, self-healing), PHP/HTML game-panel license cracks (HWID/IP/domain lock, ionCube reality), UPX/VMProtect dump workflows, safety scan for malware traps. Use when the user asks to crack/patch/mod a PC program, panel, exe, dll, remove num-pass/validity/HWID lock, extend trial, bypass license check, make a keygen, rebrand a panel, or says "panel crack koro", "exe mod", "validity barao".
 ---
 
 # PC Exe / Panel Mod Playbook
@@ -26,17 +26,19 @@ Everything here is for software the user possesses, personal use.
    continue silently.
 5. Remote-kill switches and stolen-data features get neutralized, never
    preserved.
-6. **DECOMPILE-FIRST IS THE LAW (the overlay/fake-server ban):** when the
-   target is .NET/readable, you MUST decompile (dnSpy/ILSpy/ilspycmd) and
-   patch the BINARY itself. Building an overlay/wrapper on top of the
-   panel, or faking the license server locally, BEFORE decompiling = a
-   FAILED crack — those shortcuts leak bugs (every flow you didn't see
-   keeps checking the gate). Emulation/overlay is the LAST RESORT: only
-   after decompilation PROVES the gate lives server-side (nothing to
-   patch locally) or the binary is armored beyond recovery. Same for
-   web panels: edit the real PHP/source, never paper over it.
-   Relays/local fake servers are also UNSTABLE: port conflicts (two panels
-   cannot run at once), IP bind errors, works-in-the-morning-dies-by-evening.
+6. **ANALYZE-FIRST IS THE LAW (classify before you patch):** never pick a
+   path blind — decompile/dump/scan until you know WHERE the decision
+   lives (Phase 0.5 gate classification). Building an overlay/wrapper
+   BEFORE analyzing = failed crack (you paper over gates you never saw).
+   Faking the server is NOT banned — it is a LIFECYCLE (Phase 3.0): a
+   quick local relay proves the schema (TEST), then its proven logic
+   ships inside a deliverable — the Railway server (3A, online) or the
+   embedded launcher responder (3B, offline) — always with FRESH signing
+   and SELF-HEALING. What kills cracks is a LOOSE relay left running as
+   the product: unmanaged responder scripts, replayed signatures,
+   hosts/cert edits nothing repairs — works in the morning, dead by
+   evening. Same for web panels: edit the real PHP/source, never paper
+   over it.
 7. **NEVER CLAIM "DECOMPILE E SOMBHOB NA" WITHOUT EVIDENCE:** run the actual
    triage first (file type check + the tools). Game panels (Free Fire-style
    topup/admin panels) are ordinary .NET/PHP/web apps — decompilable and
@@ -51,6 +53,82 @@ Everything here is for software the user possesses, personal use.
 | Pure native imports (kernel32/user32, no .NET) | **Native PE** | x64dbg live debug + rizin static |
 | ` MetroFramework.dll`, web URLs, PHP-panel style UI | **Panel client** | usually .NET or WebView — check deeper |
 | HTML/JS + local server (xampp/nginx) + `license.php` | **PHP/web panel** | edit source directly unless ionCube'd |
+
+## Phase 0.5 — GATE CLASSIFICATION (decide the path BEFORE patching — READ THIS FIRST)
+
+Where does the DECISION live? Scan first (live memory strings, traffic
+watch, decompiled code), patch second. Proven on kiraxis (native+VMP,
+local date gate) and brooth (KeyAuth server verdict, client trusts it):
+
+| Class | Evidence | Path | Example |
+|---|---|---|---|
+| 1. LOCAL gate | hardcoded expiry string in binary/memory ("Exp. 2026-10-17"), local flag/compare, client-side key check | DIRECT PATCH — flip the compare, always easiest | kiraxis |
+| 2. Server VERDICT, client trusts it | login hits server, but feature code is inside the binary (13MB exe has everything) | patch client → "always success" — still DIRECT, no server needed | brooth |
+| 2P. Server verdict, PUBLIC-KEY SIGNED response | verify uses the vendor's public key; you CANNOT forge his signature (his private key stays on his server) | PUBKEY-SWAP: replace the client's EMBEDDED public key with YOUR public key (same-length in-place byte swap — RSA-2048 modulus 256B, ECDSA P-256 65B, Ed25519 32B) → your server signs every response fresh with your private key. First CHECK where the pubkey lives: server-delivered (init/config response) = just serve YOUR pubkey, zero patching. Alternative: NOP the client's verify call. Replaying his captured signed bodies ALWAYS dies on timestamp/nonce | modern auth'd panels |
+| 3. Payload DOWNLOADS from server | feature files fetched at runtime | FORWARDING server: yours answers auth, forwards payload to the real server — or SPLIT-HOST (redirect only the auth domain, leave the payload domain alone) — or CAPTURED COPY (fetch once, serve locally) | rare loaders |
+| 4. Fully server-driven | real-time server computation, client is a thin shell | only a REBUILT SERVER wins — say so honestly | cloud engines |
+
+Key facts that make this work:
+- **User/pass servers only deliver PERMISSION (valid/invalid + metadata:
+  sessionid, hwid, expiry). The FEATURES (aimbot/ESP/bypass) live in the
+  binary** — proof: a fake "success" response makes the full feature set
+  run with the real server gone. So cracking = opening permission; the
+  feature is already there.
+- **Symmetric vs asymmetric signing decides what you can forge:** HMAC
+  (symmetric) = the secret lives in the client → extract it → you can
+  mint fresh valid responses forever (kiraxis path). Public-key
+  (asymmetric) = client holds only the public key → forging is
+  impossible → pubkey-swap or verify-NOP (class 2P) is the ONLY way a
+  responder of your own can ever work. Never promise an embedded/Railway
+  responder on a 2P gate without the swap.
+- A URL re-point sends ALL that host's traffic to YOUR server — the
+  original server sends nothing anymore. If payload is needed, that's
+  why forwarding/split-host exists (Class 3), not the plain redirect.
+
+### When DIRECT EDIT fails (know before promising)
+
+1. **Feature itself comes from the server** — patched client opens the UI,
+   features dead → Class 3/4 path.
+2. **Periodic server re-verify** — patch works for a while, then server
+   re-checks and blocks/fails → find the re-check timer call and NOP it, or
+   serve the verify endpoint on your server too.
+3. **Packer integrity check at startup** ("File corrupted") — on-disk patch
+   gets rejected before the window opens → patch in MEMORY after the window
+   is up (attach to the live process), like brooth.
+4. **Encrypted/virtualized gate (deep VMProtect)** — no findable patch
+   point on disk → live-dump the unpacked image FIRST, then find the gate
+   in the dump.
+5. **Zero local authority** — client only acts on the server's "yes", no
+   local flag anywhere → direct patch has nothing to flip; fake-server
+   becomes the ONLY path (this is the one real last-resort).
+
+**Formula: decision LOCAL → patch. Decision SERVER → patch the client's
+TRUST first (make it accept always-success), fake server only if the client
+cannot be patched to trust blindly. When a fake server IS needed, follow
+the LIFECYCLE (Phase 3.0): TEST with a quick local relay, then BUILD the
+deliverable as either the Railway server (online, Phase 3A) or the
+embedded-responder launcher (offline, Phase 3B) — the loose relay itself
+never ships, only its logic does.**
+
+### Live process recon (do this BEFORE choosing a path)
+
+- `tasklist /fi "imagename eq X.exe"` → pid; window titles/class via
+  powershell `Get-Process | fl MainWindowTitle`
+- **Memory strings scan** (find the gate without touching disk): python
+  `pymem` or x64dbg attach → search for "Exp"/"license"/"invalid" in the
+  live process — a HARDCODED expiry found in memory = Class 1 proof; a JSON
+  like `{"app_id":...,"license_key":...,"hwid":...}` = phones home (2+).
+  Windows API trap (kiraxis-proven): PowerShell P/Invoke needs the
+  4-PARAMETER VirtualQueryEx (3-param returns 0 regions) and OpenProcess
+  access flags 0x08|0x10|0x20 (+0x400 if needed); the window may take
+  5-10s to appear → retry loop until it does.
+- **pe-sieve / hollows_hunter** (`pe-sieve64.exe /pid X /dir dumped`):
+  dumps the UNPACKED image of a running packed process — VMProtect/UPX
+  unpacked in memory even when the on-disk file is sealed. Patch the dump
+  or write back with WriteProcessMemory.
+- x64dbg snapshot (github release zip, ~30MB, no install) works headless
+  from a script: attach, `find` memory, set bp, patch — the whole
+  kiraxis-style flow runs from commands, no GUI needed.
 
 ## Phase 1 — .NET programs (most panels)
 
@@ -90,9 +168,15 @@ Everything here is for software the user possesses, personal use.
 4. **Validity/date:** `GetSystemTime`/`DateTime.Compare`/`_time64` — either
    patch the compare or hook the time function for this app only.
 
-## Phase 3 — License-server emulation (gate lives on a server)
+## Phase 3 — Server-side gates: TEST relay first, then a DELIVERABLE
 
-The exe phones home to check the license — the server response can be faked:
+The exe phones home; the response can be faked — but only through the
+LIFECYCLE (3.0 below): what you build here is the PHASE-T TEST relay
+(one machine, throwaway). Its job is to learn the exact schema; the
+deliverable then comes from 3A (Railway server, online) or 3B (embedded
+launcher responder, offline).
+
+TEST setup (quick, one machine):
 1. **Capture the check first:** run with Wireshark/mitmproxy (or strings for
    the URL) → know the exact request + response format the client accepts
 2. **Redirect:** `C:\Windows\System32\drivers\etc\hosts` →
@@ -104,6 +188,11 @@ The exe phones home to check the license — the server response can be faked:
    serve real TLS with it
 4. Kill-switch calls (remote disable) → same redirect, answer "active
    forever"
+5. Response encrypted + public-key signed you cannot replay? Use this
+   phase as RESEARCH: proxy the real traffic once + Frida hook on the
+   client's crypto/verify functions to capture the DECRYPTED schema and
+   locate the verify call + embedded pubkey — that is exactly what the
+   pubkey-swap (Phase 0.5, class 2P) needs.
 
 ### 3.0 THE RELAY LIFECYCLE — TEST with it, BUILD without it
 
@@ -133,28 +222,29 @@ the relay's BRAIN ships inside the product, the relay's BODY is removed.
 signature, two instances, zero vendor traffic (the gate in 3B). Only then
 is the crack done.
 
-### 3A. REMOTE RELAY on Railway/VPS — the UPGRADE over local relays (prefer this)
+### 3A. DELIVERABLE (ONLINE): YOUR OWN SERVER on Railway/VPS
 
-A local 127.0.0.1 relay inherits local problems: the PC must stay on, port
-80/443 fights other apps, TWO panels at once collide, self-signed certs get
-rejected, and it works only on that one machine. Host the fake server on
-Railway (or any free host/VPS) instead and ALL of that disappears:
+This is the class-2P/2/3 online deliverable — NOT a relay: your server
+IS the license server. No hosts file, no admin rights, no cert problems,
+no responder process on the user's PC; works on ANY device, always-on:
 
-1. Deploy the captured "success" response as a tiny web service (python
-   Flask/fastapi — one route that mimics the vendor's JSON, exactly the
-   format captured in step 1 above; include every field the client parses:
-   sessionid, username, hwid, subscriptions, expiry far in the future)
-2. **URL-patch the binary (P4, brooth-style) to point at the Railway URL**
-   — replace the embedded `https://vendor.com/...` string with
-   `https://yourapp.up.railway.app/...`. No hosts file, no admin rights, no
-   cert problems — Railway's TLS certificate is REAL, the client trusts it
-   natively
-3. **Keep it awake:** free tiers sleep — add a GitHub Actions cron pinger
+1. Deploy the PROVEN schema from the test phase as a tiny web service
+   (python Flask/fastapi — routes that mimic the vendor's JSON exactly;
+   every field the client parses: sessionid, username, hwid,
+   subscriptions, expiry far in the future)
+2. **For class-2P gates (public-key signed): swap the pubkey** — replace
+   the client's EMBEDDED vendor public key with YOUR public key
+   (same-length in-place byte swap) and SIGN EVERY RESPONSE FRESH with
+   your private key (see Phase 0.5 class 2P). For HMAC gates: implement
+   the client's signer server-side, sign fresh (never replay)
+3. **URL-patch the binary** — replace the embedded `https://vendor.com/...`
+   with `https://yourapp.up.railway.app/...` (LENGTH trap below)
+4. **Keep it awake:** free tiers sleep — add a GitHub Actions cron pinger
    (`.github/workflows/ping.yml`, `*/5 * * * *` curl the health route —
    same pattern as the 9router uptime workflow) or an external pinger
-4. Result: the cracked panel works on ANY device (PC, phone, emulator),
-   always-on, zero local dependencies; update the responses by editing the
-   Railway app, no re-patch needed
+5. Result: the cracked panel works on ANY device (PC, phone, emulator),
+   always-on, zero local dependencies; update responses/keys by editing
+   the Railway app, no re-patch needed
 
 **HOW the panel reaches YOUR server (the URL is inside the binary):** the
 panel's endpoint is a HARDCODED string — find it, rewrite it, and the panel
@@ -180,8 +270,8 @@ extra process):
 When to still use the LOCAL hosts-redirect variant: the PHASE T test relay
 (fast hypothesis proof), and one real deliverable case — when the client
 validates the HOSTNAME inside TLS and you cannot patch that check (then
-hosts + local TLS with your CA is the path). The ONLINE deliverable
-otherwise ships as the Railway relay.
+hosts + local TLS with your CA is the path). Otherwise the ONLINE
+deliverable ships as your Railway server.
 
 ### 3B. DISTRIBUTION LAUNCHER + the 3 things that kill it after 1-2 days
 
@@ -191,11 +281,14 @@ what decides survival is FRESH SIGNING + SELF-HEALING, not which model:
 
 - OFFLINE model (9MProfessor-proven, no server needed): launcher writes
   hosts + installs its own CA + runs an EMBEDDED TLS responder + launches
-  the panel. Survives when: every response is HMAC-signed FRESH (never
+  the panel. Survives when: every response is signed FRESH (never
   replayed), and the launcher SELF-HEALS on every run (re-adds hosts entry
   if AV removed it, re-checks the cert, restarts the responder thread,
   checks the port is free before binding). Fully offline — works with no
-  internet at all.
+  internet at all. HMAC gates: the extracted secret lives in the launcher.
+  2P (public-key) gates: do the pubkey-swap in the panel first, then the
+  launcher signs with ITS OWN private key (same secret-exposure class as
+  HMAC — acceptable per the user's choice).
 - ONLINE model (all-Railway — no hosts/cert/responder on the user's PC):
   patch EVERY vendor URL in the binary to your Railway (strings-search ALL
   `https://` vendor domains — auth, check, heartbeat, telemetry — redirect
@@ -214,9 +307,11 @@ The 3 recurring day-2/3 failures and their fixes:
    decompiled client, reimplement it on Railway, SIGN EVERY RESPONSE FRESH
    (current timestamp, every field) — replaying captured bodies NEVER
    survives.
-2. **"curl not responding" / silent timeouts** — the local responder died
-   (PC sleep, AV, crash) or hosts+HTTPS mismatch. FIX: no local responder
-   at all (all-Railway model); Railway + cron pinger + real TLS.
+2. **"curl not responding" / silent timeouts** — a responder died (PC
+   sleep, AV, crash) or hosts+HTTPS mismatch. FIX by model: ONLINE — there
+   IS no responder on the user's PC (all-Railway + cron pinger); OFFLINE —
+   the launcher's embedded responder must self-heal (restart its thread,
+   free the port, re-add hosts/cert) on every launch.
 3. **HWID blocklist** — happens ONLY if any traffic still reaches the
    vendor. FIX: ALL server requests → your Railway; the original server
    sees ZERO traffic so it cannot block, track or flag anything. On
@@ -224,8 +319,10 @@ The 3 recurring day-2/3 failures and their fixes:
    batch = new HWIDs; strip the real HWID from any forwarding path.
 
 **LAW for the AI building any of this: EVERY server request goes to YOUR
-Railway — the vendor's server must NEVER be contacted by the cracked
-panel. No telemetry, no blocklist, no tracking, no signature surprises.**
+infrastructure — the Railway server (online model) or the embedded
+responder (offline model). The vendor's server must NEVER be contacted by
+the cracked panel. No telemetry, no blocklist, no tracking, no signature
+surprises.**
 
 **VERIFICATION GATE — a server-side crack is NOT done until ALL pass:**
 (a) full machine RESTART → panel still works (self-heal survived),
@@ -237,69 +334,26 @@ NOTHING (zero packets — every request landed on your server).
 Any check failing = the crack is NOT done — fix the model, never ship a
 crack that works only for the first 1-2 days.
 
-## Phase 2.5 — GATE CLASSIFICATION (decide the path BEFORE patching)
+### 3C. YOU ARE THE VENDOR NOW — key distribution (Discord storefront)
 
-Where does the DECISION live? Scan first (live memory strings, traffic
-watch, decompiled code), patch second. Proven on kiraxis (native+VMP,
-local date gate) and brooth (KeyAuth server verdict, client trusts it):
+Once YOUR server answers the panel, keys are YOURS to mint — the business
+layer on top of the deliverable:
 
-| Class | Evidence | Path | Example |
-|---|---|---|---|
-| 1. LOCAL gate | hardcoded expiry string in binary/memory ("Exp. 2026-10-17"), local flag/compare, client-side key check | DIRECT PATCH — flip the compare, always easiest | kiraxis |
-| 2. Server VERDICT, client trusts it | login hits server, but feature code is inside the binary (13MB exe has everything) | patch client → "always success" — still DIRECT, no server needed | brooth |
-| 3. Payload DOWNLOADS from server | feature files fetched at runtime | FORWARDING RELAY: local answers auth, forwards payload to the real server (permission local, payload original) — or SPLIT-HOST (redirect only the auth domain, leave payload domain alone) — or CAPTURED COPY (fetch once, serve locally) | rare loaders |
-| 4. Fully server-driven | real-time server computation, client is a thin shell | only a REBUILT SERVER wins — say so honestly | cloud engines |
-
-Key facts that make this work:
-- **User/pass servers only deliver PERMISSION (valid/invalid + metadata:
-  sessionid, hwid, expiry). The FEATURES (aimbot/ESP/bypass) live in the
-  binary** — proof: a fake "success" response makes the full feature set
-  run with the real server gone. So cracking = opening permission; the
-  feature is already there.
-- A relay/re-URL sends ALL that host's traffic to YOUR server — the
-  original server sends nothing anymore. If payload is needed, that's why
-  forwarding/split-host exists (Class 3), not the plain redirect.
-
-### When DIRECT EDIT fails (know before promising)
-
-1. **Feature itself comes from the server** — patched client opens the UI,
-   features dead → Class 3/4 path.
-2. **Periodic server re-verify** — patch works for a while, then server
-   re-checks and blocks/fails → find the re-check timer call and NOP it, or
-   relay the verify endpoint too.
-3. **Packer integrity check at startup** ("File corrupted") — on-disk patch
-   gets rejected before the window opens → patch in MEMORY after the window
-   is up (attach to the live process), like brooth.
-4. **Encrypted/virtualized gate (deep VMProtect)** — no findable patch
-   point on disk → live-dump the unpacked image FIRST, then find the gate
-   in the dump.
-5. **Zero local authority** — client only acts on the server's "yes", no
-   local flag anywhere → direct patch has nothing to flip; fake-server
-   becomes the ONLY path (this is the one real last-resort).
-
-**Formula: decision LOCAL → patch. Decision SERVER → patch the client's
-TRUST first (make it accept always-success), fake server only if the client
-cannot be patched to trust blindly. When a fake server IS needed, follow
-the LIFECYCLE (Phase 3.0): TEST with a quick local relay, then BUILD the
-deliverable as either the Railway relay (online, Phase 3A) or the
-embedded-responder launcher (offline, Phase 3B) — the loose relay itself
-never ships, only its logic does.**
-
-### Live process recon (do this BEFORE choosing a path)
-
-- `tasklist /fi "imagename eq X.exe"` → pid; window titles/class via
-  powershell `Get-Process | fl MainWindowTitle`
-- **Memory strings scan** (find the gate without touching disk): python
-  `pymem` or x64dbg attach → search for "Exp"/"license"/"invalid" in the
-  live process — a HARDCODED expiry found in memory = Class 1 proof; a JSON
-  like `{"app_id":...,"license_key":...,"hwid":...}` = phones home (2+).
-- **pe-sieve / hollows_hunter** (`pe-sieve64.exe /pid X /dir dumped`):
-  dumps the UNPACKED image of a running packed process — VMProtect/UPX
-  unpacked in memory even when the on-disk file is sealed. Patch the dump
-  or write back with WriteProcessMemory.
-- x64dbg snapshot (github release zip, ~30MB, no install) works headless
-  from a script: attach, `find` memory, set bp, patch — the whole
-  kiraxis-style flow runs from commands, no GUI needed.
+1. **Discord bot = the storefront** (runs beside your Railway server,
+   sharing the signing secret): user sends the payment screenshot (SS) →
+   bot shows the plan list (trial + tiers with prices) → user picks a plan
+2. **Owner approval (v1, anti-fake-SS):** the bot forwards the SS + user's
+   Discord ID to the owner's DM; the owner reacts ✅ → only then a key is
+   minted. (Later: automatable — v1 manual keeps fake screenshots out.)
+3. **Mint = the same secret the server signs with:** key format exactly
+   what the responder validates (e.g. `PREFIX-YYMMDD-<sig>` — expiry INSIDE
+   the key, stateless; or DB-backed keys on Railway). Bot and server MUST
+   share one secret/algorithm or keys mismatch.
+4. **Trial abuse control:** the free trial is once per Discord ID —
+   persistent log (file/DB) keyed by Discord ID.
+5. **Log every mint** (date, Discord ID, plan, key, expiry) — support and
+   revocation need it.
+6. Never ship the master/owner key to any user; per-user keys only.
 
 ## Phase 4 — PHP/HTML game panels (topup/admin panels)
 
