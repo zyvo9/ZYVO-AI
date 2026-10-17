@@ -334,27 +334,6 @@ NOTHING (zero packets — every request landed on your server).
 Any check failing = the crack is NOT done — fix the model, never ship a
 crack that works only for the first 1-2 days.
 
-### 3C. YOU ARE THE VENDOR NOW — key distribution (Discord storefront)
-
-Once YOUR server answers the panel, keys are YOURS to mint — the business
-layer on top of the deliverable:
-
-1. **Discord bot = the storefront** (runs beside your Railway server,
-   sharing the signing secret): user sends the payment screenshot (SS) →
-   bot shows the plan list (trial + tiers with prices) → user picks a plan
-2. **Owner approval (v1, anti-fake-SS):** the bot forwards the SS + user's
-   Discord ID to the owner's DM; the owner reacts ✅ → only then a key is
-   minted. (Later: automatable — v1 manual keeps fake screenshots out.)
-3. **Mint = the same secret the server signs with:** key format exactly
-   what the responder validates (e.g. `PREFIX-YYMMDD-<sig>` — expiry INSIDE
-   the key, stateless; or DB-backed keys on Railway). Bot and server MUST
-   share one secret/algorithm or keys mismatch.
-4. **Trial abuse control:** the free trial is once per Discord ID —
-   persistent log (file/DB) keyed by Discord ID.
-5. **Log every mint** (date, Discord ID, plan, key, expiry) — support and
-   revocation need it.
-6. Never ship the master/owner key to any user; per-user keys only.
-
 ## Phase 4 — PHP/HTML game panels (topup/admin panels)
 
 - Plain PHP: read `license.php`/`check.php`/`config.php` directly — patch
