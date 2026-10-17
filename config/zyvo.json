@@ -2,7 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
-    "zyvo-free-2/z-ai/glm-5.3-flash",
     "zyvo-free-4/nvidia/nemotron-3-super-120b-a12b:free",
     "zyvo-free-4/nvidia/nemotron-3.5-super-vl:free",
     "zyvo-free-4/poolside/laguna-s-2.1:free",
@@ -31,24 +30,6 @@
           "limit": {
             "context": 256000,
             "output": 65536
-          },
-          "tool_call": true
-        }
-      }
-    },
-    "zyvo-free-2": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free",
-      "options": {
-        "baseURL": "https://integrate.api.nvidia.com/v1",
-        "apiKey": "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"
-      },
-      "models": {
-        "z-ai/glm-5.3-flash": {
-          "name": "Glm 5.3 Flash",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
           },
           "tool_call": true
         }
