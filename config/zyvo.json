@@ -2,9 +2,9 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
-    "zyvo-free-4/nvidia/nemotron-3-super-120b-a12b:free",
     "zyvo-free/kilo-auto/free",
-    "zyvo-free/poolside/laguna-s-2.1:free"
+    "zyvo-free/poolside/laguna-s-2.1:free",
+    "zyvo-free/nvidia/nemotron-3-super-120b-a12b:free"
   ],
   "provider": {
     "zyvo-free": {
@@ -30,22 +30,12 @@
             "output": 65536
           },
           "tool_call": true
-        }
-      }
-    },
-    "zyvo-free-4": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Zyvo Free",
-      "options": {
-        "baseURL": "https://ai-gateway.kilo.ai/api/v1",
-        "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTIxNzAxODAsImV4cCI6MTk0OTg1MDE4MH0.2VHRRlMOIVFws24-zM2NHSnYgPIcqWmoMG40ny5In5A"
-      },
-      "models": {
+        },
         "nvidia/nemotron-3-super-120b-a12b:free": {
-          "name": "Nemotron 3 Super 120b A12b",
+          "name": "nvidia/nemotron-3-super-120b-a12b:free",
           "limit": {
-            "context": 1000000,
-            "output": 128000
+            "context": 256000,
+            "output": 65536
           },
           "tool_call": true
         }
