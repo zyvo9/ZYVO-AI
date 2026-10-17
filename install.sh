@@ -264,6 +264,18 @@ if [ -f "$AGENTS_FILE" ] && ! grep -q "Auto-memory protocol" "$AGENTS_FILE" 2>/d
   rm -f "$AGENTS_FILE.tmp4"
 fi
 
+# v3 upgrade: BRAIN FIRST playbooks rule for installs that predate it
+# (v2 marker is already present on those, so the check above skips — this
+# one extracts ONLY the BRAIN FIRST section, no duplicated v2 content)
+if [ -f "$AGENTS_FILE" ] && ! grep -q "BRAIN FIRST" "$AGENTS_FILE" 2>/dev/null; then
+  if curl -fsSL "$MEM2_URL" -o "$AGENTS_FILE.tmp5" 2>/dev/null && [ -s "$AGENTS_FILE.tmp5" ]; then
+    printf '\n' >> "$AGENTS_FILE"
+    awk '/^## .*BRAIN FIRST/{f=1} /^### First-session rule/{f=0} f' "$AGENTS_FILE.tmp5" >> "$AGENTS_FILE"
+    info "BRAIN FIRST playbooks rule added to AGENTS.md"
+  fi
+  rm -f "$AGENTS_FILE.tmp5"
+fi
+
 # Privacy fix: older builds seeded personal facts ("Morad", GitHub handles,
 # personal paths) into AGENTS.md — every device then used the same name.
 # Strip ALL personal fingerprints and add the first-session rule; the agent
