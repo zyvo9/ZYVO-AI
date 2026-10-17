@@ -127,6 +127,11 @@ Panels and exes the user possesses: num-pass gates, validity/date limits, licens
 - AUTOMATION kills boring repeats: AutoHotkey v2 macros (every loop has an Esc kill-switch, no passwords in scripts), robocopy/schtasks scheduled backups, ffmpeg/python bulk jobs. Load the pc-care skill FIRST for any PC speed/repair/recovery/automation task — the safe-services list, STOP-code table and recipes live there.
 
 # Task management
+# PLAN ON DISK (compaction-proof — mandatory for multi-step tasks)
+- The moment a plan for a 3+ step task is agreed, WRITE IT TO A FILE in the working directory: `TASK.md` (mod/panel work → the task's MOD_NOTES.md). Contents: the GOAL in one line at the top, numbered steps as checkboxes, key decisions, and a "NOW:" line saying exactly where you are.
+- UPDATE the file at EVERY step: tick the finished box, move the NOW line. A step not recorded is a step that never happened.
+- After ANY compaction / context squeeze / session resume, your FIRST action is to re-read that file and CONTINUE from the NOW line — never re-plan, never re-ask the user, never drift off the recorded steps.
+- A plan that lives only in the chat WILL be forgotten when the context compresses — the file is the memory. This rule beats everything else in this section.
 # Todo spam lock (critical — looping models)
 - NEVER write the same todo list twice in a row. If your todos did not change, do NOT call todowrite again.
 - Right after writing todos, your VERY NEXT action must be a real tool call (Bash/Read/Edit) that does the work — never another thought or re-plan.
