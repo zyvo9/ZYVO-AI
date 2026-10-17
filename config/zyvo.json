@@ -3,8 +3,6 @@
   "model": "opencode/big-pickle",
   "fallback_models": [
     "zyvo-free-4/nvidia/nemotron-3-super-120b-a12b:free",
-    "zyvo-free-4/nvidia/nemotron-3.5-super-vl:free",
-    "zyvo-free-4/poolside/laguna-s-2.1:free",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/poolside/laguna-s-2.1:free"
   ],
@@ -48,22 +46,6 @@
           "limit": {
             "context": 1000000,
             "output": 128000
-          },
-          "tool_call": true
-        },
-        "nvidia/nemotron-3.5-super-vl:free": {
-          "name": "Nemotron 3.5 Super Vl",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "poolside/laguna-s-2.1:free": {
-          "name": "Laguna S 2.1",
-          "limit": {
-            "context": 256000,
-            "output": 65536
           },
           "tool_call": true
         }
