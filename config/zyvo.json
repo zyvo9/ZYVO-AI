@@ -2,6 +2,11 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
+    "zyvo-free-2/gemini-3.7-flash",
+    "zyvo-free-2/claude-sonnet-5",
+    "zyvo-free-2/claude-opus-5.5",
+    "zyvo-free-2/claude-fable-5.1",
+    "zyvo-free-2/claude-fable-5",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/poolside/laguna-s-2.1:free",
     "zyvo-free/nvidia/nemotron-3-super-120b-a12b:free"
@@ -33,6 +38,56 @@
         },
         "nvidia/nemotron-3-super-120b-a12b:free": {
           "name": "nvidia/nemotron-3-super-120b-a12b:free",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://cleanapis.com/v1",
+        "apiKey": "cc_IkzY8lcSvNIuHbU3FIFr2q3e4Qdd6yp1jvOty5hql1dr8tpC"
+      },
+      "models": {
+        "gemini-3.7-flash": {
+          "name": "Gemini 3.7 Flash",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "claude-sonnet-5": {
+          "name": "Claude Sonnet 5",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "claude-opus-5.5": {
+          "name": "Claude Opus 5.5",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "claude-fable-5.1": {
+          "name": "Claude Fable 5.1",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "claude-fable-5": {
+          "name": "Claude Fable 5",
           "limit": {
             "context": 256000,
             "output": 65536
