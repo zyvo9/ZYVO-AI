@@ -77,14 +77,24 @@ export function retryable(error: Err, provider: string) {
       // waiting out the provider's window (sometimes hours) is the wrong
       // answer when a fallback lane exists; classify it so the processor
       // rotates to the next lane instead
-      if (status === 429 || /rate limit|too many requests|quota/i.test(error.data.message)) {
+      // zen's gateway also FLAPS: its load balancer mixes clean and blocked
+      // exits, so the FreeTierError ("only be used from within OpenCode")
+      // fires intermittently — the same request succeeds seconds later.
+      // Treat it as retryable with quick backoff instead of a dead stop.
+      if (
+        status === 429 ||
+        /rate limit|too many requests|quota/i.test(error.data.message) ||
+        /only be used from within/i.test(error.data.message) ||
+        error.data.responseBody?.includes("FreeTierError")
+      ) {
+        const zen = /only be used from within/i.test(error.data.message) || error.data.responseBody?.includes("FreeTierError")
         return {
-          message: error.data.message || "Rate limited",
+          message: zen ? "Zen exit blocked — retrying (gateway flap)" : (error.data.message || "Rate limited"),
           action: {
             reason: "account_rate_limit" as const,
             provider,
             title: "Rate limited",
-            message: error.data.message || "Rate limited — switching lane",
+            message: zen ? "Zen exit blocked — retrying" : (error.data.message || "Rate limited — switching lane"),
             label: "switch",
           },
         }
@@ -163,7 +173,8 @@ export function retryable(error: Err, provider: string) {
     if (
       lower.includes("rate increased too quickly") ||
       lower.includes("rate limit") ||
-      lower.includes("too many requests")
+      lower.includes("too many requests") ||
+      lower.includes("only be used from within")
     ) {
       return {
         message: msg,
