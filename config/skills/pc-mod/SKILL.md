@@ -27,9 +27,9 @@ Everything here is for software the user possesses, personal use.
 5. Known-panel gotchas may exist in the owner's private playbook
    (vault 05 Playbooks/) — check it for this target before choosing the
    path; its gotchas beat generic advice.
-5. Remote-kill switches and stolen-data features get neutralized, never
+6. Remote-kill switches and stolen-data features get neutralized, never
    preserved.
-6. **DECOMPILE-FIRST IS THE LAW (the overlay/fake-server ban):** when the
+7. **DECOMPILE-FIRST IS THE LAW (the overlay/fake-server ban):** when the
    target is .NET/readable, you MUST decompile (dnSpy/ILSpy/ilspycmd) and
    patch the BINARY itself. Building an overlay/wrapper on top of the
    panel, or faking the license server locally, BEFORE decompiling = a
@@ -44,7 +44,7 @@ Everything here is for software the user possesses, personal use.
    relay to learn the schema, then BUILD the deliverable WITHOUT it — the
    user's own server signs fresh and the loose relay is deleted (Phase 3).
    CLASSIFY FIRST (Phase 0.5) — the gate's class picks the whole path.
-7. **NEVER CLAIM "DECOMPILE E SOMBHOB NA" WITHOUT EVIDENCE:** run the actual
+8. **NEVER CLAIM "DECOMPILE E SOMBHOB NA" WITHOUT EVIDENCE:** run the actual
    triage first (file type check + the tools). Game panels (Free Fire-style
    topup/admin panels) are ordinary .NET/PHP/web apps — decompilable and
    readable. Prove impossibility with the triage result, or do the work.
@@ -112,32 +112,61 @@ only swap/NOP. Check if the pubkey is server-delivered — then zero patching.
 
 ## Phase 3 — License-server emulation (gate lives on a server)
 
-The exe phones home to check the license — the server response can be faked.
-LIFECYCLE: what you build HERE is the TEST relay (one machine, throwaway) —
-its job is to learn the exact schema. The DELIVERABLE is the user's OWN
-server (Railway/VPS): proven schema deployed there, every vendor domain
-URL-patched to it, every response FRESH-signed (own keypair for 2P gates),
-cron pinger, and the test relay deleted. Public-key signed + encrypted
-response? The test phase becomes RESEARCH: proxy real traffic once + Frida
-hook the client's crypto/verify to capture the decrypted schema, the verify
-call site and the embedded pubkey (feeds the 2P swap).
+The exe phones home to check the license. TWO builds, in order — never hand
+the user the first one as the product:
 
-VERIFY GATE before calling any server crack done: machine restart → works;
-next-day → signature valid (fresh, not replay); two instances → no port
-conflict; traffic capture → vendor domains receive ZERO packets.
-
-The exe phones home to check the license — the server response can be faked:
+### 3A — TEST relay (throwaway, one machine, for LEARNING only)
+Its only job: learn the exact schema fast. Expect it to die in 1-2 days —
+that is fine, it was going to be deleted anyway.
 1. **Capture the check first:** run with Wireshark/mitmproxy (or strings for
    the URL) → know the exact request + response format the client accepts
-2. **Redirect:** `C:\Windows\System32\drivers\etc\hosts` →
-   `127.0.0.1  license.vendor.com` + a tiny local server (python) that
-   returns the "valid" response in the EXACT format the code parses
-3. **HTTPS gate?** → exe likely pins/validates TLS: patch the cert check
-   (find `WinVerifyTrust`/cert-compare and NOP), or change the URL constant
-   to `http://` (then plain serve), or install your CA into Windows trust +
-   serve real TLS with it
+2. **Redirect:** `hosts` → `127.0.0.1 license.vendor.com` + a tiny python
+   server returning the "valid" response in the EXACT format the code parses
+3. **HTTPS gate?** → patch the cert check (`WinVerifyTrust`/cert-compare →
+   NOP), or flip the URL constant to `http://`, or install your CA into
+   Windows trust + serve real TLS with it
 4. Kill-switch calls (remote disable) → same redirect, answer "active
    forever"
+5. Public-key SIGNED responses (class 2P)? The test phase becomes RESEARCH:
+   proxy real traffic once + Frida-hook the client's crypto/verify to
+   capture the decrypted schema, the verify call site and the embedded
+   pubkey (feeds the swap below). Replay of captured bodies is FORBIDDEN —
+   it passes today and dies tomorrow when the timestamp/nonce window moves.
+
+### 3B — DELIVERABLE (the user's own REMOTE server — the only thing you ship)
+Everything the test relay proved, rebuilt to survive: Railway/VPS (+cron
+pinger), or an embedded launcher-responder baked into the launcher (offline
+model, no server at all — pick with the user). The loose 3A relay is
+DELETED the moment 3B is proven. MANDATORY details:
+1. **URL PATCH — the LENGTH trap:** replace every vendor URL inside the
+   binary with YOUR domain and the new string must NEVER be longer than the
+   original — same length or shorter, NUL-pad the tail. Overwrite past the
+   original's length and you corrupt the binary (crash or silent breakage).
+2. **EVERY vendor URL, not just login:** strings-search the WHOLE binary
+   for vendor domains — auth, check, heartbeat, telemetry, update — every
+   one of them goes to your server. Leave one pointing at the vendor and
+   the HWID blocklist death finds you (they see traffic → they block).
+3. **FRESH SIGNING (class 2P):** generate your own keypair, swap the
+   client's embedded vendor pubkey with YOURS (fixed lengths, in-place:
+   RSA-2048 256B / P-256 65B / Ed25519 32B), your server signs every
+   response FRESH (current timestamp, matching nonce). Captured-body
+   replay = the 1-2-day death; fresh signing is the cure.
+4. **No local responder ships.** If anything local must exist (embedded
+   launcher model), it self-heals: auto-restarts a dead thread, re-verifies
+   hosts entry + CA cert IDEMPOTENTLY on EVERY launch (AV strips them over
+   time), and checks the port is free before binding (two panels at once
+   must never collide — stuck port = kill the stale listener, never hang).
+5. **Spoof HWIDs server-side:** stable fake identity per user; a new batch
+   of users = a new batch of HWIDs.
+6. **Cleanup:** the 3A hosts entry, local relay script and CA tricks come
+   OFF the machine when the deliverable takes over — the launcher (or the
+   patched URLs) points only at the permanent home.
+
+VERIFY GATE before calling any server crack done: machine restart → works;
+next-day → signature still valid (fresh-sign proof, not replay); two
+instances → no port conflict; traffic capture → vendor domains receive
+ZERO packets. Any check failing = the crack is NOT done — fix the model,
+don't apologize.
 
 ## Phase 4 — PHP/HTML game panels (topup/admin panels)
 
