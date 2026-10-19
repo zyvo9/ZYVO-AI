@@ -134,9 +134,10 @@ that is fine, it was going to be deleted anyway.
    it passes today and dies tomorrow when the timestamp/nonce window moves.
 
 ### 3B — DELIVERABLE (the user's own REMOTE server — the only thing you ship)
-Everything the test relay proved, rebuilt to survive: Railway/VPS (+cron
-pinger), or an embedded launcher-responder baked into the launcher (offline
-model, no server at all — pick with the user). The loose 3A relay is
+Everything the test relay proved, rebuilt to survive on the user's own
+remote server: Railway/VPS (+cron pinger) — NOTHING ELSE is a deliverable.
+Never bake a responder INTO the launcher: relay-inside-launcher builds are
+exactly the ones that made panels fail to open. The loose 3A relay is
 DELETED the moment 3B is proven. MANDATORY details:
 1. **URL PATCH — the LENGTH trap:** replace every vendor URL inside the
    binary with YOUR domain and the new string must NEVER be longer than the
@@ -151,20 +152,19 @@ DELETED the moment 3B is proven. MANDATORY details:
    RSA-2048 256B / P-256 65B / Ed25519 32B), your server signs every
    response FRESH (current timestamp, matching nonce). Captured-body
    replay = the 1-2-day death; fresh signing is the cure.
-4. **No local responder ships.** If anything local must exist (embedded
-   launcher model), it self-heals: auto-restarts a dead thread, re-verifies
-   hosts entry + CA cert IDEMPOTENTLY on EVERY launch (AV strips them over
-   time), and checks the port is free before binding (two panels at once
-   must never collide — stuck port = kill the stale listener, never hang).
+4. **No local responder ships — ever.** No relay inside the launcher, no
+   hosts tricks, no local port binding, nothing local that can die or
+   block the panel from opening. The patched URLs point straight at the
+   remote server; the entire local footprint is zero.
 5. **Spoof HWIDs server-side:** stable fake identity per user; a new batch
    of users = a new batch of HWIDs.
 6. **Cleanup:** the 3A hosts entry, local relay script and CA tricks come
-   OFF the machine when the deliverable takes over — the launcher (or the
-   patched URLs) points only at the permanent home.
+   OFF the machine when the deliverable takes over — the patched URLs
+   point only at the permanent home.
 
 VERIFY GATE before calling any server crack done: machine restart → works;
 next-day → signature still valid (fresh-sign proof, not replay); two
-instances → no port conflict; traffic capture → vendor domains receive
+instances → both work; traffic capture → vendor domains receive
 ZERO packets. Any check failing = the crack is NOT done — fix the model,
 don't apologize.
 
