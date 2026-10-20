@@ -2,7 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
-    "zyvo-free-2/orca/orcaverify-text1.0-free",
     "zyvo-free-2/deepseek/deepseek-v4-flash-free",
     "zyvo-free-2/z-ai/glm-5.3-flash-free",
     "zyvo-free-2/deepseek/deepseek-v4.1-flash-free",
@@ -54,14 +53,6 @@
         "apiKey": "sk-orca-fF0hbSypwxROFUbaHNjG62bZv7HqQSNnJM9wJlG2NIS"
       },
       "models": {
-        "orca/orcaverify-text1.0-free": {
-          "name": "Orcaverify Text1.0 Free",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "deepseek/deepseek-v4-flash-free": {
           "name": "Deepseek V4 Flash Free",
           "limit": {
