@@ -8,7 +8,11 @@ const exec = promisify(execFile)
 
 function command(command: string, args: string[] = [], input?: string) {
   return new Promise<Buffer>((resolve, reject) => {
-    const child = spawn(command, args, { stdio: [input === undefined ? "ignore" : "pipe", "pipe", "ignore"] })
+    const child = spawn(command, args, {
+      stdio: [input === undefined ? "ignore" : "pipe", "pipe", "ignore"],
+      // never flash a console window for helper/powershell fallbacks
+      windowsHide: true,
+    })
     const output: Buffer[] = []
     child.on("error", reject)
     child.stdout?.on("data", (chunk: Buffer) => output.push(chunk))
@@ -44,14 +48,112 @@ async function termuxWrite(text: string): Promise<void> {
   }
 }
 
-// Windows text clipboard via the bundled win-clipboard helper exe.
-// WHY NOT POWERSHELL: spawning powershell.exe for Get-Clipboard takes
-// 5.5-8.3 SECONDS on real machines (AV scans every spawn) — every paste
-// hung for seconds. The tiny helper (sindresorhus/win-clipboard, MIT,
-// embedded as base64 from clipboard-helper.gen.ts) answers in ~60ms.
-// It is extracted ONCE to %LOCALAPPDATA%\zyvo\ and spawned from there
-// (never from bunfs — binaries inside the compiled exe's virtual
-// filesystem cannot be spawned).
+// Windows text clipboard — THREE layers, fastest first:
+// 1. win32 API IN-PROCESS via bun:ffi (the upstream 1.19 mechanism): no
+//    subprocess at all, so no console window flash, no AV scan, ~0ms.
+// 2. the bundled win-clipboard helper exe (~60ms) — fallback if FFI fails.
+// 3. PowerShell (5-8s with AV — last resort only).
+// WHY NOT POWERSHELL FIRST: spawning powershell.exe flashes a cmd window
+// in front of the TUI and AV scans every spawn — seconds per paste.
+const CF_UNICODETEXT = 13
+const GMEM_MOVEABLE = 2
+const CP_UTF8 = 65001
+
+type Win32Clipboard = {
+  read(): string | undefined
+  write(text: string): boolean
+}
+let win32Clipboard: Win32Clipboard | undefined | null // null = unavailable
+
+async function loadWin32Clipboard(): Promise<Win32Clipboard | null> {
+  if (win32Clipboard !== undefined) return win32Clipboard
+  try {
+    const ffi = (await import("bun:ffi")) as any
+    const user32 = ffi.dlopen("user32.dll", {
+      OpenClipboard: { args: [ffi.FFIType.ptr], returns: ffi.FFIType.i32 },
+      CloseClipboard: { args: [], returns: ffi.FFIType.i32 },
+      IsClipboardFormatAvailable: { args: [ffi.FFIType.u32], returns: ffi.FFIType.i32 },
+      GetClipboardData: { args: [ffi.FFIType.u32], returns: ffi.FFIType.ptr },
+      SetClipboardData: { args: [ffi.FFIType.u32, ffi.FFIType.ptr], returns: ffi.FFIType.ptr },
+      EmptyClipboard: { args: [], returns: ffi.FFIType.i32 },
+    }).symbols
+    const kernel32 = ffi.dlopen("kernel32.dll", {
+      GlobalAlloc: { args: [ffi.FFIType.u32, ffi.FFIType.usize], returns: ffi.FFIType.ptr },
+      GlobalLock: { args: [ffi.FFIType.ptr], returns: ffi.FFIType.ptr },
+      GlobalUnlock: { args: [ffi.FFIType.ptr], returns: ffi.FFIType.i32 },
+      GlobalSize: { args: [ffi.FFIType.ptr], returns: ffi.FFIType.usize },
+      WideCharToMultiByte: {
+        args: [ffi.FFIType.u32, ffi.FFIType.u32, ffi.FFIType.ptr, ffi.FFIType.i32, ffi.FFIType.ptr, ffi.FFIType.i32, ffi.FFIType.ptr, ffi.FFIType.ptr],
+        returns: ffi.FFIType.i32,
+      },
+      memcpy: { args: [ffi.FFIType.ptr, ffi.FFIType.ptr, ffi.FFIType.usize], returns: ffi.FFIType.ptr },
+      lstrlenW: { args: [ffi.FFIType.ptr], returns: ffi.FFIType.i32 },
+    }).symbols
+
+    win32Clipboard = {
+      read() {
+        try {
+          if (!user32.OpenClipboard(0)) return undefined
+          try {
+            if (!user32.IsClipboardFormatAvailable(CF_UNICODETEXT)) return undefined
+            const handle = user32.GetClipboardData(CF_UNICODETEXT)
+            if (!handle) return undefined
+            const ptr = kernel32.GlobalLock(handle)
+            if (!ptr) return undefined
+            try {
+              const len = kernel32.lstrlenW(ptr)
+              if (len <= 0) return undefined
+              // ask for the exact byte count first, then convert into OUR buffer
+              const needed = kernel32.WideCharToMultiByte(CP_UTF8, 0, ptr, len, 0, 0, 0, 0)
+              if (needed <= 0) return undefined
+              const out = new Uint8Array(needed)
+              const written = kernel32.WideCharToMultiByte(CP_UTF8, 0, ptr, len, out, needed, 0, 0)
+              if (written <= 0) return undefined
+              const text = Buffer.from(out.buffer, 0, written).toString("utf8")
+              return text === "" ? undefined : text
+            } finally {
+              kernel32.GlobalUnlock(handle)
+            }
+          } finally {
+            user32.CloseClipboard()
+          }
+        } catch {
+          return undefined
+        }
+      },
+      write(text: string) {
+        try {
+          if (!user32.OpenClipboard(0)) return false
+          try {
+            // UTF-16LE payload + trailing NUL
+            const payload = Buffer.from(text, "utf16le")
+            const size = payload.length + 2
+            const handle = kernel32.GlobalAlloc(GMEM_MOVEABLE, size)
+            if (!handle) return false
+            const ptr = kernel32.GlobalLock(handle)
+            if (!ptr) return false
+            const src = new Uint8Array(size)
+            src.set(payload, 0)
+            kernel32.memcpy(ptr, src, size)
+            kernel32.GlobalUnlock(handle)
+            if (!user32.EmptyClipboard()) return false
+            const ok = user32.SetClipboardData(CF_UNICODETEXT, handle)
+            // on failure the HGLOBAL is still ours to leak — tiny and rare
+            return Boolean(ok)
+          } finally {
+            user32.CloseClipboard()
+          }
+        } catch {
+          return false
+        }
+      },
+    }
+  } catch {
+    win32Clipboard = null
+  }
+  return win32Clipboard
+}
+
 const windowsHelperDir = () =>
   path.join(process.env.LOCALAPPDATA || tmpdir(), "zyvo")
 
@@ -77,6 +179,13 @@ async function ensureWindowsHelper(): Promise<string | undefined> {
 }
 
 async function windowsReadText(): Promise<string | undefined> {
+  // 1) in-process win32 API — instant, no window, no subprocess
+  const native = await loadWin32Clipboard()
+  if (native) {
+    const text = native.read()
+    if (text !== undefined) return text
+  }
+  // 2) bundled helper exe
   const helper = await ensureWindowsHelper()
   if (helper) {
     try {
@@ -87,6 +196,7 @@ async function windowsReadText(): Promise<string | undefined> {
       // helper failed — fall through to PowerShell
     }
   }
+  // 3) PowerShell — last resort
   try {
     const out = await command("powershell.exe", [
       "-NonInteractive",
@@ -109,6 +219,10 @@ const windowsWriteArgsFallback = [
 ]
 
 async function windowsWriteText(text: string): Promise<void> {
+  // 1) in-process win32 API — instant, no window, no subprocess
+  const native = await loadWin32Clipboard()
+  if (native && native.write(text)) return
+  // 2) bundled helper exe
   const helper = await ensureWindowsHelper()
   if (helper) {
     try {
@@ -118,6 +232,7 @@ async function windowsWriteText(text: string): Promise<void> {
       // helper failed — fall through to PowerShell
     }
   }
+  // 3) PowerShell — last resort
   await command("powershell.exe", windowsWriteArgsFallback, text)
 }
 
