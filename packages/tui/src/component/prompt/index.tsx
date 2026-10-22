@@ -755,16 +755,33 @@ export function Prompt(props: PromptProps) {
     const queue = queuedPrompts.get(sessionID)
     if (!queue?.length) return
     if (status().type !== "idle") return
-    if (store.prompt.input) return // a draft being typed — never overwritten
     if (auto()?.visible) return // autocomplete open — retry on the next tick
+    if (flushing) return
     const first = queue[0]
+    // A USER draft must never be overwritten — but the text WE placed in the
+    // input for a FAILED flush attempt is not a draft (it blocked every retry
+    // forever: gate saw "input non-empty" each tick). Content-equality tells
+    // them apart: same text = our leftover, clear it and retry.
+    const current = store.prompt.input
+    if (current && current.trim() !== first.prompt.input.trim()) return
     ref.set(first.prompt)
     setStore("mode", first.mode)
     flushing = true
     void submit()
       .then((ok) => {
         flushing = false
-        if (!ok) return // stays queued; the watchdog retries
+        if (!ok) {
+          // submit refused (transient permission/dialog/race) — clear OUR
+          // text so the next watchdog tick can retry. If the user typed over
+          // it meanwhile, leave their draft untouched.
+          const now = store.prompt.input
+          if (now && now.trim() === first.prompt.input.trim()) {
+            input.clear()
+            setStore("prompt", { input: "", parts: [] })
+            setStore("extmarkToPartIndex", new Map())
+          }
+          return // stays queued; the watchdog retries
+        }
         const q = queuedPrompts.get(sessionID)
         if (q) {
           q.shift()
@@ -777,6 +794,12 @@ export function Prompt(props: PromptProps) {
       .catch(() => {
         // submit threw — flushing must reset or every future flush is blocked
         flushing = false
+        const now = store.prompt.input
+        if (now && now.trim() === first.prompt.input.trim()) {
+          input.clear()
+          setStore("prompt", { input: "", parts: [] })
+          setStore("extmarkToPartIndex", new Map())
+        }
       })
   }
   createEffect(
