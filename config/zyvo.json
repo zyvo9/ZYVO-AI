@@ -3,8 +3,7 @@
   "model": "zyvo-free/kilo-auto/free",
   "fallback_models": [
     "zyvo-free/kilo-auto/free",
-    "zyvo-free/poolside/laguna-s-2.1:free",
-    "zyvo-free/nvidia/nemotron-3-super-120b-a12b:free"
+    "zyvo-free/poolside/laguna-s-2.1:free"
   ],
   "provider": {
     "zyvo-free": {
@@ -25,14 +24,6 @@
         },
         "poolside/laguna-s-2.1:free": {
           "name": "Laguna S 2.1",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "nvidia/nemotron-3-super-120b-a12b:free": {
-          "name": "nvidia/nemotron-3-super-120b-a12b:free",
           "limit": {
             "context": 256000,
             "output": 65536
