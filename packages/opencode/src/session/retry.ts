@@ -32,7 +32,26 @@ function cap(ms: number) {
   return Math.min(ms, RETRY_MAX_DELAY)
 }
 
+// A quota wall (429 / rate limit / free-tier cap) gets a FIXED fast retry:
+// free-tier walls are short rolling windows that free up within seconds to
+// minutes — hammering every 2s lands the request as soon as any window
+// opens, while sleeping out the provider's retry-after (minutes to HOURS)
+// strands the session. Lane switches override to 1500ms on top of this.
+function isQuotaWall(error: Err | undefined) {
+  if (!error || !SessionV1.APIError.isInstance(error)) return false
+  const data = error.data
+  if (data.statusCode === 429) return true
+  const body = data.responseBody ?? ""
+  return (
+    /rate limit|too many requests|quota|free.?tier|free.?usage|exceeded/i.test(data.message ?? "") ||
+    /FreeTierError|FreeUsageLimitError|GoUsageLimitError|too_many_requests/.test(body)
+  )
+}
+
 export function delay(attempt: number, error?: SessionV1.APIError) {
+  // quota wall → FIXED 2s, always — never the provider's retry-after, never
+  // exponential growth (see isQuotaWall)
+  if (error && isQuotaWall(error)) return RETRY_INITIAL_DELAY
   if (error) {
     const headers = error.data.responseHeaders
     if (headers) {
@@ -102,15 +121,17 @@ export function retryable(error: Err, provider: string) {
       return undefined
     }
     if (error.data.responseBody?.includes("FreeUsageLimitError")) {
+      // free-tier cap is just another rolling quota wall for zyvo — auto-retry
+      // every 2s (see isQuotaWall in delay()), never a dead stop, never an
+      // upsell
       return {
-        message: GO_UPSELL_MESSAGE,
+        message: "Free usage limit hit — auto-retrying every 2s (quota frees up over time)",
         action: {
           reason: "free_tier_limit",
           provider,
           title: "Free limit reached",
-          message: "Subscribe to Zyvo Go for reliable access to the best open-source models, starting at $5/month.",
-          label: "subscribe",
-          link: GO_UPSELL_URL,
+          message: "Free usage limit hit — auto-retrying every 2s (quota frees up over time)",
+          label: "switch",
         },
       }
     }
