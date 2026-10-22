@@ -1,0 +1,30 @@
+# Keep the zyvo admin panel's free Render instance awake — without a ping
+# the instance sleeps after ~15 min idle and the FIRST chat message after a
+# pause eats a ~50s cold start (users read it as "no reply"). A ping every
+# 10 min keeps it warm. Lives in this public repo (scheduled workflows on
+# public repos run free); GitHub cron can drift a few minutes — a late ping
+# just wakes the service instead.
+name: keep admin panel awake
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: ping-admin-panel
+  cancel-in-progress: false
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping
+        run: |
+          for attempt in 1 2; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 \
+              "https://zyvo-admin.onrender.com/api/state")
+            echo "ping -> HTTP $code"
+            # any HTTP answer proves the panel is warm; 000 = unreachable
+            if [ "$code" != "000" ]; then exit 0; fi
+            sleep 45
+          done
+          exit 1
