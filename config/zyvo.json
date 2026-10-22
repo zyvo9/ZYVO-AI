@@ -40,24 +40,6 @@
           "tool_call": true
         }
       }
-    },
-    "zz-probe": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "probe",
-      "options": {
-        "baseURL": "https://probe.example.com/v1",
-        "apiKey": "sk-probe-7f3a9b2c1d8e6f4a0b5c3d2e1f0a9b8c7d6e5f4a"
-      },
-      "models": {
-        "probe-m": {
-          "name": "probe",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        }
-      }
     }
   }
 }
