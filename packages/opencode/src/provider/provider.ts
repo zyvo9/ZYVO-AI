@@ -34,6 +34,13 @@ import { ProviderError } from "./error"
 
 const OPENAI_HEADER_TIMEOUT_DEFAULT = 10_000
 
+// zyvo multi-key pool cursors — providerID -> current key index into that
+// provider's options.apiKeys array. rotateApiKey() advances the cursor on
+// quota walls; resolveSDK() applies it so every new SDK instance is built
+// with the cursor's key (the SDK cache key includes the resolved apiKey,
+// so a rotation naturally produces a fresh instance).
+const apiKeyCursors = new Map<string, number>()
+
 function wrapSSE(res: Response, ms: number, ctl: AbortController) {
   if (typeof ms !== "number" || ms <= 0) return res
   if (!res.body) return res
@@ -1123,6 +1130,15 @@ export interface Interface {
   ) => Effect.Effect<{ providerID: ProviderV2.ID; modelID: string } | undefined>
   readonly getSmallModel: (providerID: ProviderV2.ID) => Effect.Effect<Model | undefined>
   readonly defaultModel: () => Effect.Effect<{ providerID: ProviderV2.ID; modelID: ModelV2.ID }, DefaultModelError>
+  /**
+   * zyvo multi-key pool: advance to the NEXT key of the provider's
+   * options.apiKeys array (fresh quota without leaving the lane/model).
+   * Returns the new 1-based position and pool size; rotated=false when the
+   * provider has no multi-key pool.
+   */
+  readonly rotateApiKey: (
+    providerID: ProviderV2.ID,
+  ) => Effect.Effect<{ rotated: boolean; index: number; total: number }>
 }
 
 interface State {
@@ -1670,6 +1686,15 @@ export const layer = Layer.effect(
 
         if (baseURL !== undefined) options["baseURL"] = baseURL
         if (options["apiKey"] === undefined && provider.key) options["apiKey"] = provider.key
+        // zyvo multi-key pool: options.apiKeys carries N gateway keys for the
+        // SAME lane — every request uses the cursor's key; rotateApiKey()
+        // advances it on quota walls (fresh quota, model identity preserved).
+        const keyPool = options["apiKeys"]
+        if (Array.isArray(keyPool) && keyPool.length > 1) {
+          const cursor = apiKeyCursors.get(model.providerID) ?? 0
+          options["apiKey"] = keyPool[cursor % keyPool.length]
+        }
+        delete options["apiKeys"]
         // zyvo/omniroute: a key the user entered via auth login always wins
         // over the baked default key from our shipped config
         if (model.providerID === "zyvo" || model.providerID === "omniroute") {
@@ -1939,7 +1964,17 @@ export const layer = Layer.effect(
       }
     })
 
-    return Service.of({ list, getProvider, getModel, getLanguage, closest, getSmallModel, defaultModel })
+    const rotateApiKey = Effect.fn("Provider.rotateApiKey")(function* (providerID: ProviderV2.ID) {
+      const s = yield* InstanceState.get(state)
+      const entry = s.providers[providerID]
+      const pool = entry?.options?.["apiKeys"]
+      if (!Array.isArray(pool) || pool.length < 2) return { rotated: false, index: 1, total: pool?.length ?? 1 }
+      const next = (apiKeyCursors.get(providerID) ?? 0) + 1
+      apiKeyCursors.set(providerID, next)
+      return { rotated: true, index: (next % pool.length) + 1, total: pool.length }
+    })
+
+    return Service.of({ list, getProvider, getModel, getLanguage, closest, getSmallModel, defaultModel, rotateApiKey })
   }),
 )
 

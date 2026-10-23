@@ -62,6 +62,9 @@ export namespace ProviderTest {
             if (providerID === row.id && modelID === mdl.id) return Effect.succeed(mdl)
             return Effect.die(new Error(`Unknown test model: ${providerID}/${modelID}`))
           }),
+          rotateApiKey: Effect.fn("TestProvider.rotateApiKey")(() =>
+            Effect.succeed({ rotated: false, index: 1, total: 1 }),
+          ),
           getLanguage: Effect.fn("TestProvider.getLanguage")(() =>
             Effect.die(new Error("ProviderTest.getLanguage not configured")),
           ),

@@ -1027,6 +1027,20 @@ export const layer = Layer.effect(
                       info.action &&
                       (info.action.reason === "free_tier_limit" || info.action.reason === "account_rate_limit")
                     ) {
+                      // KEY POOL FIRST — same lane, same model, fresh quota:
+                      // rotating the provider's apiKeys cursor multiplies a
+                      // free gateway's quota by the pool size without the
+                      // user noticing anything (model identity preserved).
+                      let keyRotated = false
+                      const keyRotation = yield* provider.rotateApiKey(activeModel.providerID).pipe(Effect.exit)
+                      if (keyRotation._tag === "Success" && keyRotation.value.rotated) {
+                        keyRotated = true
+                        overrideWait = 1500
+                        message = `${message} - rotating gateway key (${keyRotation.value.index}/${keyRotation.value.total}, fresh quota)`
+                      }
+                      // fresh key in place → give it a chance before any
+                      // model switch; only rotate MODELS when there is no
+                      // key pool (or it just cycled fully)
                       const fallbacks = (yield* config.get()).fallback_models ?? []
                       const currentLane = `${activeModel.providerID}/${activeModel.id}`
                       const variants = fallbacks.filter((entry) => {
@@ -1035,7 +1049,7 @@ export const layer = Layer.effect(
                         if (entry === currentLane) return false
                         return isModelVariant(entry.slice(slash + 1), originModelID)
                       })
-                      if (variants.length > 0) {
+                      if (!keyRotated && variants.length > 0) {
                         const next = variants[fallbackCursor % variants.length]
                         // once every variant lane has been tried, say so instead
                         // of silently wrapping — the chain keeps cycling because
