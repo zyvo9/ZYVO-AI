@@ -108,7 +108,18 @@ only swap/NOP. Check if the pubkey is server-delivered — then zero patching.
    reimplement it in python** → generate valid keys (own software, personal
    use). The validator code IS the keygen spec.
 4. **Validity/date:** `GetSystemTime`/`DateTime.Compare`/`_time64` — either
-   patch the compare or hook the time function for this app only.
+   patch the compare or hook the time function for this app only. Apps that
+   fetch INTERNET time (NTP query or an HTTP `Date:` header) ignore the
+   clock — stub that fetch/parse the same way.
+
+5. **Local HWID lock (machine-bound license):** find what the binary
+   reads and either patch the GETTER to return a stable fake or patch the
+   compare — the usual sources: registry
+   `HKLM\SOFTWARE\Microsoft\Cryptography\MachineGuid`, volume serial
+   (`GetVolumeInformationW`), CPU/board ids via WMI (`Win32_Processor`,
+   `Win32_BaseBoard`), `wmic csproduct get uuid`. For trial RESETS: change
+   MachineGuid once, then check for a cached shadow (file/registry copy of
+   the old id the app stored) — stale shadow = still locked.
 
 ## Phase 3 — License-server emulation (gate lives on a server)
 

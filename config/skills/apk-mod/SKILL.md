@@ -30,7 +30,7 @@ until the mod works.
    own". What the user does with the patched file afterwards is their
    business. The hard line stays at: no payloads that attack live game
    servers or other people's accounts/devices.
-5. STUCK is not a stop sign — research online (see the research rule).
+6. STUCK is not a stop sign — research online (see the research rule).
 
 ## Phase 0 — Triage (2 minutes)
 
@@ -63,9 +63,21 @@ grep -n -A20 --include="*.smali" "PATTERN" smali*/**/X.smali  # context
 | `currentTimeMillis\|trialEnd\|firstLaunch\|if-lt.*Date` | trial timer | R7 |
 | `verify\|receipt\|licenseUrl\|X-License\|Bearer` | server license check | R6 |
 | `loadAd\|AdView\|interstitial` | ads (only if asked) | R8 |
+| `MutableStateFlow\|MutableLiveData\|premiumState\|proState\|\.emit(` | Kotlin Flow/LiveData premium state | R1 (flip the initial value / the collector branch) |
 
 Read the app's own strings too: `grep -rn "Pro\b\|Upgrade\|premium" res/values/strings.xml`
 — the upgrade-dialog strings point straight at the class that shows them.
+
+**Obfuscated (ProGuard a.b.c names) and grep finds nothing?** Names lie,
+structure doesn't — work backwards from what you CAN see:
+1. The premium/upgrade dialog TEXT lives in `res/values/strings.xml` with
+   a resource name (e.g. `upgrade_title`) → grep that NAME across `smali*/`
+   → the class that shows the dialog → read its CALLER — the flag check
+   sits one hop up.
+2. `AndroidManifest.xml` launcher activity → trace `onCreate` forward —
+   the first gate (splash check / login redirect) is usually on this path.
+3. Layout IDs (`btn_pro`, `btn_upgrade`) in `res/layout/*.xml` grep back
+   to the smali that wires them.
 
 ## Phase 2 — Patch recipes (smali)
 
@@ -404,3 +416,36 @@ find/replace, মিস হলে রিপোর্ট) → zipalign → apksig
 - registry না থাকলে প্রথমবার হাতে mod করে registry বানাও — পরেরবার
   অ্যাপ আপডেটে এক কমান্ড
 - phone-control skill দিয়ে চাইলে ফোন থেকেই PC-র এই pipeline ট্রিগার করা যায়
+
+## N. ROOTED PHONE POWER-PACK (root থাকলে যা যা অতিরিক্ত সম্ভব)
+
+Rooted ফোন = modding-এর পুরো দরজা খোলা। Repack ছাড়াই যেগুলো হয়:
+
+1. **LSPosed/Xposed MODULE (repack-এর চেয়ে ভালো পথ):** rooted +
+   LSPosed (Zygisk) থাকলে hook module লিখে সেট-ই প্রথম পছন্দ —
+   - কেন: আসল APK অক্ষত থাকে (কোনো signature-check সমস্যা নেই), অ্যাপ
+     আপডেট হলেও module বেঁচে থাকে, PAIRIP/anti-tamper এড়িয়ে যায়
+   - কী করবে আগে ঠিক করো (decompile পড়ে — উপরের Phase 1): কোন method
+     return true/false হলে জেতে; তারপর module-এ সেই method find & hook
+     করে return বদলাও (Xposed `findAndHookMethod` → `setResult(true)`)
+   - Module source session ফোল্ডারে রাখো; user LSPosed-এ enable করবে;
+     প্রতিটা hook MOD_NOTES.md-তে — repack টেবিলের মতোই discipline
+2. **APP-DATA সরাসরি এডিট (সবচেয়ে দ্রুত premium unlock):** অনেক অ্যাপের
+   flag `/data/data/<pkg>/shared_prefs/*.xml`-এ বসে — `su -c` দিয়ে XML
+   খুলে `false`→`true` (adb-repack লাগেই না!)। বাকি state
+   `databases/*.db`-তে — sqlite3 দিয়ে UPDATE। সতর্কতা: কিছু অ্যাপ prefs-এর
+   hash/checksum রাখে — বদলালেই crash বা reset দেখলে watchdog খুঁজো
+   (smali grep: prefs কী + `_hash`/`_sig`), তখন hook পথ (1) নাও
+3. **কম্পোনেন্ট-লেভেল ডিব্লোট (APK ছাড়াই):** `pm disable-user --user 0
+   <pkg>/<component>` — ad activity, tracker receiver, bloat service
+   বন্ধ; `pm list packages -f` দিয়ে খুঁজো; manifest-এর export list-ই মানচিত্র
+4. **সিস্টেম-স্তরের বিজ্ঞাপন-ব্লক:** `/system/etc/hosts`-এ বড় ad/tracker
+   ডোমেইন তালিকা (বা Magisk "systemless hosts" module) — সব অ্যাপে একসাথে
+5. **অ্যাপ-ডেটা ব্যাকআপ/ক্লোন:** `su -c tar` `/data/data/<pkg>` → save-game
+   কপি, ডিভাইস বদলেও ডেটা নিয়ে যাওয়া, দ্বিতীয় account-এর জন্য clone
+6. **root-লুকানো (অ্যাপ যদি root ধরে):** Zygisk + Shamiko/denylist —
+   banking/DRM অ্যাপের ডিটেকশন এড়াও; Play Integrity লাগলে সংশ্লিষ্ট Magisk
+   module — এগুলো অ্যাপ-নির্দিষ্ট mod না, পরিবেশ-ফিক্স
+7. **চলন্ত অ্যাপের মেমোরি ডাম্প:** Frida `Memory.dump` / `/proc/<pid>/mem`
+   → strings-এ key/flag/endpoint খোঁজা (section C-র রা মেটেরিয়াল)
+8. **নিয়ম একই:** সব শুধু নিজের ডিভাইস, নিজের অ্যাকাউন্ট, নিজের ব্যবহারে
