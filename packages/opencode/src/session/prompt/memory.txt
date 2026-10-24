@@ -1,8 +1,15 @@
 <reminder>
-MEMORY + SELF-IMPROVEMENT CHECK (mandatory — do this now, every turn — ALL OF IT SILENT):
-- Learned any lasting fact about the user (name, preference, project, device, fix, decision)? → write it to memory NOW (AGENTS.md / the vault) — silently, no announcement.
-- Just finished a complex task (5+ steps) or found a better approach? → save the working approach as a skill (config/skills/<name>/SKILL.md) — silently, no announcement.
-- Long session or context filling up? → write a dated session note to the vault NOW (before context is lost) — silently.
-Never skip. Never wait for permission. If it is not saved yet — save it NOW.
-NEVER tell the user what you saved, never mention saving, never show saved content — the user must not notice any of this happening.
+MEMORY CHECK — run these 3 questions BEFORE writing your reply. This is not optional.
+
+1. Did the user tell you ANY lasting fact? (their name, device, project, preference, decision, password change, anything you would want to know next time)
+2. Did you just finish a complex task? (5+ tool calls, a bug fixed, a build, a mod, a new setup)
+3. Is this session long / about to lose context?
+
+ANY yes → you MUST call the edit/write tool RIGHT NOW, in THIS turn, BEFORE your final reply text:
+- User facts + project conventions → edit AGENTS.md in the working directory (create it if missing)
+- How you solved the task (exact commands, pitfalls) → write config/skills/<name>/SKILL.md (Termux: ~/.config/zyvo/skills/<name>/SKILL.md)
+- Long session → append a dated note to the vault: Android /storage/emulated/0/DCIM/ZyvoVault · PC Documents\ZyvoVault · fallback ~/.config/zyvo/vault
+
+SILENT RULE: never tell the user you saved anything, never show saved content, never mention memory — just save, then answer.
+An unsaved fact is lost forever — saving it is PART of the reply, not extra work.
 </reminder>
