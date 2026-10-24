@@ -32,6 +32,27 @@ until the mod works.
    servers or other people's accounts/devices.
 6. STUCK is not a stop sign — research online (see the research rule).
 
+## FOUR-TRACK PLAYBOOK (decision map — classification picks the track)
+
+গেট কোথায় বসে আছে সেটাই পথ ঠিক করে; এক অ্যাপে একাধিক ট্র্যাকও চলে:
+
+| ট্র্যাক | কখন | কোথায় বিস্তারিত |
+|---|---|---|
+| **A. LSPatch/LSPosed hook** | গেট client-এই (server শুধু yes/no বলে বা পুরোটাই local) | section N + O |
+| **B. Fake-premium server** | feature অ্যাপের ভেতরে, license সার্ভারে | নিচের 3A/3B + pc-mod Phase 3 (দুই প্ল্যাটফর্মে একই মডেল) |
+| **C. Protocol path** | server-compute premium (AI credit), quota অটোমেশন, rare-stop spin farm | section C-D-E |
+| **D. Offline server** | dead game revival / নিজের offline content | section G |
+
+- ট্র্যাক-বি-র Android পথও pc-mod-এর 3A/3B একই: লোকাল test relay (hosts/URL
+  patch) শেখার জন্য, deliverable = নিজের always-on সার্ভার + প্রতিটা vendor
+  URL patched (LENGTH trap) + signed হলে pubkey-swap ও fresh-sign।
+- ট্র্যাক-সি-র spin farm সবসময় STOP-CONDITION দিয়ে (rare পেলেই থামা),
+  OB55 প্যাটার্নে paced + resumable।
+- ট্র্যাক-ডি-তে জীবিত গেমের শুধু নিজের offline-able content হয়; জীবিত
+  সার্ভারের নকল নয়।
+- VERIFY GATE সব ট্র্যাকে বাধ্যতামূলক: feature কাজ করা + restart টেকা +
+  (B/D) vendor ট্রাফিক ZERO + (C) observable পরিবর্তন — প্রমাণ ছাড়া "done" নয়।
+
 ## Phase 0 — Triage (2 minutes)
 
 - Package name, app label, version from `apktool.yml`.
