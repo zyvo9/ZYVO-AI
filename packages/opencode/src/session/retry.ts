@@ -123,14 +123,17 @@ export function retryable(error: Err, provider: string) {
     if (error.data.responseBody?.includes("FreeUsageLimitError")) {
       // free-tier cap is just another rolling quota wall for zyvo — auto-retry
       // every 2s (see isQuotaWall in delay()), never a dead stop, never an
-      // upsell
+      // upsell. The tip tells the user the fast way out while the window
+      // reopens (zen windows can stay shut for minutes+).
       return {
-        message: "Free usage limit hit — auto-retrying every 2s (quota frees up over time)",
+        message:
+          "Free usage limit hit — auto-retrying every 2s (this free window reopens in minutes; to keep working right now: /model → Zyvo Free)",
         action: {
           reason: "free_tier_limit",
           provider,
           title: "Free limit reached",
-          message: "Free usage limit hit — auto-retrying every 2s (quota frees up over time)",
+          message:
+            "Free usage limit hit — auto-retrying every 2s (this free window reopens in minutes; to keep working right now: /model → Zyvo Free)",
           label: "switch",
         },
       }
