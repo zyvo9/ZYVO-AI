@@ -40,6 +40,7 @@ import { ShellID } from "@/tool/shell/id"
 import { FSUtil } from "@opencode-ai/core/fs-util"
 import { Truncate } from "@/tool/truncate"
 import { Image } from "@/image/image"
+import { ImageOCR } from "@/image/ocr"
 import { decodeDataUrl } from "@/util/data-url"
 import { Process } from "@/util/process"
 import { Cause, Effect, Exit, Latch, Layer, Option, Scope, Context, Schema, Types } from "effect"
@@ -1001,6 +1002,31 @@ export const layer = Layer.effect(
             )
           : Effect.succeed(part),
       )
+
+      // OCR BRIDGE: a text-only model still "sees" the image — tesseract
+      // extracts its text and the transcript rides along as a synthetic
+      // text part. The image part stays stored, so switching to a vision
+      // model later still gets the real pixels.
+      if (!input.model.capabilities.input.image) {
+        const imageParts = parts.filter((part) => part.type === "file" && part.mime.startsWith("image/"))
+        for (const part of imageParts) {
+          const url = (part as SessionV1.FilePart).url
+          const b64 = url.startsWith("data:") && url.includes(";base64,") ? url.slice(url.indexOf(";base64,") + ";base64,".length) : undefined
+          if (!b64) continue
+          const result = yield* ImageOCR.ocrImage({ data: Buffer.from(b64, "base64"), mime: (part as SessionV1.FilePart).mime })
+          const transcript = result.ok
+            ? result.text || "(no text found in image)"
+            : `(OCR unavailable — ${result.hint})`
+          parts.push({
+            id: PartID.ascending(),
+            messageID: info.id,
+            sessionID: input.sessionID,
+            type: "text",
+            text: `[Attached image — text transcript for this text-only model]\n${transcript}`,
+            synthetic: true,
+          } satisfies SessionV1.TextPart)
+        }
+      }
 
       const parsed = decodeMessageInfo(info, { errors: "all", propertyOrder: "original" })
       if (Exit.isFailure(parsed)) {

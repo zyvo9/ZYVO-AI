@@ -399,6 +399,12 @@ function unsupportedParts(msgs: ModelMessage[], model: Provider.Model): ModelMes
       if (model.capabilities.input[modality]) return part
 
       const name = filename ? `"${filename}"` : modality
+      if (modality === "image") {
+        return {
+          type: "text" as const,
+          text: `[image ${name} attached — this model is text-only; a text transcript of the image accompanies this message. If no transcript follows, tell the user to install Tesseract OCR so images can be read as text.]`,
+        }
+      }
       return {
         type: "text" as const,
         text: `ERROR: Cannot read ${name} (this model does not support ${modality} input). Inform the user.`,
