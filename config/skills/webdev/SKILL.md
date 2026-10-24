@@ -669,24 +669,23 @@ Date + city hero with countdown (real JS, small) → speakers grid (photo
 cards, hover bio) → schedule timeline (time + talk + track) → ticket
 tiers CTA → sponsor logo row (grayscale, hover color).
 
-## Autonomous delivery (the default flow)
+## Delivery mode (follows the pipeline, not against it)
 
-Be fully autonomous: collect missing info ONCE at the start (site
-purpose, GitHub username + token), then decide everything else yourself
-— design direction, palette, fonts, copy, structure, Pages setup. The
-ONLY intentional interaction is the UI preview gate (Step 1.5): show 2-3
-design directions in Chrome, user picks a number, you build the winner.
-Never ask other intermediate questions. Deliver ONE final message: the
-art direction the user picked + the LIVE URL + one line on how to
-request changes.
+Autonomy lives INSIDE the stages: after the BOOT questions, PRD check and
+the design-direction pick, run the staged build without stopping to
+re-ask what is already decided. The declared touchpoints stay binding —
+BOOT questions, PRD validation, design-direction gate, CUSTOMIZATION
+ROUND, and the Stage-19b deploy approval. Deploy/publish happens ONLY
+with the user's explicit yes; until then everything runs on the local
+preview.
 
 ## Requirements checklist (do this first)
 
-- `git` installed: `pkg install -y git`
+- `git` installed — Termux: `pkg install -y git` · Windows (Git Bash): https://git-scm.com/download/win (winget install Git.Git)
 - User has a GitHub account
 - User has a **Personal Access Token** with `repo` scope. Give them this
   DIRECT link (lands on token creation with the scope pre-checked):
-  https://github.com/settings/tokens/new?description=Zyvo&scopes=repo,workflow,write%3Apackages,read%3Apackages,delete%3Apackages,admin%3Arepo_hook,write%3Arepo_hook,read%3Arepo_hook,admin%3Aorg,write%3Aorg,read%3Aorg,manage_runners%3Aorg,admin%3Aorg_hook,admin%3Apublic_key,write%3Apublic_key,read%3Apublic_key,admin%3Agpg_key,write%3Agpg_key,read%3Agpg_key,admin%3Assh_signing_key,write%3Assh_signing_key,read%3Assh_signing_key,gist,notifications,user,user%3Aemail,user%3Afollow,delete_repo,write%3Adiscussion,read%3Adiscussion,write%3Aproject,read%3Aproject,codespace,audit_log
+  https://github.com/settings/tokens/new?description=Zyvo&scopes=repo,workflow
   They click "Generate token" and paste it to you immediately (shown once).
 - Site topic/purpose and rough content from the user.
 - State the ART DIRECTION (mood, palette, fonts, layout concept) to the
@@ -730,7 +729,7 @@ NEVER build the site on the first design you imagine. The gate:
    pkill -f "http.server 8484" 2>/dev/null
    nohup python -m http.server 8484 --bind 127.0.0.1 >/dev/null 2>&1 &
    sleep 1
-   termux-open-url "http://127.0.0.1:8484/ui-preview.html" 2>/dev/null \
+   termux-open-url (Termux) / `start <url>` (Windows Git Bash) "http://127.0.0.1:8484/ui-preview.html" 2>/dev/null \
      || am start -a android.intent.action.VIEW \
           -d "http://127.0.0.1:8484/ui-preview.html"
    ```
@@ -857,7 +856,7 @@ font-hierarchy, মৃত hover, কদর্য transition, ছোট হাত
 ফর্ম ✓, মোবাইল ✓, console clean ✓) + POLISH-এ কী কী বদলালে + "কী পাল্টাতে
 চাইলে বলো"।
 
-**ব্রাউজার-টেস্ট কীভাবে (agent হিসেবে):** ZCode-এর browser automation থাকলে
+**ব্রাউজার-টেস্ট কীভাবে (agent হিসেবে):** zyvo-র browser automation থাকলে
 তা-ই ব্যবহার করো (navigate → domSnapshot → প্রতিটা button/form-এ click/fill →
 screenshot → console দেখা)। না থাকলে user-কে URL দিয়ে বলো খুলতে — কিন্তু
 নিজে যাচাই করার দায়িত্ব থাকবেই (curl দিয়ে অন্তত সব রুটে 200 + HTML-এ script

@@ -60,6 +60,16 @@ tag-byte = `(field<<3)|wiretype`।
 | **jq** | `pkg install jq` | JSON শেল-এ ছাঁটা: `curl … | jq .field` |
 | **curl-impersonate** (link) | https://github.com/lwthiker/curl-impersonate | TLS fingerprint ব্লক হলে (শেষ অস্ত্র) |
 
+## Image / OCR / Data
+
+| Tool | Install | কখন |
+|---|---|---|
+| **tesseract** | Termux: `pkg install tesseract` · Windows: `winget install UB-Mannheim.TesseractOCR` | ছবি/স্ক্রিনশটের লেখা বের করা — `tesseract img.png stdout -l eng`; zyvo non-vision মডেলে এটাই auto-হয়, হাতে লাগে ফাইল-ভরা কাজে |
+| **sqlite3** | `pkg install sqlite3` | অ্যাপের `.db/.sqlite` (WhatsApp/app data) পড়া-এডিট: `sqlite3 file.db .tables` → `.schema` → SQL |
+| **DB Browser for SQLite** (PC) | https://sqlitebrowser.org | ওই ডেটাবেস GUI-তে ঘাঁটা |
+| **photorec/testdisk** | `pkg install testdisk` | মুছে যাওয়া ফাইল carve (নিজের ডিস্ক) |
+| **exiftool** (উপরেও) | `pkg install exiftool` | metadata — GPS/সফটওয়্যার/তারিখ প্রমাণ |
+
 ## Media / Files
 
 | Tool | Install | কখন |

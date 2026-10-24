@@ -15,13 +15,13 @@ description: >
   "browse-through-the-industry" hero, a scroll cinematic, a diorama landing, or to
   turn a business into a scrollable world.
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion, Skill
-
+---
 
 ## Duration rule (zyvo addition)
 
 MINIMUM total video length: 10 seconds. Prefer 4-6 scenes (never 2) so
 the flight has room to breathe; with fewer scenes the flight feels like
-a blink. 2 scenes only if the user explicitly asks for a short teaser.---
+a blink. 2 scenes only if the user explicitly asks for a short teaser.
 
 # lets-scroll
 
@@ -51,6 +51,10 @@ The value of this skill is the Higgsfield pipeline, the prompts, and the seam me
 not the framework.
 
 ---
+
+## Plan on disk first
+
+This is a long multi-step paid build — write the plan (scenes, beats, budget, options) to `TASK.md` BEFORE Step 0 spend, per the system prompt's TASK.md PLAN REGISTRY. Update it at every step.
 
 ## Step 0 — Bootstrap
 
@@ -115,7 +119,7 @@ default. Cover:
    claymation, neon night). Whatever is chosen becomes the shared **style preamble**
    reused verbatim in every scene prompt (this is what makes the world cohesive).
 4. **Camera style — ALWAYS ask; it's the film's personality, not a technical
-   detail.** Ask by feel (`AskUserQuestion` in Claude Code; a plain question
+   detail.** Ask by feel (`AskUserQuestion` in zyvo; a plain question
    elsewhere) and record the answer as `CAMERA`. The options map to the Step 4
    architectures — Step 4 then *implements* the choice, it never re-decides it:
    - **"Fly through the world"** — the camera dives into each scene, pulls up and
@@ -134,9 +138,9 @@ default. Cover:
    in miniature, jarring in realism; locked-iso is the calmest and cheapest to
    re-roll; walkthrough sits between).
 5. **The journey (sections) — start with the LEVEL OF ANIMATION; always ask it** as a
-   structured choice (`AskUserQuestion` in Claude Code; a plain question elsewhere).
+   structured choice (`AskUserQuestion` in zyvo; a plain question elsewhere).
    Three sizes, **6 is the maximum** — record the count as `N`:
-   - **2 scenes** — a teaser: opener + hero/CTA. 2 stills, 3 clips (2 dives + 1
+   - **2 scenes** — a teaser (ONLY if the user explicitly asks): opener + hero/CTA. 2 stills, 3 clips (2 dives + 1
      connector). Fastest and cheapest; the right first run for testing the pipeline
      end-to-end.
    - **4 scenes** — a short journey. 4 stills, 7 clips.
@@ -148,7 +152,7 @@ default. Cover:
    description (what's IN the diorama), an eyebrow, a headline, one line of body, and
    0–3 tag pills. The last section is usually the hero product + the CTA.
 6. **Mobile version — ALWAYS ask this; never silently generate both.** Ask as a
-   two-option choice (`AskUserQuestion` in Claude Code; a plain question elsewhere):
+   two-option choice (`AskUserQuestion` in zyvo; a plain question elsewhere):
    *"Want a mobile-optimized version too? The mobile version is a second camera chain
    rendered natively in **9:16 portrait** — composed for phones, not a crop of the
    landscape film — which roughly doubles the Higgsfield credit spend (state the
@@ -170,7 +174,7 @@ default. Cover:
      desktop-only build still degrades gracefully.
 
 7. **Asset source — automatic or manual. ALWAYS ask; it decides who renders.**
-   Two options (`AskUserQuestion` in Claude Code; a plain either/or elsewhere):
+   Two options (`AskUserQuestion` in zyvo; a plain either/or elsewhere):
    *"How do you want to produce the stills and clips — should I generate them, or
    do you want the prompts to render in tools of your choice?"* Record as
    `ASSET_SOURCE`.
