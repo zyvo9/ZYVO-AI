@@ -449,3 +449,23 @@ Rooted ফোন = modding-এর পুরো দরজা খোলা। Repa
 7. **চলন্ত অ্যাপের মেমোরি ডাম্প:** Frida `Memory.dump` / `/proc/<pid>/mem`
    → strings-এ key/flag/endpoint খোঁজা (section C-র রা মেটেরিয়াল)
 8. **নিয়ম একই:** সব শুধু নিজের ডিভাইস, নিজের অ্যাকাউন্ট, নিজের ব্যবহারে
+
+## O. UNROOTED PHONE? (wireless/USB ADB দিয়ে যা যা সম্ভব)
+
+`/data/data` সরাসরি এডিট root-ছাড়া হয় না (ADB shell-এর ওই অনুমতি নেই;
+`run-as` শুধু debug-build-এ)। তবু কাছাকাছি ৪ পথ:
+1. **LSPatch (unrooted hook-এর রাজা):** target APK-তে একবার LSPatch চালাও —
+   Xposed পরিবেশ APK-র ভেতরেই বসে যায়, LSPosed module গুলো root ছাড়াই
+   চলে। Premium-unlock module লেখো (section N-এর মতোই)। অ্যাপ আপডেটে
+   re-patch।
+2. **Frida Gadget repack (একবার repack, পরে আর decompile না):** APK-তে
+   `frida-gadget.so` বসাও (APKTool M দিয়ে একবার) — তারপর hook script
+   `/data/local/tmp/`-এ `adb push` করলেই প্রতি লঞ্চে নতুন hook চলে:
+   iterate একদম দ্রুত, re-compile লাগে না।
+3. **`pm disable-user --user 0` ডিব্লোট:** root ছাড়াই ADB থেকে চলে —
+   ad activity/tracker receiver বন্ধ (section N-3 একই কমান্ড)।
+4. **বাইরের storage flag/save:** কিছু অ্যাপ state বা local-save গেমের save
+   `/sdcard/Android/data/<pkg>/` বা `/sdcard/`-এ রাখে — `adb pull/push`
+   দিয়ে এডিটযোগ্য (unlimited money এখানেই বসে যেতে পারে)।
+জোড়া দিতে phone-control skill (wireless debugging pair); server-side
+money/ring কোনো ক্লায়েন্ট-এডিটে আসে না — সেটা protocol recovery (C)।
