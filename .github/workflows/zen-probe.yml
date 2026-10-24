@@ -1,0 +1,34 @@
+# One-shot feasibility probe: does zen's free tier accept a DATACENTER IP
+# when the request carries the exact official-client headers? This decides
+# whether 9router (Render, datacenter IP) can forward zen traffic at all.
+# Manual dispatch only. Uses the anonymous free-tier key "public" (no
+# secrets involved).
+name: zen datacenter probe
+on:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe zen free tier with official-client headers
+        run: |
+          probe() {
+            local label="$1" key="$2"
+            for m in big-pickle deepseek-v4.1-flash-free glm-5.3-flash-free; do
+              code=$(curl -s -o /tmp/body.json -w "%{http_code}" --max-time 60 \
+                -X POST "https://opencode.ai/zen/v1/chat/completions" \
+                -H "Authorization: Bearer $key" \
+                -H "Content-Type: application/json" \
+                -H "User-Agent: opencode/1.18.0" \
+                -H "x-opencode-client: cli" \
+                -H "x-opencode-session: ses_probe_$RANDOM" \
+                -H "x-opencode-request: chat" \
+                -d "{\"model\":\"$m\",\"max_tokens\":20,\"messages\":[{\"role\":\"user\",\"content\":\"Reply with just: ok\"}]}")
+              echo "[$label] $m -> HTTP $code : $(head -c 160 /tmp/body.json)"
+            done
+          }
+          echo "runner IP: $(curl -s --max-time 10 https://api.github.com/meta | grep -o '"actions"' | head -1) (datacenter)"
+          probe "public-key" "public"
+          echo "---"
+          probe "no-auth" ""
