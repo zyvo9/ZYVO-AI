@@ -1007,7 +1007,13 @@ export const layer = Layer.effect(
       // extracts its text and the transcript rides along as a synthetic
       // text part. The image part stays stored, so switching to a vision
       // model later still gets the real pixels.
-      if (!input.model.capabilities.input.image) {
+      // NOTE: input.model in PromptInput is a bare {providerID, modelID}
+      // ref with NO capabilities — reading .capabilities off it crashed
+      // every prompt on device. Resolve the full model instead.
+      const ocrModel = yield* provider
+        .getModel(model.providerID, model.modelID)
+        .pipe(Effect.catchIf(Provider.ModelNotFoundError.isInstance, () => Effect.succeed(undefined)))
+      if (ocrModel?.capabilities?.input?.image === false) {
         const imageParts = parts.filter((part) => part.type === "file" && part.mime.startsWith("image/"))
         for (const part of imageParts) {
           const url = (part as SessionV1.FilePart).url
