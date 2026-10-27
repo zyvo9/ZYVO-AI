@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "zyvo-free/kilo-auto/free",
+  "model": "opencode/big-pickle",
   "fallback_models": [
     "zyvo-free-2/glm-5.3-flash-free",
     "zyvo-free-2/gemini-3.8-flash-free",
