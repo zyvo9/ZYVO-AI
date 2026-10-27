@@ -44,11 +44,11 @@
       "name": "Zyvo Free",
       "options": {
         "baseURL": "https://api.beatapi.io/v1",
-        "apiKey": "sk-gEOyMQTOcPjnMXE1tnuSa0vi2y4Wklo2dvmoAljzfrporVbb"
+        "apiKey": "sk-szNkCRnQikDID34qVZTkP2cWb6xn7nJJ6d2QVVRgwFSM72S8"
       },
       "models": {
         "deepseek-v4.1-flash-free": {
-          "name": "Deepseek V4.1 Flash Free",
+          "name": "Deepseek V4.1 Flash Free1",
           "limit": {
             "context": 1000000,
             "output": 128000
@@ -56,7 +56,7 @@
           "tool_call": true
         },
         "glm-5.3-flash-free": {
-          "name": "Glm 5.3 Flash Free",
+          "name": "Glm 5.3 Flash Free1",
           "limit": {
             "context": 1000000,
             "output": 128000
