@@ -4,6 +4,10 @@
   "fallback_models": [
     "zyvo-free-2/glm-5.3-flash-free",
     "zyvo-free-2/gemini-3.8-flash-free",
+    "zyvo-free-3/minimaxai/minimax-m3.1-flash",
+    "zyvo-free-3/stepfun-ai/step-5-preview",
+    "zyvo-free-3/deepseek-ai/deepseek-v4.1-flash",
+    "zyvo-free-3/z-ai/glm-5.3-flash",
     "zyvo-free-2/deepseek-v4.1-flash-free",
     "zyvo-free/kilo-auto/free",
     "zyvo-free/poolside/laguna-s-2.1:free"
@@ -61,6 +65,48 @@
         },
         "gemini-3.8-flash-free": {
           "name": "Gemini 3.8 Flash Free",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-3": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://integrate.api.nvidia.com/v1",
+        "apiKey": "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"
+      },
+      "models": {
+        "minimaxai/minimax-m3.1-flash": {
+          "name": "Minimax M3.1 Flash",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "stepfun-ai/step-5-preview": {
+          "name": "Step 5 Preview",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "deepseek-ai/deepseek-v4.1-flash": {
+          "name": "Deepseek V4.1 Flash",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        },
+        "z-ai/glm-5.3-flash": {
+          "name": "Glm 5.3 Flash\"",
           "limit": {
             "context": 1000000,
             "output": 128000
