@@ -392,6 +392,11 @@ export const defaultLayer = Layer.suspend(() =>
     Layer.provide(Config.defaultLayer),
     Layer.provide(Provider.defaultLayer),
     Layer.provide(Plugin.defaultLayer),
+    // Permission + EventV2Bridge are BUILD-TIME requirements of the
+    // initializer — without these provides the layer keeps unmet
+    // requirements (same poison class as processor.ts missing Provider).
+    Layer.provide(Permission.defaultLayer),
+    Layer.provide(EventV2Bridge.defaultLayer),
     Layer.provide(
       LLMClient.layer.pipe(Layer.provide(Layer.mergeAll(RequestExecutor.defaultLayer, WebSocketExecutor.layer))),
     ),

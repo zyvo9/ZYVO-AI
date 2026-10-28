@@ -88,7 +88,7 @@ export function Home() {
           <pluginRuntime.Slot name="home_logo" mode="replace">
             <box flexDirection="column" alignItems="center" paddingLeft={1}>
               <text fg={theme.text}>{ZYVO_ART}</text>
-              <text attributes={TextAttributes.Bold} fg={theme.success}>
+              <text attributes={TextAttributes.BOLD} fg={theme.success}>
                 zyvo
               </text>
               <text fg={theme.textMuted}>— AI coding agent</text>

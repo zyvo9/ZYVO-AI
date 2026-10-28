@@ -1135,6 +1135,12 @@ export const defaultLayer = Layer.suspend(() =>
     Layer.provide(Snapshot.defaultLayer),
     Layer.provide(Agent.defaultLayer),
     Layer.provide(LLM.defaultLayer),
+    // Provider is a BUILD-TIME requirement of the initializer above. Without
+    // this provide, defaultLayer keeps an unmet @opencode/Provider requirement
+    // and poisons the AppRuntime build: every CLI command dies with
+    // "Service not found: @opencode/Provider" (TUI kept working because the
+    // LayerNode graph below lists Provider.node correctly).
+    Layer.provide(Provider.defaultLayer),
     Layer.provide(Permission.defaultLayer),
     Layer.provide(Plugin.defaultLayer),
     Layer.provide(SessionSummary.defaultLayer),

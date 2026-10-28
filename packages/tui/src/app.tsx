@@ -26,6 +26,7 @@ import {
 } from "solid-js"
 import { TuiPathsProvider, TuiStartupProvider, TuiTerminalEnvironmentProvider, useTuiStartup } from "./context/runtime"
 import { DialogProvider, useDialog } from "./ui/dialog"
+import { DialogSelect } from "./ui/dialog-select"
 import { DialogProvider as DialogProviderList } from "./component/dialog-provider"
 import { ErrorComponent } from "./component/error-component"
 import { PluginRouteMissing } from "./component/plugin-route-missing"
@@ -478,7 +479,7 @@ function App(props: {
         const local = readFileSync(metaFile, "utf8").trim()
         if (!local) return
         const res = await fetch(
-          "https://github.com/zyvoai/ZYVO-AI/releases/latest/download/build-id.txt",
+          "https://github.com/zyvo9/ZYVO-AI/releases/latest/download/build-id.txt",
           { signal: AbortSignal.timeout(15000) },
         )
         if (!res.ok) return
@@ -496,7 +497,7 @@ function App(props: {
                   toast.show({ variant: "info", message: "Updating zyvo in the background..." })
                   dialog.clear()
                   const proc = Bun.spawn(
-                    ["bash", "-c", "curl -fsSL https://raw.githubusercontent.com/zyvoai/ZYVO-AI/main/install.sh | bash"],
+                    ["bash", "-c", "curl -fsSL https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/install.sh | bash"],
                     { stdout: "ignore", stderr: "ignore" },
                   )
                   await proc.exited
@@ -512,7 +513,6 @@ function App(props: {
                 },
               },
             ]}
-            onSelect={(option) => void option.onSelect()}
           />
         ))
       } catch {}
