@@ -6,6 +6,7 @@
     "zyvo-free/kilo-auto/free",
     "zyvo-free/nvidia/nemotron-3.5-super-vl:free",
     "zyvo-free/dots-studio/dots-3-note-preview:free",
+    "zyvo-free-3/deepseek-ai/DeepSeek-V4-Flash-0731",
     "zyvo-free-2/mistralai/mistral-medium-3.5",
     "zyvo-free-2/qwen/qwen3.6-plus:free",
     "zyvo-free-2/mistralai/mistral-large-2512"
@@ -82,6 +83,24 @@
           "limit": {
             "context": 256000,
             "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-3": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://proxy.gonkabroker.com/v1",
+        "apiKey": "gnk-prx-be9cdfb4e4cbcb53c8bb9334fcd01cb4e6341eba9300c02c0743f0a00cba2c78"
+      },
+      "models": {
+        "deepseek-ai/DeepSeek-V4-Flash-0731": {
+          "name": "DeepSeek V4 Flash 0731",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
           },
           "tool_call": true
         }
