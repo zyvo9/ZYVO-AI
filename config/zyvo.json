@@ -54,14 +54,6 @@
         "apiKey": "sk-xt-7eb324cd20b5dc16217d4452e3bd67c8547055b0b27759a8"
       },
       "models": {
-        "mistralai/mistral-large-2512": {
-          "name": "Mistral Large 2512",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "mistralai/mistral-medium-3.5": {
           "name": "Mistral Medium 3.5",
           "limit": {
@@ -80,6 +72,14 @@
         },
         "qwen/qwen3.6-plus:free": {
           "name": "Qwen3.6 Plus",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "mistralai/mistral-large-2512": {
+          "name": "Mistral Large 2512",
           "limit": {
             "context": 256000,
             "output": 65536
