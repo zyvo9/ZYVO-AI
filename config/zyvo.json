@@ -3,11 +3,7 @@
   "model": "opencode/big-pickle",
   "fallback_models": [
     "zyvo-free-3/minimaxai/minimax-m3.1-flash",
-    "zyvo-free-3/stepfun-ai/step-5-preview",
-    "zyvo-free-3/deepseek-ai/deepseek-v4.1-flash",
-    "zyvo-free-3/z-ai/glm-5.3-flash",
-    "zyvo-free/kilo-auto/free",
-    "zyvo-free/poolside/laguna-s-2.1:free"
+    "zyvo-free/kilo-auto/free"
   ],
   "provider": {
     "zyvo-free": {
@@ -20,14 +16,6 @@
       "models": {
         "kilo-auto/free": {
           "name": "Free",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "poolside/laguna-s-2.1:free": {
-          "name": "Laguna S 2.1",
           "limit": {
             "context": 256000,
             "output": 65536
@@ -49,30 +37,6 @@
           "limit": {
             "context": 256000,
             "output": 65536
-          },
-          "tool_call": true
-        },
-        "stepfun-ai/step-5-preview": {
-          "name": "Step 5 Preview",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "deepseek-ai/deepseek-v4.1-flash": {
-          "name": "Deepseek V4.1 Flash",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          },
-          "tool_call": true
-        },
-        "z-ai/glm-5.3-flash": {
-          "name": "Glm 5.3 Flash\"",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
           },
           "tool_call": true
         }
