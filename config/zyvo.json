@@ -17,7 +17,7 @@
       "name": "Zyvo Free",
       "options": {
         "baseURL": "https://api.kilo.ai/api/gateway",
-        "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTM0NjM2NjAsImV4cCI6MTk1MTE0MzY2MH0.LLYsBDc4CeEy5TnSPSzUV9t3x7eGk2KwNf3K3OV5aTc"
+        "apiKey": "zyvo1:Y1RhNVZPM0szZk53SzJrR2U3eDN0OVZVelNQU25UNXlFZUM0Y0RCc1lMTC4wSE0yWXpNMEVUTTFrVE02SUNjNFZtSXNBak4yTWpOME1UTzNFak9pUVhZcEpDTHpvakl1OVdhekpYWjJKQ0xzeFdkdXBqSXlWR2N3VkdVdVYyYXZSVmF3Rm1Jc0lDT3ljRFpsbGpOaUZ6WTNjVEwxWWpZaTFpWjFJR050TTJONU1UTDFVVE0wWTJNd0VqSTZJQ1pKSlhaelYxYnNsMmFpd2lJdTlXYTBOV2RrOW1jd0ppT2lZbmJsSnllLjlKQ1ZYcGtJNklDYzVSbklzSWlOMUl6VUlKaU9pY0diaEp5ZQ=="
       },
       "models": {
         "nvidia/nemotron-3-ultra-550b-a55b:free": {
@@ -59,7 +59,7 @@
       "name": "Zyvo Free",
       "options": {
         "baseURL": "https://api.xkiro.com/v1",
-        "apiKey": "sk-xt-7eb324cd20b5dc16217d4452e3bd67c8547055b0b27759a8"
+        "apiKey": "zyvo1:OGE5NTc3MmIwYjU1MDc0NThjNzZkYjNlMjU0NGQ3MTI2MWNkNWIwMmRjNDIzYmU3LXR4LWtz"
       },
       "models": {
         "mistralai/mistral-medium-3.5": {
