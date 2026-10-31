@@ -3,7 +3,6 @@
   "model": "opencode/big-pickle",
   "fallback_models": [
     "zyvo-free-2/mistralai/mistral-medium-3.5",
-    "zyvo-free-2/stealth/big-pickle",
     "zyvo-free-2/qwen/qwen3.6-plus:free",
     "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free",
     "zyvo-free/dots-studio/dots-3-note-preview:free",
@@ -21,14 +20,6 @@
         "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbnYiOiJwcm9kdWN0aW9uIiwia2lsb1VzZXJJZCI6IjEwM2Y0MTU1LTM5N2MtNGI1Zi1iYjY1LTc3YzFiNjllZDcyOCIsImFwaVRva2VuUGVwcGVyIjpudWxsLCJ2ZXJzaW9uIjozLCJpYXQiOjE3OTM0NjM2NjAsImV4cCI6MTk1MTE0MzY2MH0.LLYsBDc4CeEy5TnSPSzUV9t3x7eGk2KwNf3K3OV5aTc"
       },
       "models": {
-        "kilo-auto/free": {
-          "name": "Free",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
         "nvidia/nemotron-3-ultra-550b-a55b:free": {
           "name": "Nemotron 3 Ultra 550b A55b",
           "limit": {
@@ -47,6 +38,14 @@
         },
         "nvidia/nemotron-3.5-super-vl:free": {
           "name": "Nemotron 3.5 Super Vl",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "kilo-auto/free": {
+          "name": "Free",
           "limit": {
             "context": 256000,
             "output": 65536
@@ -83,14 +82,6 @@
       "models": {
         "mistralai/mistral-medium-3.5": {
           "name": "Mistral Medium 3.5",
-          "limit": {
-            "context": 256000,
-            "output": 65536
-          },
-          "tool_call": true
-        },
-        "stealth/big-pickle": {
-          "name": "Big Pickle",
           "limit": {
             "context": 256000,
             "output": 65536
