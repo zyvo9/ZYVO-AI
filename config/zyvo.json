@@ -2,6 +2,10 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
   "fallback_models": [
+    "zyvo-free-2/mistralai/mistral-medium-3.5",
+    "zyvo-free-2/stealth/big-pickle",
+    "zyvo-free-2/qwen/qwen3.6-plus:free",
+    "zyvo-free-2/mistralai/mistral-large-2512",
     "zyvo-free-3/minimaxai/minimax-m3.1-flash",
     "zyvo-free/kilo-auto/free"
   ],
@@ -34,6 +38,48 @@
       "models": {
         "minimaxai/minimax-m3.1-flash": {
           "name": "Minimax M3.1 Flash",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        }
+      }
+    },
+    "zyvo-free-2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://api.xkiro.com/v1",
+        "apiKey": "sk-xt-7eb324cd20b5dc16217d4452e3bd67c8547055b0b27759a8"
+      },
+      "models": {
+        "mistralai/mistral-large-2512": {
+          "name": "Mistral Large 2512",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "mistralai/mistral-medium-3.5": {
+          "name": "Mistral Medium 3.5",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "stealth/big-pickle": {
+          "name": "Big Pickle",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "tool_call": true
+        },
+        "qwen/qwen3.6-plus:free": {
+          "name": "Qwen3.6 Plus",
           "limit": {
             "context": 256000,
             "output": 65536
