@@ -1,6 +1,27 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
-  "fallback_models": [],
-  "provider": {}
+  "fallback_models": [
+    "zyvo-free/nvidia/nemotron-3-ultra-550b-a55b:free"
+  ],
+  "provider": {
+    "zyvo-free": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Zyvo Free",
+      "options": {
+        "baseURL": "https://api.kilo.ai/api/gateway",
+        "apiKey": "zyvo1:c05rZW5ZYXNXaURKT3BRR0NZR1UwN2QxeWROY3pKZmZzR1FfUnowMzBuMC45bFRPM2t6TnlFVE41RWpPaUFIZWxKQ0w1a3pONWtUTnprek54b2pJMEZXYWl3eU02SWlidmwyY3lWbWRpd2lJeVFHTXdrak14SURPMEVXTnRBallrRldMNVFqWTAwU00wRUdPdFlqTWtWMlk1SXpOaW9qSXlWR2N3VkdVdVYyYXZSVmF3Rm1Jc0lDT3ljRFpsbGpOaUZ6WTNjVEwxWWpZaTFpWjFJR050TTJONU1UTDFVVE0wWTJNd0VqSTZJQ1pKSlhaelYxYnNsMmFpd2lJdTlXYTBOV2RrOW1jd0ppT2lZbmJsSnllLjlKQ1ZYcGtJNklDYzVSbklzSWlOMUl6VUlKaU9pY0diaEp5ZQ=="
+      },
+      "models": {
+        "nvidia/nemotron-3-ultra-550b-a55b:free": {
+          "name": "Nemotron 3 Ultra 550b A55b",
+          "limit": {
+            "context": 1000000,
+            "output": 128000
+          },
+          "tool_call": true
+        }
+      }
+    }
+  }
 }
