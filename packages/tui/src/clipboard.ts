@@ -90,10 +90,27 @@ async function loadWin32Clipboard(): Promise<Win32Clipboard | null> {
       lstrlenW: { args: [ffi.FFIType.ptr], returns: ffi.FFIType.i32 },
     }).symbols
 
+// Windows clipboard lock contention: ANY other process holding the clipboard
+// open (clipboard managers, browsers, Office) makes OpenClipboard fail
+// instantly — the classic "copy/paste works sometimes" bug. Retry with a
+// short synchronous sleep (Atomics.wait works on the main thread in Bun);
+// ~130ms worst case, then the helper/powershell fallbacks take over.
+function sleepSync(ms: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
+}
+
+function openClipboardRetry(): boolean {
+  for (let i = 0; i < 10; i++) {
+    if (user32.OpenClipboard(0)) return true
+    if (i < 9) sleepSync(14)
+  }
+  return false
+}
+
     win32Clipboard = {
       read() {
         try {
-          if (!user32.OpenClipboard(0)) return undefined
+          if (!openClipboardRetry()) return undefined
           try {
             if (!user32.IsClipboardFormatAvailable(CF_UNICODETEXT)) return undefined
             const handle = user32.GetClipboardData(CF_UNICODETEXT)
@@ -123,7 +140,7 @@ async function loadWin32Clipboard(): Promise<Win32Clipboard | null> {
       },
       write(text: string) {
         try {
-          if (!user32.OpenClipboard(0)) return false
+          if (!openClipboardRetry()) return false
           try {
             // UTF-16LE payload + trailing NUL
             const payload = Buffer.from(text, "utf16le")
