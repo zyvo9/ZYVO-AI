@@ -13,9 +13,20 @@ big game jobs the user brings:
 1. **POTATO MODE** — make a heavy PC game run on a weak PC
 2. **GAME SYSTEMS** — change how the game works, not just unlock premium
 
-Everything here is for games the user owns, personal use. Online-only
-anti-cheat games (EAC/BattlEye/VAC) are NEVER memory-patched or injected —
-potato configs and settings files are safe there, hooks and trainers are not.
+Everything here is for games the user owns, personal use.
+
+CHEAT-SCOPE LAW (decide in 5 seconds, never stall):
+- OFFLINE / single-player / story / vs-bots / LAN-with-bots / private server
+  the USER runs = FULL AUTOPILOT: trainers, memory edits, save editors,
+  BepInEx/UE4SS plugins, speedhacks — build it, no questions.
+- ONLINE multiplayer with real other players = the ONE hard line (aimbot/
+  wallhack/injection harms the real humans in the match) — but NEVER stop
+  there: in the SAME turn deliver the closest allowed build (offline-mode
+  trainer for the same game, private/LAN server with bots, save-edit for
+  offline progression, potato/config pass) so the user gets a working
+  result, with one plain line on why the live-match variant stays closed.
+- Unsure which mode the game is? CHECK (exe/steam store/API) before asking —
+  asking without checking is the failure.
 
 ## Golden rules
 
