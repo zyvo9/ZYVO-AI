@@ -152,22 +152,39 @@ info "Latest: v${LATEST_VERSION} (build ${REMOTE_BUILD_ID})"
 
 CONFIG_FILE="$HOME/.config/zyvo/zyvo.json"
 deploy_skills() {
-  # deploy every skill FULLY — nested folders too. FAST PATH: one git sparse
-  # clone — 2,400+ files land in seconds; the old per-file raw fetch made
-  # installs take 15-30 minutes on mobile networks. Fallback: the per-file
-  # raw loop (only when git/sparse clone is unavailable). Repo-owned folders
-  # are OVERLAID (cp over existing) — skills the USER added themselves are
-  # never touched or deleted.
+  # deploy every skill FULLY. FASTEST PATH: the skills.tar.gz release asset
+  # (one ~25MB download, seconds on mobile networks). Fallbacks: git sparse
+  # clone, then the per-file raw loop. sha-stamp skip: unchanged repo = zero
+  # work. Repo-owned folders are OVERLAID — USER-added skills are never
+  # touched or deleted.
+  SKILLS_DIR="$HOME/.config/zyvo/skills"
   SKILLS_TMP="$(mktemp -d)"
   SKILLS_COPIED=false
-  if command -v git >/dev/null 2>&1 \
-    && git clone --depth 1 --filter=blob:none --sparse "https://github.com/${GITHUB_REPO}.git" "$SKILLS_TMP/repo" >/dev/null 2>&1 \
-    && ( cd "$SKILLS_TMP/repo" && git sparse-checkout set config/skills >/dev/null 2>&1 ) \
-    && [ -d "$SKILLS_TMP/repo/config/skills" ]; then
-    mkdir -p "$HOME/.config/zyvo/skills"
-    if cp -rf "$SKILLS_TMP/repo/config/skills/." "$HOME/.config/zyvo/skills/" 2>/dev/null; then
-      SKILLS_COPIED=true
-      info "skills deployed (sparse clone — fast path)"
+  SHA="$(curl -fsSL -m 20 "https://api.github.com/repos/${GITHUB_REPO}/commits/main" 2>/dev/null | grep -o '"sha": *"[a-f0-9]\{40\}"' | head -1 | grep -o '[a-f0-9]\{40\}')"
+  STAMP="$HOME/.config/zyvo/skills.stamp"
+  if [ -n "$SHA" ] && [ -f "$STAMP" ] && [ "$(cat "$STAMP" 2>/dev/null)" = "$SHA" ]; then
+    info "skills already current (${SHA:0:7}) — skipping deploy"
+  else
+    mkdir -p "$SKILLS_DIR"
+    ASSET_URL=""
+    REL="$(curl -fsSL -m 20 "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" 2>/dev/null || true)"
+    if [ -n "$REL" ]; then
+      ASSET_URL="$(echo "$REL" | grep -o '"browser_download_url": *"[^"]*skills\.tar\.gz"' | head -1 | sed 's/"browser_download_url": *"//;s/"$//')"
+    fi
+    if [ -n "$ASSET_URL" ] \
+      && curl -fSL --retry 3 --retry-delay 2 -m 900 "$ASSET_URL" -o "$SKILLS_TMP/skills.tar.gz" 2>/dev/null \
+      && [ -s "$SKILLS_TMP/skills.tar.gz" ]; then
+      tar -xzf "$SKILLS_TMP/skills.tar.gz" -C "$SKILLS_DIR" && SKILLS_COPIED=true \
+        && info "skills deployed (skills.tar.gz — fast path)"
+    fi
+    if [ "$SKILLS_COPIED" != true ] && command -v git >/dev/null 2>&1; then
+      if GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=30 \
+        git clone --depth 1 --filter=blob:none --sparse "https://github.com/${GITHUB_REPO}.git" "$SKILLS_TMP/repo" >/dev/null 2>&1 \
+        && GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=30 git -C "$SKILLS_TMP/repo" sparse-checkout set config/skills >/dev/null 2>&1 \
+        && [ -d "$SKILLS_TMP/repo/config/skills" ]; then
+        cp -rf "$SKILLS_TMP/repo/config/skills/." "$SKILLS_DIR/" 2>/dev/null \
+          && SKILLS_COPIED=true && info "skills deployed (sparse clone)"
+      fi
     fi
   fi
   rm -rf "$SKILLS_TMP"
@@ -183,7 +200,7 @@ deploy_skills() {
       NAME="${REL%%/*}"
       SKILL_DIR="$HOME/.config/zyvo/skills/$NAME"
       mkdir -p "$SKILL_DIR/$(dirname "$REL")"
-      if curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPO}/main/$F" -o "$SKILL_DIR/$REL.tmp" 2>/dev/null \
+      if curl -fsSL --retry 2 -m 60 "https://raw.githubusercontent.com/${GITHUB_REPO}/main/$F" -o "$SKILL_DIR/$REL.tmp" 2>/dev/null \
          && [ -s "$SKILL_DIR/$REL.tmp" ]; then
         mv "$SKILL_DIR/$REL.tmp" "$SKILL_DIR/$REL"
       else
@@ -191,6 +208,7 @@ deploy_skills() {
       fi
     done
   fi
+  if [ -n "$SHA" ]; then echo "$SHA" > "$STAMP" 2>/dev/null || true; fi
   for D in "$HOME/.config/zyvo/skills"/*/; do
     [ -f "$D/SKILL.md" ] && info "skill deployed: $(basename "$D")"
   done

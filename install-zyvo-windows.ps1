@@ -16,6 +16,25 @@ $base = "https://github.com/$repo/releases/download/pc-v$ver"
 $dest = "$env:LOCALAPPDATA\Zyvo"
 $cfg = "$env:USERPROFILE\.config\zyvo"
 
+# --- fast-fetch helper: curl.exe (built into Win10+) with retry/timeout/
+#     progress; IWR fallback. Never hangs silently. ---
+function Fetch($url, $out, $maxSec = 900) {
+  $curl = "$env:WINDIR\System32\curl.exe"
+  if (Test-Path $curl) {
+    & $curl -L -# --retry 3 --retry-delay 2 --connect-timeout 15 --max-time $maxSec -o $out $url
+    if ($LASTEXITCODE -eq 0 -and (Test-Path $out)) { return $true }
+  }
+  try { Invoke-WebRequest $url -OutFile $out -UseBasicParsing -TimeoutSec $maxSec; return (Test-Path $out) } catch { return $false }
+}
+function FastExtract($archive, $dest) {
+  # tar.exe (bsdtar, built into Win10+) reads zip AND tar.gz, 3-10x faster
+  # than Expand-Archive on thousands of small files
+  $tar = "$env:WINDIR\System32\tar.exe"
+  if (Test-Path $tar) { & $tar -xf $archive -C $dest; return }
+  Expand-Archive $archive -DestinationPath $dest -Force
+}
+
+
 # --- 1. Binary: re-download when the release ASSET changes (version alone
 #     doesn't change on rebuilt releases — track the asset's updated_at) ---
 $marker = "$dest\version.txt"
@@ -30,8 +49,8 @@ if ((Test-Path $marker) -and $stamp -and ((Get-Content $marker -Raw).Trim() -eq 
 } else {
   Write-Host "==> Downloading Zyvo v$ver (Windows x64)..." -ForegroundColor Green
   New-Item -ItemType Directory -Force -Path $dest | Out-Null
-  Invoke-WebRequest "$base/zyvo-$ver-windows-x64.zip" -OutFile "$env:TEMP\zyvo.zip" -UseBasicParsing
-  Expand-Archive "$env:TEMP\zyvo.zip" -DestinationPath $dest -Force
+  if (-not (Fetch "$base/zyvo-$ver-windows-x64.zip" "$env:TEMP\zyvo.zip")) { throw "binary download failed" }
+  FastExtract "$env:TEMP\zyvo.zip" $dest
   Remove-Item "$env:TEMP\zyvo.zip" -Force
   Set-Content -Path $marker -Value $stamp
 }
@@ -41,32 +60,37 @@ Write-Host "==> Refreshing the default config..." -ForegroundColor Green
 New-Item -ItemType Directory -Force -Path $cfg | Out-Null
 Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/config/zyvo.json" -OutFile "$cfg\zyvo.json" -UseBasicParsing
 
-# --- 3. Skills: FULL tree via ONE repo zip (2,400+ files land in seconds —
-#     the per-file raw fetch made installs take many minutes) ---
-Write-Host "==> Deploying skills (single repo zip - fast)..." -ForegroundColor Green
-New-Item -ItemType Directory -Force -Path "$env:TEMP\zyvo-skills" | Out-Null
-try {
-  Invoke-WebRequest "https://codeload.github.com/$repo/zip/refs/heads/main" -OutFile "$env:TEMP\zyvo-skills\repo.zip" -UseBasicParsing
-  Expand-Archive "$env:TEMP\zyvo-skills\repo.zip" "$env:TEMP\zyvo-skills\x" -Force
-  $srcRoot = Get-ChildItem "$env:TEMP\zyvo-skills\x" -Directory | Select-Object -First 1
-  $skillsSrc = Join-Path $srcRoot.FullName "config\skills"
-  if (Test-Path $skillsSrc) {
-    New-Item -ItemType Directory -Force -Path "$cfg\skills" | Out-Null
-    Copy-Item (Join-Path $skillsSrc '*') "$cfg\skills" -Recurse -Force
+# --- 3. Skills: ONE small skills.tar.gz release asset + tar extract (seconds) ---
+Write-Host "==> Deploying skills (skills.tar.gz - fast)..." -ForegroundColor Green
+$sha = ""
+try { $sha = (Invoke-RestMethod "https://api.github.com/repos/$repo/commits/main").sha } catch { }
+$stamp = "$cfg\skills.stamp"
+if ($sha -and (Test-Path $stamp) -and ((Get-Content $stamp -Raw).Trim() -eq $sha)) {
+  Write-Host "   skills already current - skipping" -ForegroundColor DarkGray
+} else {
+  New-Item -ItemType Directory -Force -Path "$cfg\skills" | Out-Null
+  New-Item -ItemType Directory -Force -Path "$env:TEMP\zyvo-skills" | Out-Null
+  $ok = Fetch "$base/skills.tar.gz" "$env:TEMP\zyvo-skills\skills.tar.gz" 300
+  if (-not $ok) {
+    $lat = Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest"
+    $a = $lat.assets | Where-Object { $_.name -eq "skills.tar.gz" } | Select-Object -First 1
+    if ($a) { $ok = Fetch $a.browser_download_url "$env:TEMP\zyvo-skills\skills.tar.gz" 300 }
   }
-} catch {
-  Write-Host "   fast deploy failed ($($_.Exception.Message)) - per-file fallback" -ForegroundColor DarkGray
-  $tree = Invoke-RestMethod "https://api.github.com/repos/$repo/git/trees/main?recursive=1"
-  $skillFiles = $tree.tree | Where-Object { $_.path -like 'config/skills/*' -and $_.type -eq 'blob' }
-  foreach ($f in $skillFiles) {
-    $rel = $f.path.Substring("config/skills/".Length)
-    $target = Join-Path "$cfg\skills" $rel
-    New-Item -ItemType Directory -Force -Path (Split-Path $target -Parent) | Out-Null
-    Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/$($f.path)" -OutFile "$target.tmp" -UseBasicParsing
-    Move-Item "$target.tmp" $target -Force
+  if ($ok) {
+    tar -xzf "$env:TEMP\zyvo-skills\skills.tar.gz" -C "$cfg\skills"
+  } else {
+    Write-Host "   skills.tar.gz unavailable - whole-repo zip fallback" -ForegroundColor DarkGray
+    if (Fetch "https://codeload.github.com/$repo/zip/refs/heads/main" "$env:TEMP\zyvo-skills\repo.zip" 900) {
+      FastExtract "$env:TEMP\zyvo-skills\repo.zip" "$env:TEMP\zyvo-skills\x"
+      $srcRoot = Get-ChildItem "$env:TEMP\zyvo-skills\x" -Directory | Select-Object -First 1
+      $skillsSrc = Join-Path $srcRoot.FullName "config\skills"
+      if (Test-Path $skillsSrc) {
+        robocopy $skillsSrc "$cfg\skills" /E /MT:16 /NFL /NDL /NJH /NJS /NP | Out-Null
+      }
+    }
   }
-} finally {
   Remove-Item "$env:TEMP\zyvo-skills" -Recurse -Force -ErrorAction SilentlyContinue
+  if ($sha) { Set-Content -Path $stamp -Value $sha }
 }
 Get-ChildItem "$cfg\skills" -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } | ForEach-Object {
   Write-Host ("   skill deployed: " + $_.Name) -ForegroundColor Cyan

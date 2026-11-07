@@ -160,11 +160,18 @@ jobs:
       # Release — every successful build updates the release
       # (install.sh pulls whatever is latest here)
       # =============================================
+      - name: Package skills.tar.gz (fast-install asset)
+        run: |
+          cd "${{ github.workspace }}"
+          tar -czf "${{ env.WORK_DIR }}/packages/skills.tar.gz" -C config skills
+          ls -lh "${{ env.WORK_DIR }}/packages/skills.tar.gz"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: android-v${{ env.OPENCODE_VERSION }}
           files: |
+            ${{ env.WORK_DIR }}/packages/skills.tar.gz
             ${{ env.WORK_DIR }}/packages/build-id.txt
             ${{ env.WORK_DIR }}/packages/graph.bin.zst
             ${{ env.WORK_DIR }}/packages/graph-meta.txt

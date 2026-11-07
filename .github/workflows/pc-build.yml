@@ -225,11 +225,19 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout (for skills.tar.gz)
+        uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           merge-multiple: true
           path: assets
+
+      - name: Package skills.tar.gz (fast-install asset)
+        run: |
+          tar -czf assets/skills.tar.gz -C config skills
+          ls -lh assets/skills.tar.gz
 
       - name: List assets
         run: ls -lh assets/
