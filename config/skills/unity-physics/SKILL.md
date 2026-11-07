@@ -9,6 +9,8 @@ description: >
 
 > Vendored from [awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) (Apache-2.0).
 
+> **zyvo note:** নিচের 'Related skills'/'When not to use' অংশে এমন কিছু নাম থাকতে পারে যেগুলো zyvo-তে ইনস্টল নেই (godot-*, save-systems, steam-publish, camera-systems, audio-design, input-systems, platformer ইত্যাদি) — ওগুলো সোর্স-লাইব্রেরির রেফারেন্স; না পেলে সেই কাজটা বর্তমান ইঞ্জিন+নিজের দক্ষতা দিয়েই করো, স্কিল-খোঁজায় আটকো না।
+
 # Unity Physics (Rigidbody / PhysX)
 
 Make objects move, collide, and detect each other with Unity 6.3 LTS's built-in 3D physics

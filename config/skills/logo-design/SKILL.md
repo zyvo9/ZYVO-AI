@@ -54,8 +54,7 @@ describe what the kit would contain.
 
 ## Tools in this skill
 
-All scripts are dependency-free Python 3 and live in the `scripts/` folder next to this SKILL.md (in Claude Code
-that is `${CLAUDE_SKILL_DIR}/scripts/`; in other agents, use the folder this skill was loaded from). Run them with
+All scripts are dependency-free Python 3 and live in the `scripts/` folder next to this SKILL.md PLACEHOLDER in other agents, use the folder this skill was loaded from). Run them with
 `python3` and the full path, e.g.
 `python3 <skill-dir>/scripts/svg_audit.py logo.svg` (examples below write `scripts/…` for brevity).
 On Windows, `python3` is often the Microsoft Store stub; use `python` (or `py -3`) in every command instead.

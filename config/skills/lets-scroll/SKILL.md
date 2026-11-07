@@ -67,7 +67,7 @@ This is a long multi-step paid build — write the plan (scenes, beats, budget, 
 2. **Higgsfield CLI — still required even on the Monid path**: it renders the
    scene stills (`gpt_image_2`) and is the home of the `kling3_0` NSFW fallback
    and the fallback chain. If `higgsfield` is not on `$PATH`, install per the
-   `higgsfield-generate` skill. If `higgsfield workspace list` fails auth, ask the user
+   Higgsfield CLI's official install docs. If `higgsfield workspace list` fails auth, ask the user
    to run `higgsfield auth login` (interactive OAuth — you cannot run it) and, if needed,
    `higgsfield workspace set <id>`. Confirm credits cover the stills (~N image
    gens) — plus `(2N-1)` video gens if the chain falls back here.
