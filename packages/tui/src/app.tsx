@@ -851,7 +851,7 @@ function App(props: {
         name: "docs.open",
         title: "Open docs",
         run: () => {
-          open("https://opencode.ai/docs").catch(() => {})
+          open("https://github.com/zyvo9/ZYVO-AI#readme").catch(() => {})
           dialog.clear()
         },
         category: "System",
