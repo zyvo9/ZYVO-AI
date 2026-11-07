@@ -20,6 +20,7 @@ interface RemovalTargets {
   directories: Array<{ path: string; label: string; keep: boolean }>
   shellConfig: string | null
   binary: string | null
+  windowsPathEntry?: string
 }
 
 export const UninstallCommand = {
@@ -98,7 +99,45 @@ async function collectRemovalTargets(args: UninstallArgs, method: Installation.M
   const shellConfig = method === "curl" ? await getShellConfigFile() : null
   const binary = method === "curl" ? process.execPath : null
 
+  // Windows PS1 installer layout (install-zyvo-windows.ps1): app lives in
+  // %LOCALAPPDATA%\Zyvo with a User-PATH entry — unknown to package-manager
+  // methods, which is why "uninstalled" left zyvo runnable. Handle it here.
+  const windowsAppDir = process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Zyvo") : null
+  if (method === "unknown" && windowsAppDir && process.platform === "win32") {
+    const exe = path.join(windowsAppDir, "zyvo.exe")
+    const exeExists = await fs
+      .access(exe)
+      .then(() => true)
+      .catch(() => false)
+    if (exeExists) {
+      const dirs = targets.directories.slice()
+      dirs.unshift({ path: windowsAppDir, label: "Zyvo app (LOCALAPPDATA\\Zyvo)", keep: false })
+      return { directories: dirs, shellConfig: null, binary: exe, windowsPathEntry: windowsAppDir }
+    }
+  }
+
   return { directories, shellConfig, binary }
+}
+
+async function removeWindowsPathEntry(entry: string) {
+  // strip the installer's User-PATH entry (registry-level, so new shells lose it too)
+  if (process.platform !== "win32") return
+  const e = entry.replace(/'/g, "''").toLowerCase()
+  const script =
+    `$p=[Environment]::GetEnvironmentVariable('Path','User'); ` +
+    `$n=($p -split ';' | Where-Object { $_ -and $_.TrimEnd('\\').ToLower() -ne '${e}' }) -join ';'; ` +
+    `[Environment]::SetEnvironmentVariable('Path',$n,'User')`
+  await Process.run("powershell", ["-NoProfile", "-Command", script], { nothrow: true }).catch(() => undefined)
+}
+
+// a running exe cannot be deleted on Windows — rename it aside and let a
+// detached cmd sweep the leftover directory after this process exits
+async function scheduleWindowsSelfCleanup(appDir: string) {
+  const exe = path.join(appDir, "zyvo.exe")
+  await fs.rename(exe, exe + ".trash").catch(() => undefined)
+  const cmd = `timeout /t 3 /nobreak >nul & rmdir /s /q "${appDir}"`
+  const { spawn } = await import("child_process")
+  spawn("cmd", ["/c", cmd], { detached: true, stdio: "ignore", windowsHide: true }).unref()
 }
 
 async function showRemovalSummary(targets: RemovalTargets, method: Installation.Method) {
@@ -144,6 +183,16 @@ async function showRemovalSummary(targets: RemovalTargets, method: Installation.
 async function executeUninstall(method: Installation.Method, targets: RemovalTargets) {
   const spinner = prompts.spinner()
   const errors: string[] = []
+
+  // Windows self-cleanup BEFORE the dir loop: the running exe would lock the
+  // app dir — rename it aside now, sweep the leftovers after this process ends
+  const selfCleanup =
+    targets.windowsPathEntry && targets.binary && targets.binary.toLowerCase().startsWith(targets.windowsPathEntry.toLowerCase())
+  if (selfCleanup && targets.binary) {
+    spinner.start("Preparing Windows self-cleanup (running exe rename)...")
+    await scheduleWindowsSelfCleanup(targets.windowsPathEntry)
+    spinner.stop("Windows self-cleanup scheduled")
+  }
 
   for (const dir of targets.directories) {
     if (dir.keep) {
@@ -218,6 +267,14 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
     if (binDir.includes(".opencode")) {
       prompts.log.info(`  rmdir "${binDir}" 2>/dev/null`)
     }
+  }
+
+  if (targets.windowsPathEntry) {
+    spinner.start("Cleaning User PATH (LOCALAPPDATA\\Zyvo entry)...")
+    await removeWindowsPathEntry(targets.windowsPathEntry)
+    spinner.stop("User PATH cleaned")
+    UI.empty()
+    prompts.log.message("Close any open terminals so the PATH change takes effect everywhere.")
   }
 
   if (errors.length > 0) {
