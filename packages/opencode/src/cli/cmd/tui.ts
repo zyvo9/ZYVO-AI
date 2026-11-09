@@ -154,21 +154,10 @@ export const TuiThreadCommand = cmd({
           UI.println(UI.Style.TEXT_WARNING + `⬆ update ${latest} available — run: zyvo update` + UI.Style.TEXT_NORMAL)
           return "available" as const
         })(),
-        (async () => {
-          const { syncRemoteModelConfigOnce } = await import("@/config/config")
-          const result = await syncRemoteModelConfigOnce()
-          if (result === "updated") process.env.ZYVO_CONFIG_SYNCED = "1"
-          return result
-        })(),
       ])
-      const [upd, sync] = preBoot
+      const [upd] = preBoot
       if (upd.status === "fulfilled" && upd.value === "none") {
         UI.println(UI.Style.TEXT_DIM + "✓ up to date")
-      }
-      if (sync.status === "fulfilled") {
-        if (sync.value === "unchanged") UI.println(UI.Style.TEXT_DIM + "✓ config up to date")
-      } else {
-        UI.println(UI.Style.TEXT_DIM + "⚠ config sync failed — using the local copy")
       }
 
       const worker = new Worker(file)

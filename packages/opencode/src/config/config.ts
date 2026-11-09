@@ -19,52 +19,6 @@ import type { ConsoleState } from "@opencode-ai/core/v1/config/console-state"
 import { FSUtil } from "@opencode-ai/core/fs-util"
 import { InstanceState } from "@/effect/instance-state"
 
-// STARTUP SYNC: the admin panel deploys the model config to GitHub — fetch it
-// fresh on every launch so OK-deploy on the web reaches the CLI WITHOUT a
-// zyvo update. EVERYTHING runs inside one try/catch — this can never defect,
-// so a bad network can never kill the boot. ?t= cache-buster: the
-// raw.githubusercontent CDN serves up to 5-min-stale copies. Exported so the
-// CLI pre-boot phase (tui.ts) can run it visibly BEFORE the TUI screen opens.
-export const syncRemoteModelConfigOnce = async (): Promise<"updated" | "unchanged" | "failed"> => {
-  try {
-    const remote = `https://raw.githubusercontent.com/zyvo9/ZYVO-AI/main/config/zyvo.json?t=${Date.now()}`
-    const file = path.join(Global.Path.config, "zyvo.json")
-    const ctrl = new AbortController()
-    const timer = setTimeout(() => ctrl.abort(), 10_000)
-    const res = await fetch(remote, { signal: ctrl.signal })
-    clearTimeout(timer)
-    if (!res.ok) return "failed"
-    const body = await res.text()
-    if (!body.trim().startsWith("{")) return "failed"
-    const parsed = JSON.parse(body)
-    if (!parsed.provider || Object.keys(parsed.provider).length === 0) return "failed"
-    const serialized = JSON.stringify(parsed, null, 2)
-    const existing = await fsNode.readFile(file, "utf8").catch(() => "")
-    if (existing === serialized) return "unchanged"
-    await fsNode.writeFile(file, serialized)
-    const modelCount = Object.values(parsed.provider).reduce(
-      (n: number, p: any) => n + Object.keys(p?.models ?? {}).length,
-      0,
-    )
-    console.log(
-      `[zyvo] panel config synced: ${Object.keys(parsed.provider).length} providers, ${modelCount} models — restart zyvo to pick up new/removed models`,
-    )
-    return "updated"
-  } catch {
-    // offline, timeout, bad body — keep the local config untouched
-    return "failed"
-  }
-}
-
-let remoteConfigPollStarted = false
-export function startRemoteConfigPoll() {
-  if (remoteConfigPollStarted) return
-  remoteConfigPollStarted = true
-  const timer = setInterval(() => {
-    void syncRemoteModelConfigOnce()
-  }, 3 * 60 * 1000)
-  timer.unref?.()
-}
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "effect"
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
@@ -290,26 +244,8 @@ export const layer = Layer.effect(
       return yield* loadConfig(text, { path: filepath }, env)
     })
 
-    // STARTUP SYNC runs from the module-level syncRemoteModelConfigOnce
-    // (exported at the bottom) — the CLI pre-boot phase calls it visibly
-    // BEFORE the TUI screen opens, sets ZYVO_CONFIG_SYNCED=1 on success, and
-    // this loader then skips the duplicate fetch. The 3-min runtime poll
-    // still starts here so the file stays current while zyvo runs.
-    const syncRemoteModelConfig = Effect.fnUntraced(function* () {
-      if (process.env.ZYVO_CONFIG_SYNCED === "1") {
-        startRemoteConfigPoll()
-        return
-      }
-      yield* Effect.promise(syncRemoteModelConfigOnce).pipe(Effect.timeout(Duration.seconds(12)))
-      startRemoteConfigPoll()
-    })
-
     const loadGlobal = Effect.fnUntraced(function* (env?: Record<string, string>) {
       let result: Info = {}
-      yield* syncRemoteModelConfig().pipe(
-        Effect.timeout(Duration.seconds(5)),
-        Effect.catch(() => Effect.void),
-      )
       // Seed the default global config with the schema for editor completion, but avoid writing when the user
       // explicitly routes config through env-provided paths or content.
       if (!Flag.OPENCODE_CONFIG && !Flag.OPENCODE_CONFIG_DIR && !Flag.OPENCODE_CONFIG_CONTENT) {
