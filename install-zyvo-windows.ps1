@@ -55,10 +55,21 @@ if ((Test-Path $marker) -and $stamp -and ((Get-Content $marker -Raw).Trim() -eq 
   Set-Content -Path $marker -Value $stamp
 }
 
-# --- 2. Config: refresh every run ---
+# --- 2. Config: refresh when present in the repo (CLI local config is the
+#     source of truth now — if the repo no longer ships one, keep the local) ---
 Write-Host "==> Refreshing the default config..." -ForegroundColor Green
 New-Item -ItemType Directory -Force -Path $cfg | Out-Null
-Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/config/zyvo.json" -OutFile "$cfg\zyvo.json" -UseBasicParsing
+try {
+  Invoke-WebRequest "https://raw.githubusercontent.com/$repo/main/config/zyvo.json" -OutFile "$cfg\zyvo.json.tmp" -UseBasicParsing -ErrorAction Stop
+  if ((Test-Path "$cfg\zyvo.json.tmp") -and ((Get-Item "$cfg\zyvo.json.tmp").Length -gt 0) -and ((Get-Content "$cfg\zyvo.json.tmp" -Raw).TrimStart().StartsWith("{"))) {
+    if (Test-Path "$cfg\zyvo.json") { Copy-Item "$cfg\zyvo.json" "$cfg\zyvo.json.bak" -Force }
+    Move-Item "$cfg\zyvo.json.tmp" "$cfg\zyvo.json" -Force
+    Write-Host "   default config refreshed" -ForegroundColor DarkGray
+  } else { Remove-Item "$cfg\zyvo.json.tmp" -Force -ErrorAction SilentlyContinue }
+} catch {
+  Write-Host "   config not shipped in repo - keeping local (CLI config = source of truth)" -ForegroundColor DarkGray
+  Remove-Item "$cfg\zyvo.json.tmp" -Force -ErrorAction SilentlyContinue
+}
 
 # --- 3. Skills: ONE small skills.tar.gz release asset + tar extract (seconds) ---
 Write-Host "==> Deploying skills (skills.tar.gz - fast)..." -ForegroundColor Green

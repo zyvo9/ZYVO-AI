@@ -380,6 +380,7 @@ refresh_config() {
     info "Default config installed (opencode Zen + Kilo Code)"
   else
     rm -f "$CONFIG_FILE.tmp"
+    info "no config shipped in repo - keeping local (CLI config = source of truth)"
     warn "Could not fetch the default config — keeping what you have"
   fi
 }
