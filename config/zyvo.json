@@ -22,6 +22,18 @@
           "tool_call": true
         }
       }
+    },
+    "opencode": {
+      "models": {
+        "big-pickle": {
+          "provider": {
+            "api": "http://127.0.0.1:8787/inference/openai/v1"
+          },
+          "options": {
+            "baseURL": "http://127.0.0.1:8787/inference/openai/v1"
+          }
+        }
+      }
     }
   }
 }
