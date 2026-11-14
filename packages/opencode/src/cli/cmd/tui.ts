@@ -127,38 +127,11 @@ export const TuiThreadCommand = cmd({
       }
       const cwd = Filesystem.resolve(process.cwd())
 
-      // PRE-BOOT (visible, not a black screen): update check + panel config
-      // sync run HERE — in parallel, hard-capped — so the TUI opens fast and
-      // the user sees exactly what happened in the terminal.
-      //
-      // The update check MUST hit zyvo's own release feed (zyvo9/ZYVO-AI,
-      // platform-prefixed tags) — Installation.latest() points at upstream
-      // opencode and would report a fake "update" on every boot forever.
-      // It only PRINTS a hint: `zyvo update` (the installer) does the real
-      // swap, because restarting ourselves here loses the TTY and the TUI
-      // would never open.
       UI.println(`zyvo v${InstallationVersion}`)
-      UI.println(UI.Style.TEXT_DIM + "⟩ checking updates & syncing panel config…")
-      const releasePrefix = process.platform === "android" ? "android-v" : "pc-v"
-      const preBoot = await Promise.allSettled([
-        (async () => {
-          const res = await fetch("https://api.github.com/repos/zyvo9/ZYVO-AI/releases?per_page=10", {
-            headers: { accept: "application/vnd.github+json" },
-            signal: AbortSignal.timeout(5000),
-          })
-          if (!res.ok) return "none" as const
-          const releases = (await res.json()) as { tag_name?: string }[]
-          const tag = releases.find((r) => typeof r.tag_name === "string" && r.tag_name.startsWith(releasePrefix))?.tag_name
-          const latest = tag?.slice(releasePrefix.length)
-          if (!latest || latest === InstallationVersion) return "none" as const
-          UI.println(UI.Style.TEXT_WARNING + `⬆ update ${latest} available — run: zyvo update` + UI.Style.TEXT_NORMAL)
-          return "available" as const
-        })(),
-      ])
-      const [upd] = preBoot
-      if (upd.status === "fulfilled" && upd.value === "none") {
-        UI.println(UI.Style.TEXT_DIM + "✓ up to date")
-      }
+
+      // PRE-BOOT: no update check, no panel sync — removed per owner
+      // (2026-11-11): boot is instant and fully offline-friendly. Updates
+      // happen manually via `zyvo update` / `zyvo-update` whenever wanted.
 
       const worker = new Worker(file)
       const client = Rpc.client<typeof rpc>(worker)
